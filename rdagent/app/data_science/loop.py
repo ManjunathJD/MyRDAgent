@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import shutil
 import subprocess
 from datetime import datetime
@@ -74,7 +76,7 @@ class DataScienceRDLoop(RDLoop):
             self.trace = DSTrace(scen=scen)
         self.summarizer = DSExperiment2Feedback(scen)
         super(RDLoop, self).__init__()
-
+    
     def direct_exp_gen(self, prev_out: dict[str, Any]):
         selection = self.ckp_selector.get_selection(self.trace)
         exp = self.exp_gen.gen(self.trace, selection)

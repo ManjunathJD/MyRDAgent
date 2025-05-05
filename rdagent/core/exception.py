@@ -4,7 +4,7 @@ class WorkflowError(Exception):
     """
 
 
-class FormatError(WorkflowError):
+class FormatError(WorkflowError):  # noqa: D101
     """
     After multiple attempts, we are unable to obtain the answer in the correct format to proceed.
     """
@@ -22,19 +22,19 @@ class CoderError(WorkflowError):
     # NOTE: it corresponds to the error of **component**
 
 
-class CodeFormatError(CoderError):
+class CodeFormatError(CoderError):  # noqa: D101
     """
     The generated code is not found due format error.
     """
 
 
-class CustomRuntimeError(CoderError):
+class CustomRuntimeError(CoderError):  # noqa: D101
     """
     The generated code fail to execute the script.
     """
 
 
-class NoOutputError(CoderError):
+class NoOutputError(CoderError):  # noqa: D101
     """
     The code fail to generate output file.
     """
@@ -48,12 +48,12 @@ class RunnerError(Exception):
     # NOTE: it corresponds to the error of whole **project**
 
 
-FactorEmptyError = CoderError  # Exceptions raised when no factor is generated correctly
+FactorEmptyError = CoderError  # noqa: D101 Exceptions raised when no factor is generated correctly
 
-ModelEmptyError = CoderError  # Exceptions raised when no model is generated correctly
+ModelEmptyError = CoderError  # noqa: D101 Exceptions raised when no model is generated correctly
 
 
-class KaggleError(Exception):
+class KaggleError(Exception):  # noqa: D101
     """
     Exceptions raised when calling Kaggle API
     """

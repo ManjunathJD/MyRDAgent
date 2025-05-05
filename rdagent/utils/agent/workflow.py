@@ -1,5 +1,5 @@
 import json
-from typing import Any, Callable, Type, TypeVar, Union, cast
+from typing import Any, Callable, Type, TypeVar
 
 from rdagent.core.exception import FormatError
 from rdagent.log import rdagent_logger as logger
@@ -26,7 +26,7 @@ def build_cls_from_json_with_retry(
         The prompt given by the user to guide the response generation.
     retry_n : int
         The number of attempts to retry in case of failure.
-    init_kwargs_update_func : Union[Callable[[dict], dict], None]
+    init_kwargs_update_func : Callable[[dict[str, Any]], dict[str, Any]] | None
         A function that takes the initial keyword arguments as input and returns the updated keyword arguments.
         This function can be used to modify the response data before it is used to instantiate the class.
 

@@ -5,7 +5,7 @@ from collections.abc import Generator
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Literal, Optional, Union
+from typing import Literal, Optional
 
 
 @dataclass
@@ -45,7 +45,7 @@ class Storage:
         obj: object,
         name: str = "",
         save_type: Literal["json", "text", "pkl"] = "text",
-        timestamp: datetime | None = None,
+        timestamp: Optional[datetime] = None,
         **kwargs: dict,
     ) -> str | Path:
         """

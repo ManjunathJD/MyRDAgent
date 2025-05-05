@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Literal
+from typing import Literal, Dict
 
 from pydantic import Field
 
@@ -14,7 +14,7 @@ class LLMSettings(ExtendedBaseSettings):
 
     chat_model: str = "gpt-4-turbo"
     embedding_model: str = "text-embedding-3-small"
-
+    
     reasoning_effort: Literal["low", "medium", "high"] | None = None
 
     # TODO: most of the settings are only used on deprec.DeprecBackend.
@@ -114,7 +114,7 @@ class LLMSettings(ExtendedBaseSettings):
     chat_azure_deepseek_endpoint: str = ""
     chat_azure_deepseek_key: str = ""
 
-    chat_model_map: dict[str, dict[str, str]] = {}
+    chat_model_map: Dict[str, Dict[str, str]] = {}
 
 
 LLM_SETTINGS = LLMSettings()

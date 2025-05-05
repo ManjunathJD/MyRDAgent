@@ -15,7 +15,7 @@ class Scenario(ABC):
         """Background information"""
 
     # TODO: We have to change all the sub classes to override get_source_data_desc instead of `source_data`
-    def get_source_data_desc(self, task: Task | None = None) -> str:  # noqa: ARG002
+    def get_source_data_desc(self, task: Task | None = None) -> str:
         """
         Source data description
 
@@ -40,7 +40,7 @@ class Scenario(ABC):
         """Rich style description to present"""
 
     @abstractmethod
-    def get_scenario_all_desc(
+    def get_scenario_all_desc(  # noqa: ARG002
         self,
         task: Task | None = None,
         filtered_tag: str | None = None,

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import pickle
 import random
 from collections import deque
 from pathlib import Path
+import sys
 from typing import Any, NoReturn
 
 from rdagent.components.knowledge_management.vector_base import (
@@ -14,6 +14,10 @@ from rdagent.components.knowledge_management.vector_base import (
 )
 from rdagent.core.knowledge_base import KnowledgeBase
 from rdagent.log import rdagent_logger as logger
+
+if sys.version_info >= (3, 13):
+    from typing import override
+
 from rdagent.oai.llm_utils import APIBackend
 
 Node = KnowledgeMetaData
@@ -48,6 +52,10 @@ class UndirectedNode(Node):
         return (
             f"UndirectedNode(id={self.id}, label={self.label}, content={self.content[:100]}, "
             f"neighbors={self.neighbors})"
+        )
+    
+    if sys.version_info >= (3, 13):
+        @override
         )
 
 
@@ -116,6 +124,10 @@ class UndirectedGraph(Graph):
 
     def __str__(self) -> str:
         return f"UndirectedGraph(nodes={self.nodes})"
+
+    if sys.version_info >= (3, 13):
+        @override
+    )
 
     def add_node(
         self,
@@ -193,6 +205,10 @@ class UndirectedGraph(Graph):
         if match:
             return match[0]
         return None
+    
+    if sys.version_info >= (3, 13):
+        @override
+    )
 
     def get_nodes_within_steps(
         self,
@@ -425,6 +441,10 @@ class UndirectedGraph(Graph):
                 [node for node in connected_nodes[:topk_k] if node not in res_list],
             )
         return res_list
+    
+    if sys.version_info >= (3, 13):
+        @override
+    )
 
     @staticmethod
     def intersection(nodes1: list[UndirectedNode], nodes2: list[UndirectedNode]) -> list[UndirectedNode]:

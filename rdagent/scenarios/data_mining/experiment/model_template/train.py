@@ -8,8 +8,7 @@ import sparse
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from model import model_cls
-from sklearn.metrics import accuracy_score, roc_auc_score
+from sklearn.metrics import roc_auc_score
 from torch.utils.data import DataLoader, Dataset
 from torchvision import datasets, transforms
 
@@ -44,13 +43,12 @@ def collate_fn(batch):
 
 
 datapath = "/root/.data"
-# datapath = '/home/v-suhancui/RD-Agent/physionet.org/files/mimic-eicu-fiddle-feature/1.0.0/FIDDLE_mimic3'
 
 
 X = sparse.load_npz(datapath + "/features/ARF_12h/X.npz").todense()
 df_pop = pd.read_csv(datapath + "/population/ARF_12h.csv")["ARF_LABEL"]
 
-X = X.transpose(0, 2, 1)
+X = np.transpose(X, (0, 2, 1))
 
 indices = [i for i in range(len(df_pop))]
 random.shuffle(indices)
@@ -70,7 +68,10 @@ test_dataloader = DataLoader(
 num_features = 4816
 num_timesteps = 12
 # Define the optimizer and loss function
-model = model_cls(num_features=num_features, num_timesteps=num_timesteps).to(device)
+try:
+    from model import model_cls
+    model = model_cls(num_features=num_features, num_timesteps=num_timesteps).to(device)
+except ImportError:
 
 optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
 criterion = nn.CrossEntropyLoss()
@@ -113,4 +114,4 @@ acc = roc_auc_score(y_test, np.concatenate(y_pred))
 print(acc)
 
 res = pd.Series(data=[acc], index=["AUROC"])
-res.to_csv("./submission.csv")
+res.to_csv("submission.csv")

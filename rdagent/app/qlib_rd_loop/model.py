@@ -3,6 +3,7 @@ Model workflow with session control
 """
 
 import fire
+import os
 
 from rdagent.app.qlib_rd_loop.conf import MODEL_PROP_SETTING
 from rdagent.components.workflow.rd_loop import RDLoop
@@ -23,7 +24,7 @@ def main(path=None, step_n=None):
 
         dotenv run -- python rdagent/app/qlib_rd_loop/model.py $LOG_PATH/__session__/1/0_propose  --step_n 1   # `step_n` is a optional paramter
 
-    """
+    """    
     if path is None:
         model_loop = ModelRDLoop(MODEL_PROP_SETTING)
     else:

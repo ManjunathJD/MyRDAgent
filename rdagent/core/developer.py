@@ -14,7 +14,7 @@ class Developer(ABC, Generic[ASpecificExp]):
         self.scen: Scenario = scen
 
     @abstractmethod
-    def develop(self, exp: ASpecificExp) -> ASpecificExp:  # TODO: remove return value
+    def develop(self, exp: ASpecificExp) -> None:  # TODO: remove return value
         """
         Task Generator should take in an experiment.
 

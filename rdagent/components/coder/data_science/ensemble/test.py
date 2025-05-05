@@ -5,22 +5,14 @@ Helper functions for testing the ensemble coder(CoSTEER-based) component.
 import sys
 from pathlib import Path
 
-from rdagent.components.coder.data_science.ensemble import EnsembleCoSTEER
-from rdagent.components.coder.data_science.ensemble.exp import EnsembleTask
-from rdagent.scenarios.data_science.experiment.experiment import DSExperiment
-from rdagent.scenarios.data_science.scen import KaggleScen
-
-# Add the competition folder to path
-COMPETITION_PATH = (
-    Path(__file__).parent.parent.parent.parent.parent
-    / "scenarios"
-    / "kaggle"
-    / "tpl_ex"
-    / "aerial-cactus-identification"
-)
-sys.path.append(str(COMPETITION_PATH))
-
-EnsembleExperiment = DSExperiment
+try:
+    from rdagent.components.coder.data_science.ensemble import EnsembleCoSTEER
+    from rdagent.components.coder.data_science.ensemble.exp import EnsembleTask
+    from rdagent.scenarios.data_science.experiment.experiment import DSExperiment
+    from rdagent.scenarios.data_science.scen import KaggleScen
+except ImportError:
+    print("Error: Could not import required modules. Please check your environment and dependencies.")
+    sys.exit(1)
 
 
 def load_ensemble_spec():
@@ -29,7 +21,7 @@ def load_ensemble_spec():
         return f.read()
 
 
-def develop_one_competition(competition: str):
+def develop_one_competition(competition: str, COMPETITION_PATH:Path ):
     # Initialize scenario and coder
     scen = KaggleScen(competition=competition)
     ensemble_coder = EnsembleCoSTEER(scen)
@@ -55,4 +47,16 @@ def develop_one_competition(competition: str):
 
 
 if __name__ == "__main__":
-    develop_one_competition("aerial-cactus-identification")
+        # Add the competition folder to path
+    COMPETITION_PATH = (
+        Path(__file__).parent.parent.parent.parent.parent
+        / "scenarios"
+        / "kaggle"
+        / "tpl_ex"
+        / "aerial-cactus-identification"
+    )
+    sys.path.append(str(COMPETITION_PATH))
+
+    EnsembleExperiment = DSExperiment
+    develop_one_competition("aerial-cactus-identification", COMPETITION_PATH)
+

@@ -1,6 +1,5 @@
-import pickle
-import site
 import traceback
+from collections.abc import Mapping
 from pathlib import Path
 from typing import Dict, Optional
 
@@ -24,9 +23,9 @@ class ModelTask(CoSTEERTask):
         model_type: Optional[str] = None,
         **kwargs,
     ) -> None:
-        self.formulation: str = formulation
-        self.architecture: str = architecture
-        self.variables: str = variables
+        self.formulation: Optional[str] = formulation
+        self.architecture: Optional[str] = architecture
+        self.variables: Optional[str] = variables
         self.hyperparameters: str = hyperparameters
         self.model_type: str = (
             model_type  # Tabular for tabular model, TimesSeries for time series model, Graph for graph model, XGBoost for XGBoost model
@@ -42,8 +41,8 @@ description: {self.description}
         task_desc += f"variables: {self.variables}\n" if self.variables else ""
         task_desc += f"hyperparameters: {self.hyperparameters}\n"
         task_desc += f"model_type: {self.model_type}\n"
-        return task_desc
-
+        return str(task_desc)
+    
     @staticmethod
     def from_dict(dict):
         return ModelTask(**dict)
@@ -76,7 +75,7 @@ class ModelFBWorkspace(FBWorkspace):
     def hash_func(
         self,
         batch_size: int = 8,
-        num_features: int = 10,
+        num_features: int = 10, 
         num_timesteps: int = 4,
         num_edges: int = 20,
         input_value: float = 1.0,
@@ -135,7 +134,7 @@ PARAM_INIT_VALUE = {param_init_value}
             execution_feedback_str = (
                 execution_feedback_str[:1000] + "....hidden long error message...." + execution_feedback_str[-1000:]
             )
-        return execution_feedback_str, execution_model_output
+        return str(execution_feedback_str), execution_model_output
 
 
 ModelExperiment = Experiment

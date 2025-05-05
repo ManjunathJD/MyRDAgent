@@ -103,13 +103,13 @@ class QlibFactorExperiment2Feedback(Experiment2Feedback):
             user_prompt=usr_prompt,
             system_prompt=sys_prompt,
             json_mode=True,
-            json_target_type=Dict[str, str | bool | int],
+            json_target_type=Dict[str, str | bool | int] | Dict,
         )
 
         # Parse the JSON response to extract the feedback
         response_json = json.loads(response)
 
-        # Extract fields from JSON response
+         # Extract fields from JSON response
         observations = response_json.get("Observations", "No observations provided")
         hypothesis_evaluation = response_json.get("Feedback for Hypothesis", "No feedback provided")
         new_hypothesis = response_json.get("New Hypothesis", "No new hypothesis provided")
@@ -161,7 +161,7 @@ class QlibModelExperiment2Feedback(Experiment2Feedback):
             user_prompt=user_prompt,
             system_prompt=system_prompt,
             json_mode=True,
-            json_target_type=Dict[str, str | bool | int],
+            json_target_type=Dict[str, str | bool | int] | Dict,
         )
 
         # Parse the JSON response to extract the feedback

@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
-from typing import Dict
-
+from typing import Dict, Any
+import bisect
 import pandas as pd
 from jinja2 import Environment, StrictUndefined
 
@@ -33,13 +33,6 @@ class KGExperiment2Feedback(Experiment2Feedback):
         combined_df = pd.concat([current_df, sota_df], axis=1)
         combined_df.columns = ["current_df", "sota_df"]
 
-        # combined_df["the largest"] = combined_df.apply(
-        #     lambda row: "sota_df"
-        #     if row["sota_df"] > row["current_df"]
-        #     else ("Equal" if row["sota_df"] == row["current_df"] else "current_df"),
-        #     axis=1,
-        # )
-
         # Add a note about metric direction
         evaluation_direction = "higher" if self.scen.evaluation_metric_direction else "lower"
         evaluation_description = f"Direction of improvement (higher/lower is better) should be judged per metric. Here '{evaluation_direction}' is better for the metrics."
@@ -47,13 +40,7 @@ class KGExperiment2Feedback(Experiment2Feedback):
 
         return combined_df, evaluation_description
 
-    def generate_feedback(self, exp: Experiment, trace: Trace) -> HypothesisFeedback:
-        """
-        The `ti` should be executed and the results should be included, as well as the comparison between previous results (done by LLM).
-        For example: `mlflow` of Qlib will be included.
-        """
-        """
-        Generate feedback for the given experiment and hypothesis.
+    def generate_feedback(self, exp: Experiment, trace: Trace) -> Any:
         Args:
             exp: The experiment to generate feedback for.
             hypothesis: The hypothesis to generate feedback for.
@@ -100,9 +87,10 @@ class KGExperiment2Feedback(Experiment2Feedback):
         sota_result = exp.based_experiments[-1].result
         sota_sub_results = exp.based_experiments[-1].sub_results
 
-        current_hypothesis = hypothesis.hypothesis
-        current_hypothesis_reason = hypothesis.reason
-        current_target_action = hypothesis.action
+        current_hypothesis: str = hypothesis.hypothesis
+        current_hypothesis_reason: str = hypothesis.reason
+        current_target_action: str = hypothesis.action
+
         current_sub_exps_to_code = {}
         if hypothesis.action == "Model tuning":
             current_sub_exps_to_code[exp.sub_tasks[0].get_task_information()] = exp.sub_workspace_list[0].all_codes
@@ -160,15 +148,13 @@ class KGExperiment2Feedback(Experiment2Feedback):
         reason = response_json.get("Reasoning", "No reasoning provided")
         decision = convert2bool(response_json.get("Replace Best Result", "no"))
         # leaderboard = self.scen.leaderboard
-        # current_score = current_result.iloc[0]
-        # sorted_scores = sorted(leaderboard, reverse=True)
-        # import bisect
-
-        # if self.scen.evaluation_metric_direction:
-        #     insert_position = bisect.bisect_right([-score for score in sorted_scores], -current_score)
-        # else:
-        #     insert_position = bisect.bisect_left(sorted_scores, current_score, lo=0, hi=len(sorted_scores))
-        # percentile_ranking = (insert_position) / (len(sorted_scores)) * 100
+        current_score = current_result.iloc[0]
+        sorted_scores = sorted(self.scen.leaderboard, reverse=True)
+        if self.scen.evaluation_metric_direction:
+            insert_position = bisect.bisect_right([-score for score in sorted_scores], -current_score)
+        else:
+            insert_position = bisect.bisect_left(sorted_scores, current_score, lo=0, hi=len(sorted_scores))
+        percentile_ranking = (insert_position) / (len(sorted_scores)) * 100
 
         experiment_feedback = {
             "hypothesis_text": current_hypothesis,

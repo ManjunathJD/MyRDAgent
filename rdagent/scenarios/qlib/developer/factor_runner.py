@@ -2,7 +2,7 @@ import pickle
 from pathlib import Path
 from typing import List
 
-import pandas as pd
+import pandas as pd, multiprocessing
 from pandarallel import pandarallel
 
 from rdagent.components.coder.CoSTEER.evaluators import CoSTEERMultiFeedback
@@ -142,14 +142,13 @@ class QlibFactorRunner(CachedRunner[QlibFactorExperiment]):
                 # otherwise, it is developed with designed task. So it should have feedback.
                 assert isinstance(exp.prop_dev_feedback, CoSTEERMultiFeedback)
                 # Iterate over sub-implementations and execute them to get each factor data
-                message_and_df_list = multiprocessing_wrapper(
+                message_and_df_list = multiprocessing.Pool(processes=RD_AGENT_SETTINGS.multi_proc_n).map(multiprocessing_wrapper,
                     [
-                        (implementation.execute, ("All",))
+                        (implementation.execute, ("All",)) if implementation and fb else None
                         for implementation, fb in zip(exp.sub_workspace_list, exp.prop_dev_feedback)
-                        if implementation and fb
-                    ],  # only execute successfully feedback
-                    n=RD_AGENT_SETTINGS.multi_proc_n,
+                    ] # only execute successfully feedback
                 )
+                message_and_df_list = [item for item in message_and_df_list if item is not None]
                 for message, df in message_and_df_list:
                     # Check if factor generation was successful
                     if df is not None and "datetime" in df.index.names:

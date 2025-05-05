@@ -1,6 +1,6 @@
 from pathlib import Path
 
-import dill as pickle  # type: ignore[import-untyped]
+import pickle  
 
 from rdagent.log import rdagent_logger as logger
 
@@ -14,10 +14,11 @@ class KnowledgeBase:
         if self.path is not None and self.path.exists():
             with self.path.open("rb") as f:
                 loaded = pickle.load(f)
-                if isinstance(loaded, dict):
-                    self.__dict__.update({k: v for k, v in loaded.items() if k != "path"})
-                else:
-                    self.__dict__.update({k: v for k, v in loaded.__dict__.items() if k != "path"})
+                if isinstance(loaded, dict):                    
+                    loaded_data = {k: v for k, v in loaded.items() if k != "path"}
+                else:                   
+                    loaded_data = {k: v for k, v in loaded.__dict__.items() if k != "path"}
+                self.__dict__.update(loaded_data)
 
     def dump(self) -> None:
         if self.path is not None:

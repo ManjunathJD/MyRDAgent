@@ -1,4 +1,4 @@
-from typing import Any, Literal, cast
+from typing import Any, Literal, cast, List, Tuple, Dict
 
 from litellm import (
     completion,
@@ -31,7 +31,7 @@ ACC_COST = 0.0
 class LiteLLMAPIBackend(APIBackend):
     """LiteLLM implementation of APIBackend interface"""
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None: # type: ignore
         super().__init__(*args, **kwargs)
 
     def _calculate_token_from_messages(self, messages: list[dict[str, Any]]) -> int:
@@ -46,9 +46,9 @@ class LiteLLMAPIBackend(APIBackend):
         return num_tokens
 
     def _create_embedding_inner_function(
-        self, input_content_list: list[str], *args: Any, **kwargs: Any
-    ) -> list[list[float]]:  # noqa: ARG002
-        """
+        self, input_content_list: List[str], *args: Any, **kwargs: Any
+    ) -> List[List[float]]:
+        """ 
         Call the embedding function
         """
         model_name = LITELLM_SETTINGS.embedding_model
@@ -63,14 +63,14 @@ class LiteLLMAPIBackend(APIBackend):
         response_list = [data["embedding"] for data in response.data]
         return response_list
 
-    def _create_chat_completion_inner_function(  # type: ignore[no-untyped-def] # noqa: C901, PLR0912, PLR0915
+    def _create_chat_completion_inner_function(
         self,
-        messages: list[dict[str, Any]],
+        messages: List[Dict[str, Any]],
         json_mode: bool = False,
         *args,
         **kwargs,
-    ) -> tuple[str, str | None]:
-        """
+    ) -> Tuple[str, str | None]:
+        """ 
         Call the chat completion function
         """
         if json_mode and supports_response_schema(model=LITELLM_SETTINGS.chat_model):

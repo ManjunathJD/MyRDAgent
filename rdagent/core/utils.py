@@ -28,7 +28,7 @@ class SingletonBaseClass:
     """
 
     _instance_dict: ClassVar[dict] = {}
-
+    
     def __new__(cls, *args: Any, **kwargs: Any) -> Any:
         # Since it's hard to align the difference call using args and kwargs, we strictly ask to use kwargs in Singleton
         if args:
@@ -39,7 +39,7 @@ class SingletonBaseClass:
         args_l = [(i, args[i]) for i in args]
         kwargs_l = sorted(kwargs.items())
         all_args = class_name + args_l + kwargs_l
-        kwargs_hash = hash(tuple(all_args))
+        kwargs_hash = hash(tuple(all_args))  # type: ignore
         if kwargs_hash not in cls._instance_dict:
             cls._instance_dict[kwargs_hash] = super().__new__(cls)  # Corrected call
         return cls._instance_dict[kwargs_hash]
@@ -68,7 +68,7 @@ def similarity(text1: str, text2: str) -> int:
     text1 = text1 if isinstance(text1, str) else ""
     text2 = text2 if isinstance(text2, str) else ""
 
-    # Maybe we can use other similarity algorithm such as tfidf
+    # Maybe we can use other similarity algorithm such as tfidf 
     return cast("int", fuzz.ratio(text1, text2))  # mypy does not regard it as int
 
 
@@ -105,7 +105,7 @@ class CacheSeedGen:
         random.seed(seed)
 
     def get_next_seed(self) -> int:
-        """generate next random int"""
+        """generate next random int""" 
         return random.randint(0, 10000)  # noqa: S311
 
 
@@ -149,7 +149,7 @@ def multiprocessing_wrapper(func_calls: list[tuple[Callable, tuple]], n: int) ->
         results = [
             pool.apply_async(_subprocess_wrapper, args=(f, LLM_CACHE_SEED_GEN.get_next_seed(), args))
             for f, args in func_calls
-        ]
+        ] 
         return [result.get() for result in results]
 
 

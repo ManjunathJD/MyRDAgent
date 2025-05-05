@@ -19,7 +19,7 @@ from rdagent.log import rdagent_logger as logger
 from rdagent.log.timer import RD_Agent_TIMER_wrapper
 from rdagent.oai.llm_conf import LLM_SETTINGS
 from rdagent.utils import md5_hash
-
+from typing import Any, cast
 try:
     import openai
 
@@ -75,13 +75,13 @@ class SQliteLazyCache(SingletonBaseClass):
         result = self.c.fetchone()
         return None if result is None else json.loads(result[0])
 
-    def chat_set(self, key: str, value: str) -> None:
+    def chat_set(self, key: str, value: str):
         md5_key = md5_hash(key)
         self.c.execute(
             "INSERT OR REPLACE INTO chat_cache (md5_key, chat) VALUES (?, ?)",
             (md5_key, value),
         )
-        self.conn.commit()
+        self.conn.commit()        
         return None
 
     def embedding_set(self, content_to_embedding_dict: dict) -> None:
@@ -98,7 +98,7 @@ class SQliteLazyCache(SingletonBaseClass):
         result = self.c.fetchone()
         return [] if result is None else cast(list[dict[str, Any]], json.loads(result[0]))
 
-    def message_set(self, conversation_id: str, message_value: list[dict[str, Any]]) -> None:
+    def message_set(self, conversation_id: str, message_value: list[dict[str, Any]]):
         self.c.execute(
             "INSERT OR REPLACE INTO message_cache (conversation_id, message) VALUES (?, ?)",
             (conversation_id, json.dumps(message_value)),
@@ -132,7 +132,7 @@ class ChatSession:
             messages.append({"role": LLM_SETTINGS.system_prompt_role, "content": self.system_prompt})
         messages.append(
             {
-                "role": "user",
+                "role": "user",  # type: ignore
                 "content": user_prompt,
             },
         )
@@ -160,7 +160,7 @@ class ChatSession:
 
         messages.append(
             {
-                "role": "assistant",
+                "role": "assistant",  # type: ignore
                 "content": response,
             },
         )
@@ -236,7 +236,7 @@ class APIBackend(ABC):
                 while "\n\n\n" in system_prompt:
                     system_prompt = system_prompt.replace("\n\n\n", "\n\n")
         system_prompt = LLM_SETTINGS.default_system_prompt if system_prompt is None else system_prompt
-        messages = [
+        messages:list[dict[str, Any]] = [
             {
                 "role": LLM_SETTINGS.system_prompt_role,
                 "content": system_prompt,
@@ -244,7 +244,7 @@ class APIBackend(ABC):
         ]
         messages.extend(former_messages[-1 * LLM_SETTINGS.max_past_message_include :])
         messages.append(
-            {
+            { # type: ignore
                 "role": "user",
                 "content": user_prompt,
             },
@@ -289,7 +289,7 @@ class APIBackend(ABC):
             **kwargs,
         )
         if isinstance(resp, list):
-            raise ValueError("The response of _try_create_chat_completion_or_embedding should be a string.")
+            raise ValueError(f"The response of _try_create_chat_completion_or_embedding should be a string. {resp} resp ")
         logger.log_object({"system": system_prompt, "user": user_prompt, "resp": resp}, tag="debug_llm")
         return resp
 

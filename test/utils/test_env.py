@@ -1,6 +1,5 @@
 import os
 import sys
-import unittest
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
@@ -9,6 +8,7 @@ import shutil
 from rdagent.utils.env import (
     CondaConf,
     LocalConf,
+    LocalDockerConf,
     LocalEnv,
     QlibDockerConf,
     QTDockerEnv,
@@ -26,15 +26,16 @@ class QlibLocalEnv(LocalEnv):
         else:
             print("Data already exists. Download skipped.")
 
+import unittest
 
-class EnvUtils(unittest.TestCase):
+class EnvUtils(unittest.TestCase):    
     def setUp(self):
         self.test_workspace = DIRNAME / "test_workspace"
         self.test_workspace.mkdir(exist_ok=True)
 
     def tearDown(self):
-        if self.test_workspace.exists():
-            shutil.rmtree(self.test_workspace)
+        if os.path.exists(self.test_workspace):
+             shutil.rmtree(self.test_workspace)
 
     # NOTE: Since I don't know the exact environment in which it will be used, here's just an example.
     # NOTE: Because you need to download the data during the prepare process. So you need to have pyqlib in your environment.
@@ -48,6 +49,7 @@ class EnvUtils(unittest.TestCase):
         conf_path = str(DIRNAME / "env_tpl" / "conf.yaml")
         qle.run(entry="qrun " + conf_path)
         mlrun_p = DIRNAME / "env_tpl" / "mlruns"
+        self.test_workspace.exists()
         self.assertTrue(mlrun_p.exists(), f"Expected output file {mlrun_p} not found")
 
     def test_local_simple(self):
@@ -56,10 +58,23 @@ class EnvUtils(unittest.TestCase):
         print(local_conf)
         le.prepare()
         code_path = DIRNAME / "tmp_code"
-        code_path.mkdir(exist_ok=True)
+        os.makedirs(code_path, exist_ok=True)
         res, code = le.run_ret_code(local_path=str(code_path))
         print(res, code)
-
+    def test_local_docker_simple(self):
+        local_conf = LocalDockerConf(
+                image="ubuntu:latest",
+                bin_path="/usr/bin/",
+                default_entry="which python",
+        )
+        le = LocalEnv(conf=local_conf)
+        print(local_conf)
+        le.prepare()
+        code_path = DIRNAME / "tmp_code"
+        os.makedirs(code_path, exist_ok=True)
+        res, code = le.run_ret_code(local_path=str(code_path))
+        print(res, code)
+        
     def test_conda_simple(self):
         conda_conf = CondaConf(default_entry="which python", conda_env_name="MLE")
         le = LocalEnv(conf=conda_conf)
@@ -77,6 +92,7 @@ class EnvUtils(unittest.TestCase):
         qtde.prepare()  # you can prepare for multiple times. It is expected to handle it correctly
         # qtde.run("nvidia-smi")  # NOTE: you can check your GPU with this command
         # the stdout are returned as result
+        os.makedirs(DIRNAME / "env_tpl", exist_ok=True)
         result = qtde.run(local_path=str(DIRNAME / "env_tpl"), entry="qrun conf.yaml")
 
         mlrun_p = DIRNAME / "env_tpl" / "mlruns"
@@ -115,7 +131,7 @@ class EnvUtils(unittest.TestCase):
         qtde = QTDockerEnv(QlibDockerConf(mem_limit="10m"))
         qtde.prepare()
         result = qtde.run(local_path=str(DIRNAME / "env_tpl"), entry=cmd)
-        self.assertTrue(not result.strip().endswith("success"))
+        self.assertFalse(result.strip().endswith("success"))
 
         qtde = QTDockerEnv(QlibDockerConf(mem_limit="1g"))
         qtde.prepare()

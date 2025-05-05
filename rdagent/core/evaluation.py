@@ -20,6 +20,7 @@ class Feedback:
         return self.__bool__()
 
     def __bool__(self) -> bool:
+        """Default implementation for boolean conversion"""
         return True
 
 
@@ -47,4 +48,5 @@ class Evaluator(ABC):
         self,
         eo: EvaluableObj,
     ) -> Feedback:
+        """Abstract method to evaluate and generate feedback"""
         raise NotImplementedError

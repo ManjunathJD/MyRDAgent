@@ -1,4 +1,5 @@
 import socket
+from typing import List
 
 import docker
 
@@ -10,7 +11,7 @@ def check_docker() -> None:
         client = docker.from_env()
         client.images.pull("hello-world")
         container = client.containers.run("hello-world", detach=True)
-        logs = container.logs().decode("utf-8")
+        logs = container.logs().decode("utf-8", errors='ignore')
         print(logs)
         container.remove()
         logger.info(f"The docker status is normal")
@@ -21,12 +22,12 @@ def check_docker() -> None:
         )
 
 
-def is_port_in_use(port):
+def is_port_in_use(port: int) -> bool:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         return s.connect_ex(("127.0.0.1", port)) == 0
 
 
-def check_and_list_free_ports(start_port=19899, max_ports=10) -> None:
+def check_and_list_free_ports(start_port: int = 19899, max_ports: int = 10) -> None:
     is_occupied = is_port_in_use(port=start_port)
     if is_occupied:
         free_ports = []
@@ -40,7 +41,7 @@ def check_and_list_free_ports(start_port=19899, max_ports=10) -> None:
         logger.info(f"Port 19899 is not occupied, you can run the `rdagent ui` command")
 
 
-def health_check():
+def health_check() -> None:
     """
     Check that docker is installed correctly,
     and that the ports used in the sample README are not occupied.

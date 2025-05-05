@@ -26,7 +26,7 @@ class QlibModelScenario(Scenario):
         self._background = deepcopy(prompt_dict["qlib_model_background"])
         self._output_format = deepcopy(prompt_dict["qlib_model_output_format"])
         self._interface = deepcopy(prompt_dict["qlib_model_interface"])
-        self._simulator = deepcopy(prompt_dict["qlib_model_simulator"])
+        self._simulator = deepcopy(prompt_dict["qlib_model_simulator"]) 
         self._rich_style_description = deepcopy(prompt_dict["qlib_model_rich_style_description"])
         self._experiment_setting = deepcopy(prompt_dict["qlib_model_experiment_setting"])
 

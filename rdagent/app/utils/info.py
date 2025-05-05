@@ -1,12 +1,10 @@
-import importlib.metadata
 import platform
 import sys
-from pathlib import Path
 
 import docker
 import requests
-from setuptools_scm import get_version
 
+from rdagent.core.utils import get_package_version
 from rdagent.log import rdagent_logger as logger
 
 
@@ -50,7 +48,7 @@ def docker_info():
 
 def rdagent_info():
     """collect rdagent related info"""
-    current_version = importlib.metadata.version("rdagent")
+    current_version = get_package_version("rdagent")
     logger.info(f"RD-Agent version: {current_version}")
     api_url = f"https://api.github.com/repos/microsoft/RD-Agent/contents/requirements.txt?ref=main"
     response = requests.get(api_url)
@@ -71,7 +69,7 @@ def rdagent_info():
     for package in package_list:
         if package == "typer[all]":
             package = "typer"
-        version = importlib.metadata.version(package)
+        version = get_package_version(package)
         package_version_list.append(f"{package}=={version}")
     logger.info(f"Package version: {package_version_list}")
     return None

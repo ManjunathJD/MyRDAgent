@@ -29,8 +29,8 @@ def generate_diff(dir1: str, dir2: str, file_pattern: str = "*.py") -> list[str]
         if file1.exists():
             with file1.open() as f1:
                 file_dict1[str(file)] = f1.read()
-        else:
-            file_dict1[str(file)] = ""
+        elif str(file) not in file_dict1:
+                file_dict1[str(file)] = ""
         if file2.exists():
             with file2.open() as f2:
                 file_dict2[str(file)] = f2.read()
@@ -62,6 +62,6 @@ def generate_diff_from_dict(file_dict1: dict, file_dict2: dict, file_pattern: st
                 tofile=file if file in file_dict2 else file + " (empty file)",
             )
         )
-        if diff:
-            diff_files.extend(diff)
+        if diff :
+            diff_files.append("".join(diff))
     return diff_files

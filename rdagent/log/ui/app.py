@@ -2,7 +2,6 @@ import argparse
 import re
 import textwrap
 from collections import defaultdict
-from datetime import datetime, timezone
 from importlib.resources import files as rfiles
 from pathlib import Path
 from typing import Callable, Type
@@ -17,6 +16,7 @@ from streamlit_theme import st_theme
 
 from rdagent.components.coder.factor_coder.evaluators import FactorSingleFeedback
 from rdagent.components.coder.factor_coder.factor import FactorFBWorkspace, FactorTask
+from rdagent.components.coder.factor_coder.factor import FactorFBWorkspace
 from rdagent.components.coder.model_coder.evaluators import ModelSingleFeedback
 from rdagent.components.coder.model_coder.model import ModelFBWorkspace, ModelTask
 from rdagent.core.proposal import Hypothesis, HypothesisFeedback
@@ -64,7 +64,7 @@ SIMILAR_SCENARIOS = (QlibModelScenario, DMModelScenario, QlibFactorScenario, Qli
 
 
 def filter_log_folders(main_log_path):
-    """
+    """    
     The webpage only displays valid folders.
     If the __session__ folder exists in a subfolder of the log folder, it is considered a valid folder,
     otherwise it is considered an invalid folder.
@@ -169,7 +169,7 @@ def get_msgs_until(end_func: Callable[[Message], bool] = lambda _: True):
                             sms.name = "alpha158"
                             state.alpha158_metrics = sms
 
-                        if (
+                        if (            
                             state.lround == 1
                             and len(msg.content.based_experiments) > 0
                             and msg.content.based_experiments[-1].result is not None
@@ -209,7 +209,7 @@ def get_msgs_until(end_func: Callable[[Message], bool] = lambda _: True):
                         if "evolving code" in tags:
                             msg.content = [i for i in msg.content if i]
                         if "evolving feedback" in tags:
-                            total_len = len(msg.content)
+                            total_len = len(msg.content)            
                             none_num = total_len - len(msg.content)
                             right_num = 0
                             for wsf in msg.content:

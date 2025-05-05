@@ -23,9 +23,9 @@ class DMFBWorkspace(FBWorkspace):
             env=run_env,
         )
 
-        csv_path = self.workspace_path / "submission.csv"
+        csv_path = Path(self.workspace_path) / "submission.csv"
 
         if not csv_path.exists():
             logger.error(f"File {csv_path} does not exist.")
             return None
-        return pd.read_csv(csv_path, index_col=0).iloc[:, 0]
+        return pd.read_csv(csv_path, index_col=0).iloc[:, 0].tolist()

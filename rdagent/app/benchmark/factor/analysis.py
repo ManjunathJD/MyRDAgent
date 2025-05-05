@@ -150,7 +150,7 @@ class BenchmarkAnalyzer:
                 "Max Accuracy": value_max_res.iloc[:, 0],
                 "Avg Accuracy": value_avg_res.iloc[:, 0],
             },
-            axis=1,
+            axis=1
         )
 
         df = result_all.sort_index(axis=1, key=self.result_all_key_order).sort_index(axis=0)

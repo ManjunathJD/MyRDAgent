@@ -9,6 +9,7 @@ It is NOT:
 from rdagent.components.coder.data_science.feature import FeatureCoSTEER
 from rdagent.components.coder.data_science.feature.exp import FeatureTask
 from rdagent.scenarios.data_science.experiment.experiment import DSExperiment
+from rdagent.core.experiment import ExperimentWorkspace
 from rdagent.scenarios.data_science.scen import KaggleScen
 
 
@@ -27,7 +28,8 @@ def develop_one_competition(competition: str):  # -> experiment
 
     with open("./rdagent/scenarios/kaggle/tpl_ex/aerial-cactus-identification/load_data.py", "r") as file:
         load_data_code = file.read()
-    exp.experiment_workspace.inject_files(**{"load_data.py": load_data_code, "spec/feature.md": feat_spec})
+    if isinstance(exp.experiment_workspace,ExperimentWorkspace):
+        exp.experiment_workspace.inject_files(**{"load_data.py": load_data_code, "spec/feature.md": feat_spec})
 
     # Develop the experiment
     exp = feature_coder.develop(exp)

@@ -5,7 +5,7 @@ import yaml
 from rdagent.core.utils import SingletonBaseClass
 
 
-class Prompts(SingletonBaseClass, dict[str, str]):
+class Prompts(SingletonBaseClass, dict):
     def __init__(self, file_path: Path) -> None:
         super().__init__()
         with file_path.open(encoding="utf8") as file:

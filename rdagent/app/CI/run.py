@@ -24,7 +24,7 @@ from rich.text import Text
 from tree_sitter import Language, Node, Parser
 
 from rdagent.core.evaluation import Evaluator
-from rdagent.core.evolving_agent import EvoAgent
+from rdagent.core.evolving_agent import EvoAgent,EvolvingTrace
 from rdagent.core.evolving_framework import (
     EvolvableSubjects,
     EvolvingStrategy,
@@ -695,11 +695,11 @@ class CIEvoStr(EvolvingStrategy):
 
 class CIEvoAgent(EvoAgent):
     def __init__(self, evolving_strategy: CIEvoStr) -> None:
-        super().__init__(max_loop=1, evolving_strategy=evolving_strategy)
-        self.evolving_trace = []
+        super().__init__(max_loop=1, evolving_strategy=evolving_strategy, evolving_trace=EvolvingTrace())
+        
 
-    def multistep_evolve(self, evo: Repo, eva: Evaluator) -> Repo:
-        evo = self.evolving_strategy.evolve(
+    def multistep_evolve(self, evo: Repo, eva: Evaluator) -> Repo:        
+        evo = self.evolving_strategy.evolve(           
             evo=evo,
             evolving_trace=self.evolving_trace,
         )

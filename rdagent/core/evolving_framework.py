@@ -4,7 +4,7 @@ import copy
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
-
+from typing import Optional
 from rdagent.core.evaluation import EvaluableObj
 from rdagent.core.knowledge_base import KnowledgeBase
 
@@ -25,7 +25,7 @@ class EvolvingKnowledgeBase(KnowledgeBase):
     @abstractmethod
     def query(
         self,
-    ) -> QueriedKnowledge | None:
+    ) -> Optional[QueriedKnowledge]:
         raise NotImplementedError
 
 
@@ -49,7 +49,7 @@ class EvoStep:
     """
 
     evolvable_subjects: EvolvableSubjects
-    queried_knowledge: QueriedKnowledge | None = None
+    queried_knowledge: Optional[QueriedKnowledge] = None
     feedback: Feedback | None = None
 
 
@@ -61,8 +61,8 @@ class EvolvingStrategy(ABC):
     def evolve(
         self,
         *evo: EvolvableSubjects,
-        evolving_trace: list[EvoStep] | None = None,
-        queried_knowledge: QueriedKnowledge | None = None,
+        evolving_trace: Optional[list[EvoStep]] = None,
+        queried_knowledge: Optional[QueriedKnowledge] = None,
         **kwargs: Any,
     ) -> EvolvableSubjects:
         """The evolving trace is a list of (evolvable_subjects, feedback) ordered
@@ -86,7 +86,7 @@ class RAGStrategy(ABC):
         evo: EvolvableSubjects,
         evolving_trace: list[EvoStep],
         **kwargs: Any,
-    ) -> QueriedKnowledge | None:
+    ) -> Optional[QueriedKnowledge]:
         pass
 
     @abstractmethod
@@ -96,7 +96,7 @@ class RAGStrategy(ABC):
         *,
         return_knowledge: bool = False,
         **kwargs: Any,
-    ) -> Knowledge | None:
+    ) -> Optional[Knowledge]:
         """Generating new knowledge based on the evolving trace.
         - It is encouraged to query related knowledge before generating new knowledge.
 

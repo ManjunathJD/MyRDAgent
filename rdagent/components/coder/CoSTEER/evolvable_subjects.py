@@ -13,7 +13,7 @@ class EvolvingItem(Experiment, EvolvableSubjects):
         sub_tasks: list[Task],
         sub_gt_implementations: list[FBWorkspace] = None,
     ):
-        Experiment.__init__(self, sub_tasks=sub_tasks)
+        super().__init__(sub_tasks=sub_tasks)
         if sub_gt_implementations is not None and len(
             sub_gt_implementations,
         ) != len(self.sub_tasks):

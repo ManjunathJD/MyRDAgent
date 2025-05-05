@@ -94,7 +94,7 @@ class MultiProcessEvolvingStrategy(EvolvingStrategy):
                 and target_task_desc not in queried_knowledge.failed_task_info_set
             ):
                 to_be_finished_task_index.append(index)
-
+        
         last_feedback = None
         if len(evolving_trace) > 0:
             last_feedback = evolving_trace[-1].feedback
@@ -118,7 +118,7 @@ class MultiProcessEvolvingStrategy(EvolvingStrategy):
         code_list = [None for _ in range(len(evo.sub_tasks))]
         for index, target_index in enumerate(to_be_finished_task_index):
             code_list[target_index] = result[index]
-
+        
         evo = self.assign_code_list_to_evo(code_list, evo)
 
         return evo

@@ -16,7 +16,7 @@ prompt_dict = Prompts(file_path=Path(__file__).parent / "prompts.yaml")
 
 
 class QlibFactorExperiment(FactorExperiment[FactorTask, QlibFBWorkspace, FactorFBWorkspace]):
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.experiment_workspace = QlibFBWorkspace(template_folder_path=Path(__file__).parent / "factor_template")
 
@@ -61,7 +61,7 @@ class QlibFactorScenario(Scenario):
         return self._experiment_setting
 
     def get_scenario_all_desc(
-        self, task: Task | None = None, filtered_tag: str | None = None, simple_background: bool | None = None
+        self, task: Task | None = None, filtered_tag: str | None = None, simple_background: bool | None = None,
     ) -> str:
         """A static scenario describer"""
         if simple_background:

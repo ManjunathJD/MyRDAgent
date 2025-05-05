@@ -18,7 +18,7 @@ QlibFactorHypothesis = Hypothesis
 class QlibFactorHypothesisGen(FactorHypothesisGen):
     def __init__(self, scen: Scenario) -> Tuple[dict, bool]:
         super().__init__(scen)
-
+        
     def prepare_context(self, trace: Trace) -> Tuple[dict, bool]:
         hypothesis_and_feedback = (
             (
@@ -36,7 +36,7 @@ class QlibFactorHypothesisGen(FactorHypothesisGen):
             "hypothesis_specification": prompt_dict["factor_hypothesis_specification"],
         }
         return context_dict, True
-
+    
     def convert_response(self, response: str) -> Hypothesis:
         response_dict = json.loads(response)
         hypothesis = QlibFactorHypothesis(
@@ -49,8 +49,9 @@ class QlibFactorHypothesisGen(FactorHypothesisGen):
         )
         return hypothesis
 
-
+        
 class QlibFactorHypothesis2Experiment(FactorHypothesis2Experiment):
+    
     def prepare_context(self, hypothesis: Hypothesis, trace: Trace) -> Tuple[dict | bool]:
         scenario = trace.scen.get_scenario_all_desc()
         experiment_output_format = prompt_dict["factor_experiment_output_format"]
@@ -71,10 +72,10 @@ class QlibFactorHypothesis2Experiment(FactorHypothesis2Experiment):
         for experiment in experiment_list:
             factor_list.extend(experiment.sub_tasks)
 
-        return {
+        context = {
             "target_hypothesis": str(hypothesis),
             "scenario": scenario,
-            "hypothesis_and_feedback": hypothesis_and_feedback,
+            "hypothesis_and_feedback": hypothesis_and_feedback,            
             "experiment_output_format": experiment_output_format,
             "target_list": factor_list,
             "RAG": None,
@@ -85,7 +86,7 @@ class QlibFactorHypothesis2Experiment(FactorHypothesis2Experiment):
         tasks = []
 
         for factor_name in response_dict:
-            description = response_dict[factor_name]["description"]
+            description = response_dict[factor_name]["description"]            
             formulation = response_dict[factor_name]["formulation"]
             variables = response_dict[factor_name]["variables"]
             tasks.append(
@@ -99,10 +100,9 @@ class QlibFactorHypothesis2Experiment(FactorHypothesis2Experiment):
 
         exp = QlibFactorExperiment(tasks, hypothesis=hypothesis)
         exp.based_experiments = [QlibFactorExperiment(sub_tasks=[])] + [t[0] for t in trace.hist if t[1]]
-
+        
         unique_tasks = []
-
-        for task in tasks:
+        for task in tasks:            
             duplicate = False
             for based_exp in exp.based_experiments:
                 for sub_task in based_exp.sub_tasks:

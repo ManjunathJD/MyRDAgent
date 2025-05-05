@@ -54,8 +54,8 @@ class DSExperiment2Feedback(Experiment2Feedback):
         cur_vs_sota_score = None
         if sota_exp:
             cur_score = pd.DataFrame(exp.result).loc["ensemble"].iloc[0]
-            sota_score = pd.DataFrame(sota_exp.result).loc["ensemble"].iloc[0]
-            cur_vs_sota_score = (
+            sota_score = pd.DataFrame(sota_exp.result).loc["ensemble"].iloc[0] if "ensemble" in pd.DataFrame(sota_exp.result).index else 0
+            cur_vs_sota_score = ( if cur_score is not None and sota_score is not None else ""
                 f"The current score is {cur_score}, while the SOTA score is {sota_score}. "
                 f"{'In this competition, higher is better.' if self.scen.metric_direction else 'In this competition, lower is better.'}"
             )

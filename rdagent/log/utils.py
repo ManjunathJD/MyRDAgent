@@ -24,28 +24,27 @@ class LogColors:
     END = "\033[0m"
 
     @classmethod
-    def get_all_colors(cls: type["LogColors"]) -> list:
+    def get_all_colors(cls) -> list[str]:
         names = dir(cls)
-        names = [name for name in names if not name.startswith("__") and not callable(getattr(cls, name))]
+        names = [name for name in names if not name.startswith("__") and not callable(getattr(cls, name))] # type: ignore
         return [getattr(cls, name) for name in names]
 
-    def render(self, text: str, color: str = "", style: str = "") -> str:
+    def render(self, text: str, color: Optional[str] = None, style: Optional[str] = None) -> str:
         """
         render text by input color and style.
         It's not recommend that input text is already rendered.
         """
         # This method is called too frequently, which is not good.
         colors = self.get_all_colors()
-        # Perhaps color and font should be distinguished here.
-        if color and color in colors:
-            error_message = f"color should be in: {colors} but now is: {color}"
+        if color and color not in colors:
+            error_message = f"color should be in: {colors} but now is: {color}" # type: ignore
             raise ValueError(error_message)
-        if style and style in colors:
-            error_message = f"style should be in: {colors} but now is: {style}"
+        if style and style not in colors:
+            error_message = f"style should be in: {colors} but now is: {style}" # type: ignore
             raise ValueError(error_message)
-
+        color = color or ""
+        style = style or ""
         text = f"{color}{text}{self.END}"
-
         return f"{style}{text}{self.END}"
 
     @staticmethod

@@ -4,7 +4,7 @@ It will be replaced wtih a list of ground truth tasks.
 """
 
 import math
-from typing import Any, Callable, Dict, Optional, Union
+from typing import Any, Callable, Dict, Optional, Union, cast
 
 import torch
 from torch import Tensor
@@ -74,7 +74,7 @@ class AntiSymmetricConv(torch.nn.Module):
         self.gamma = gamma
         self.epsilon = epsilon
         self.act = activation_resolver(act, **(act_kwargs or {}))
-
+        phi = cast(MessagePassing, phi)
         if phi is None:
             phi = GCNConv(in_channels, in_channels, bias=False)
 
@@ -96,20 +96,22 @@ class AntiSymmetricConv(torch.nn.Module):
         zeros(self.bias)
 
     def forward(self, x: Tensor, edge_index: Adj, *args, **kwargs) -> Tensor:
-        r"""Runs the forward pass of the module."""
-        antisymmetric_W = self.W - self.W.t() - self.gamma * self.eye
-
-        for _ in range(self.num_iters):
-            h = self.phi(x, edge_index, *args, **kwargs)
-            h = x @ antisymmetric_W.t() + h
-
-            if self.bias is not None:
-                h += self.bias
-
-            if self.act is not None:
-                h = self.act(h)
-
-            x = x + self.epsilon * h
+            r"""Runs the forward pass of the module."""
+            antisymmetric_W = self.W - self.W.t() - self.gamma * self.eye
+    
+            for _ in range(self.num_iters):
+                h = self.phi(x, edge_index, *args, **kwargs)
+                h = x @ antisymmetric_W.t() + h
+    
+                if self.bias is not None:
+                    h += self.bias
+    
+                if self.act is not None:
+                    h = self.act(h)
+    
+                x = x + self.epsilon * h
+    
+            return x
 
         return x
 

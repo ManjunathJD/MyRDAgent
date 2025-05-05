@@ -1,6 +1,7 @@
 import platform
 import sys
-from importlib.metadata import distributions
+
+from packaging.version import parse as parse_version, Version
 
 
 def print_runtime_info():
@@ -8,7 +9,14 @@ def print_runtime_info():
 
 
 def get_installed_packages():
-    return {dist.metadata["Name"].lower(): dist.version for dist in distributions()}
+    import importlib.metadata
+    installed_packages = {}
+    for package_name in importlib.metadata.packages_distributions().keys():
+        try:
+            installed_packages[package_name.lower()] = importlib.metadata.version(package_name)
+        except importlib.metadata.PackageNotFoundError:
+            pass
+    return installed_packages
 
 
 def print_filtered_packages(installed_packages, filtered_packages):
@@ -38,3 +46,4 @@ if __name__ == "__main__":
     ]
     installed_packages = get_installed_packages()
     print_filtered_packages(installed_packages, filtered_packages)
+

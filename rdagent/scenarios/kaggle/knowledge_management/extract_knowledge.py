@@ -5,7 +5,7 @@ from pathlib import Path
 from jinja2 import Environment, StrictUndefined
 
 from rdagent.core.prompts import Prompts
-from rdagent.oai.llm_utils import APIBackend
+from rdagent.oai.llm_utils import APIBackend, parse_json_string
 
 prompt_dict = Prompts(file_path=Path(__file__).parent / "prompts.yaml")
 
@@ -29,12 +29,8 @@ def extract_knowledge_from_high_score_answers(content: str):
         json_mode=True,
     )
 
-    try:
-        response_json_analysis = json.loads(response_analysis)
-    except json.JSONDecodeError:
-        response_json_analysis = {"error": "Failed to parse LLM's response as JSON"}
+    response_json_analysis = parse_json_string(response_analysis)
 
-    return response_json_analysis
 
 
 def extract_knowledge_from_feedback(feedback_response: dict) -> dict:
@@ -59,12 +55,8 @@ def extract_knowledge_from_feedback(feedback_response: dict) -> dict:
         json_mode=True,
     )
 
-    try:
-        response_json_analysis = json.loads(response_analysis)
-    except json.JSONDecodeError:
-        response_json_analysis = {"error": "Failed to parse LLM's response as JSON"}
-
-    return response_json_analysis
+    response_json_analysis = parse_json_string(response_analysis)
+    return response_json_analysis   
 
 
 def process_all_case_files(directory_path: str):

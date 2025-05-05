@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
-from typing import Sequence
-
+from typing import Sequence, Optional, Any
+from collections.abc import Mapping
 from rdagent.components.coder.factor_coder.factor import FactorTask
 from rdagent.components.coder.model_coder.model import ModelFBWorkspace, ModelTask
 from rdagent.core.experiment import Loader, WsLoader
@@ -16,36 +16,11 @@ class ModelTaskLoader(Loader[ModelTask]):
 
 
 class ModelTaskLoaderJson(ModelTaskLoader):
-    # def __init__(self, json_uri: str, select_model: Optional[str] = None) -> None:
-    #     super().__init__()
-    #     self.json_uri = json_uri
-    #     self.select_model = 'A-DGN'
-
-    # def load(self, *argT, **kwargs) -> Sequence[ModelImplTask]:
-    #     # json is supposed to be in the format of {model_name: dict{model_data}}
-    #     model_dict = json.load(open(self.json_uri, "r"))
-    #     if self.select_model is not None:
-    #         assert self.select_model in model_dict
-    #         model_name = self.select_model
-    #         model_data = model_dict[self.select_model]
-    #     else:
-    #         model_name, model_data = list(model_dict.items())[0]
-
-    #     model_impl_task = ModelImplTask(
-    #         name=model_name,
-    #         description=model_data["description"],
-    #         formulation=model_data["formulation"],
-    #         variables=model_data["variables"],
-    #         key=model_name
-    #     )
-
-    #     return [model_impl_task]
-
     def __init__(self, json_uri: str) -> None:
         super().__init__()
         self.json_uri = json_uri
 
-    def load(self, *argT, **kwargs) -> Sequence[ModelTask]:
+    def load(self, *argT: Any, **kwargs: Any) -> Sequence[ModelTask]:
         # json is supposed to be in the format of {model_name: dict{model_data}}
         model_dict = json.load(open(self.json_uri, "r"))
         # FIXME: the model in the json file is not right due to extraction error
@@ -86,7 +61,7 @@ class ModelWsLoader(WsLoader[ModelTask, ModelFBWorkspace]):
     def __init__(self, path: Path) -> None:
         self.path = Path(path)
 
-    def load(self, task: ModelTask) -> ModelFBWorkspace:
+    def load(self, task: ModelTask) -> ModelFBWorkspace: 
         assert task.name is not None
         mti = ModelFBWorkspace(task)
         mti.prepare()

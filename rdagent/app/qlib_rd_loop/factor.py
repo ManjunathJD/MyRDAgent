@@ -12,12 +12,12 @@ from rdagent.core.exception import FactorEmptyError
 from rdagent.log import rdagent_logger as logger
 
 
-class FactorRDLoop(RDLoop):
-    skip_loop_error = (FactorEmptyError,)
+class FactorRDLoop(RDLoop):  # type: ignore
+    skip_loop_error = (FactorEmptyError,)  # type: ignore
 
-    def running(self, prev_out: dict[str, Any]):
+    def running(self, prev_out: dict[str, Any]) -> Any:
         with logger.tag("ef"):  # evaluate and feedback
-            exp = self.runner.develop(prev_out["coding"])
+            exp = self.runner.develop(prev_out["coding"])  # type: ignore
             if exp is None:
                 logger.error(f"Factor extraction failed.")
                 raise FactorEmptyError("Factor extraction failed.")

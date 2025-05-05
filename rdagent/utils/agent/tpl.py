@@ -18,6 +18,7 @@ PROJ_PATH = DIRNAME.parent.parent
 
 
 def get_caller_dir(upshift: int = 0) -> Path:
+    """get caller dir path"""
     # Inspect the calling stack to get the caller's directory
     stack = inspect.stack()
     caller_frame = stack[1 + upshift]
@@ -30,9 +31,7 @@ def get_caller_dir(upshift: int = 0) -> Path:
 
 
 def load_content(uri: str, caller_dir: Path | None = None, ftype: str = "yaml") -> Any:
-    """
-    Please refer to RDAT.__init__ file
-    """
+    """load content"""
     if caller_dir is None:
         caller_dir = get_caller_dir(upshift=1)
     # Parse the URI
@@ -69,7 +68,7 @@ def load_content(uri: str, caller_dir: Path | None = None, ftype: str = "yaml") 
         raise FileNotFoundError(f"Cannot find {uri} in {file_path_l}")
 
 
-# class T(SingletonBaseClass): TODO: singleton does not support args now.
+# class T(SingletonBaseClass): # TODO: singleton does not support args now.
 class RDAT:
     """
     RD-Agent's Template
@@ -111,16 +110,14 @@ class RDAT:
         """
         Render the template with the given context.
         """
-        # loader=FunctionLoader(load_conent) is for supporting grammar like below.
+        # loader=FunctionLoader(load_content) is for supporting grammar like below.
         # `{% include "scenarios.data_science.share:component_spec.DataLoadSpec" %}`
-        rendered = (
-            Environment(undefined=StrictUndefined, loader=FunctionLoader(load_content))
-            .from_string(self.template)
-            .render(**context)
-            .strip("\n")
-        )
-        while "\n\n\n" in rendered:
-            rendered = rendered.replace("\n\n\n", "\n\n")
+        env = Environment(undefined=StrictUndefined, loader=FunctionLoader(load_content))
+        jinja2_template = env.from_string(self.template)
+        rendered = jinja2_template.render(**context).strip("\n")
+        while "\n\n\n" in rendered:  # for safety.
+            rendered = rendered.replace("\n\n\n", "\n\n") # for safety.
+
         logger.log_object(
             obj={
                 "uri": self.uri,

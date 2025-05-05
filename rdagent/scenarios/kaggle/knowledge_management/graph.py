@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import List
 
-from jinja2 import Environment, StrictUndefined
+from jinja2 import Environment
 from tqdm import tqdm
 
 from rdagent.app.kaggle.conf import KAGGLE_IMPLEMENT_SETTING
@@ -43,7 +43,7 @@ class KGKnowledgeGraph(UndirectedGraph):
 
     def analyze_one_document(self, document_content: str, scenario: KGScenario | None) -> list:
         session_system_prompt = (
-            Environment(undefined=StrictUndefined)
+            Environment()
             .from_string(PROMPT_DICT["extract_knowledge_graph_from_document"]["system"])
             .render(scenario=scenario.get_scenario_all_desc() if scenario is not None else "")
         )
@@ -51,7 +51,7 @@ class KGKnowledgeGraph(UndirectedGraph):
         session = APIBackend().build_chat_session(
             session_system_prompt=session_system_prompt,
         )
-        user_prompt = (
+        user_prompt : str= (
             Environment(undefined=StrictUndefined)
             .from_string(PROMPT_DICT["extract_knowledge_graph_from_document"]["user"])
             .render(document_content=document_content)
@@ -60,7 +60,7 @@ class KGKnowledgeGraph(UndirectedGraph):
         for _ in range(10):
             response = session.build_chat_completion(user_prompt=user_prompt, json_mode=True)
             knowledge = json.loads(response)
-            knowledge_list.append(knowledge)
+            knowledge_list.append(knowledge) # type: ignore
             user_prompt = "Continue from the last step please. Don't extract the same knowledge again."
         return knowledge_list
 

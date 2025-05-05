@@ -1,11 +1,6 @@
 from copy import deepcopy
 from pathlib import Path
 
-from rdagent.components.coder.factor_coder.factor import (
-    FactorExperiment,
-    FactorFBWorkspace,
-    FactorTask,
-)
 from rdagent.core.prompts import Prompts
 from rdagent.core.scenario import Scenario
 from rdagent.scenarios.qlib.experiment.factor_experiment import QlibFactorScenario

@@ -9,7 +9,7 @@ import sqlite3
 import ssl
 import time
 import urllib.request
-import uuid
+
 from copy import deepcopy
 from pathlib import Path
 from typing import Any, Optional, cast
@@ -151,7 +151,7 @@ class DeprecBackend(APIBackend):
             self.gcr_endpoint_do_sample = LLM_SETTINGS.gcr_endpoint_do_sample
             self.gcr_endpoint_max_token = LLM_SETTINGS.gcr_endpoint_max_token
             if not os.environ.get("PYTHONHTTPSVERIFY", "") and hasattr(ssl, "_create_unverified_context"):
-                ssl._create_default_https_context = ssl._create_unverified_context  # noqa: SLF001
+                ssl._create_default_https_context = ssl._create_unverified_context
             self.chat_model_map = LLM_SETTINGS.chat_model_map
             self.chat_model = LLM_SETTINGS.chat_model
             self.encoder = None
@@ -342,7 +342,7 @@ class DeprecBackend(APIBackend):
                         },
                     },
                 ),
-            )
+            )  # type: ignore
 
             req = urllib.request.Request(self.gcr_endpoint, body, self.headers)  # noqa: S310
             response = urllib.request.urlopen(req)  # noqa: S310

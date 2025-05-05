@@ -1,7 +1,7 @@
 from collections import defaultdict
 from pathlib import Path
-from typing import Dict, List, Tuple, Union
-
+from typing import Dict, List, Tuple, Union, Any
+from typing import TYPE_CHECKING
 import pandas as pd
 from tqdm import tqdm
 
@@ -22,7 +22,7 @@ from rdagent.core.experiment import Experiment, Task, Workspace
 from rdagent.core.scenario import Scenario
 from rdagent.core.utils import multiprocessing_wrapper
 
-EVAL_RES = Dict[
+if TYPE_CHECKING: EVAL_RES = Dict[
     str,
     List[Tuple[FactorEvaluator, Union[object, CoderError]]],
 ]
@@ -90,7 +90,7 @@ class BaseEval:
     def load_cases_to_eval(
         self,
         path: Union[Path, str],
-        **kwargs,
+        **kwargs: Any,
     ) -> List[Workspace]:
         path = Path(path)
         fi_l = []
@@ -144,7 +144,7 @@ class FactorImplementEval(BaseEval):
         method: Developer,
         *args,
         scen: Scenario,
-        test_round: int = 10,
+        test_round: int = 10,        
         **kwargs,
     ):
         online_evaluator_l = [
@@ -197,7 +197,7 @@ class FactorImplementEval(BaseEval):
         return res
 
     @staticmethod
-    def summarize_res(res: EVAL_RES) -> pd.DataFrame:
+    def summarize_res(res: 'EVAL_RES') -> pd.DataFrame:
         # None: indicate that it raises exception and get no results
         sum_res = {}
         for factor_name, runs in res.items():
@@ -213,7 +213,7 @@ class FactorImplementEval(BaseEval):
                     val["run factor error"] = None
                     for ev_obj, err_or_res in err_or_res_l:
                         if isinstance(err_or_res, Exception):
-                            val[str(ev_obj)] = None
+                            val[str(ev_obj)] = str(err_or_res)
                         else:
                             feedback, metric = err_or_res
                             val[str(ev_obj)] = metric

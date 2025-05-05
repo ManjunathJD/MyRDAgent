@@ -55,7 +55,7 @@ class EnsembleCoSTEEREvaluator(CoSTEEREvaluator):
             }
         )
 
-        fname = "test/ensemble_test.txt"
+        fname = "ensemble_test.txt"
         test_code = (DIRNAME / "eval_tests" / "ensemble_test.txt").read_text()
         test_code = (
             Environment(undefined=StrictUndefined)
@@ -69,7 +69,7 @@ class EnsembleCoSTEEREvaluator(CoSTEEREvaluator):
         )
 
         implementation.inject_files(**{fname: test_code})
-        stdout, ret_code = implementation.execute_ret_code(env=env, entry=f"python {fname}")
+        stdout, ret_code = implementation.execute_ret_code(env=env, entry=f"python -u {fname}")
 
         stdout += f"\nNOTE: the above scripts run with return code {ret_code}"
 

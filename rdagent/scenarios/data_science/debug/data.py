@@ -4,6 +4,7 @@ import shutil
 from collections import Counter, defaultdict
 from pathlib import Path
 
+import bson  # pip install pymongo
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
@@ -15,6 +16,12 @@ except:
 
 from rdagent.app.kaggle.conf import KAGGLE_IMPLEMENT_SETTING
 
+
+def decode_bson_file(path: Path) -> pd.DataFrame:
+    """Helper function to decode a BSON file and return a DataFrame."""
+    data = bson.decode_file_iter(open(path, "rb"))
+    df = pd.DataFrame(data)
+    return df
 
 class DataHandler:
     """Base DataHandler interface."""
@@ -51,9 +58,7 @@ class GenericDataHandler(DataHandler):
             # Read JSON Lines file
             return pd.read_json(path, lines=True)
         elif suffix == ".bson":
-            data = bson.decode_file_iter(open(path, "rb"))
-            df = pd.DataFrame(data)
-            return df
+            return decode_bson_file(path)
         else:
             raise ValueError(f"Unsupported file type: {suffix}")
 
@@ -74,11 +79,10 @@ class GenericDataHandler(DataHandler):
             # Save DataFrame to JSON Lines file
             df.to_json(path, orient="records", lines=True)
         elif suffix == ".bson":
-            data = df.to_dict(orient="records")
-            with open(path, "wb") as file:
-                # Write each record in the list to the BSON file
-                for record in data:
-                    file.write(bson.BSON.encode(record))
+            with open(path, "wb") as file_:
+                for record in df.to_dict(orient="records"):
+                    file_.write(bson.BSON.encode(record))
+
         else:
             raise ValueError(f"Unsupported file type: {suffix}")
 
@@ -122,7 +126,11 @@ class UniqueIDDataReducer(DataReducer):
             return self.random_reducer.reduce(df)
 
         def is_valid_label(column):
-            if not isinstance(column.iloc[0], (int, float, str, tuple, frozenset, bytes, complex, type(None))):
+            if not isinstance(
+                column.iloc[0],
+                (int, float, str, tuple, frozenset, bytes, complex, type(None)),
+            ):
+
                 return False
 
             if not (0 < column.nunique() < df.shape[0] * 0.5):

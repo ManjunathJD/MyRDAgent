@@ -3,7 +3,7 @@ import math
 from pathlib import Path
 from typing import List, Tuple
 
-from jinja2 import Environment, StrictUndefined
+from jinja2 import Environment
 
 from rdagent.app.kaggle.conf import KAGGLE_IMPLEMENT_SETTING
 from rdagent.components.coder.factor_coder.factor import FactorTask
@@ -188,7 +188,7 @@ def generate_RAG_content(
             insights.append(insight)
 
     RAG_content = (
-        Environment(undefined=StrictUndefined)
+        Environment()
         .from_string(prompt_dict["KG_hypothesis_gen_RAG"])
         .render(insights=insights, experiences=experiences)
     )
@@ -263,7 +263,7 @@ class KGHypothesisGen(FactorAndModelHypothesisGen):
     def prepare_context(self, trace: Trace) -> Tuple[dict, bool]:
         hypothesis_and_feedback = (
             (
-                Environment(undefined=StrictUndefined)
+                Environment()
                 .from_string(prompt_dict["hypothesis_and_feedback"])
                 .render(trace=trace)
             )
@@ -333,7 +333,7 @@ class KGHypothesis2Experiment(FactorAndModelHypothesis2Experiment):
         hypothesis_and_feedback = (
             (
                 Environment(undefined=StrictUndefined)
-                .from_string(prompt_dict["hypothesis_and_feedback"])
+                .from_string(prompt_dict["hypothesis_and_feedback"])  # type: ignore
                 .render(trace=trace)
             )
             if len(trace.hist) > 0

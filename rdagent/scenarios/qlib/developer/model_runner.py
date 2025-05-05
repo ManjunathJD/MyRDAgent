@@ -21,7 +21,7 @@ class QlibModelRunner(CachedRunner[QlibModelExperiment]):
     def develop(self, exp: QlibModelExperiment) -> QlibModelExperiment:
         if exp.sub_workspace_list[0].file_dict.get("model.py") is None:
             raise ModelEmptyError("model.py is empty")
-        # to replace & inject code
+
         exp.experiment_workspace.inject_files(**{"model.py": exp.sub_workspace_list[0].file_dict["model.py"]})
 
         env_to_use = {"PYTHONPATH": "./"}

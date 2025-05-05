@@ -2,7 +2,7 @@
 Tools that support generating better formats.
 """
 
-
+from typing import List
 def shrink_text(text: str, context_lines: int = 200, line_len: int = 5000) -> str:
     """
     When the context is too long, hide the part in the middle.
@@ -17,15 +17,15 @@ def shrink_text(text: str, context_lines: int = 200, line_len: int = 5000) -> st
     'aaaaa... (5000 chars are hidden) ...aaaaa'
     """
 
-    lines = text.splitlines()
-    total_lines = len(lines)
+    lines: List[str] = text.splitlines()
+    total_lines: int = len(lines)
 
-    new_lines = []
+    new_lines: List[str] = []
     for line in lines:
         if len(line) > line_len:
             # If any line is longer than line_len, we can't shrink it
             line = f"{line[:line_len // 2]}... ({len(line) - line_len} chars are hidden) ...{line[- line_len + line_len // 2:]}"
-        new_lines.append(line)
+        new_lines.append(line) # type: ignore
     lines = new_lines
 
     if total_lines <= context_lines:
@@ -33,10 +33,10 @@ def shrink_text(text: str, context_lines: int = 200, line_len: int = 5000) -> st
 
     # Calculate how many lines to show from start and end
     half_lines = context_lines // 2
-    start = "\n".join(lines[:half_lines])
-    end = "\n".join(lines[-half_lines:])
+    start: str = "\n".join(lines[:half_lines])
+    end: str = "\n".join(lines[-half_lines:])
 
     # Count the number of lines we're hiding
-    hidden_lines = total_lines - half_lines * 2
+    hidden_lines: int = total_lines - half_lines * 2
 
     return f"{start}\n... ({hidden_lines} lines are hidden) ...\n{end}"

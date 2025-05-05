@@ -1,6 +1,7 @@
 from copy import deepcopy
 from pathlib import Path
 
+from rdagent import logger
 from rdagent.app.kaggle.conf import KAGGLE_IMPLEMENT_SETTING
 from rdagent.components.coder.factor_coder.factor import (
     FactorFBWorkspace,
@@ -35,6 +36,7 @@ KG_SELECT_MAPPING = {
 
 
 class KGModelExperiment(ModelExperiment[ModelTask, KGFBWorkspace, ModelFBWorkspace]):
+    
     def __init__(self, *args, source_feature_size: int = None, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.experiment_workspace = KGFBWorkspace(

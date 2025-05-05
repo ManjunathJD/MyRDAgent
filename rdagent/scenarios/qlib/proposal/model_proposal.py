@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from typing import List, Tuple
 
-from jinja2 import Environment, StrictUndefined
+from jinja2 import Environment
 
 from rdagent.components.coder.model_coder.model import ModelExperiment, ModelTask
 from rdagent.components.proposal import ModelHypothesis2Experiment, ModelHypothesisGen
@@ -22,7 +22,7 @@ class QlibModelHypothesisGen(ModelHypothesisGen):
     def prepare_context(self, trace: Trace) -> Tuple[dict, bool]:
         hypothesis_and_feedback = (
             (
-                Environment(undefined=StrictUndefined)
+                Environment()
                 .from_string(prompt_dict["hypothesis_and_feedback"])
                 .render(trace=trace)
             )
@@ -57,7 +57,7 @@ class QlibModelHypothesis2Experiment(ModelHypothesis2Experiment):
 
         hypothesis_and_feedback = (
             (
-                Environment(undefined=StrictUndefined)
+                Environment()
                 .from_string(prompt_dict["hypothesis_and_feedback"])
                 .render(trace=trace)
             )

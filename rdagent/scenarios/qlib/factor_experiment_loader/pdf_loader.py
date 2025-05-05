@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import multiprocessing as mp
 import re
 from pathlib import Path
 from typing import Mapping
@@ -11,12 +10,10 @@ import pandas as pd
 from jinja2 import Environment, StrictUndefined
 from sklearn.cluster import KMeans
 from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.preprocessing import normalize
+from sklearn.preprocessing import normalize  # type: ignore
 from tqdm.auto import tqdm
 
-from rdagent.components.document_reader.document_reader import (
-    load_and_process_pdfs_by_langchain,
-)
+from rdagent.components.document_reader.document_reader import load_and_process_pdfs_by_langchain
 from rdagent.components.loader.experiment_loader import FactorExperimentLoader
 from rdagent.core.conf import RD_AGENT_SETTINGS
 from rdagent.core.prompts import Prompts
@@ -24,9 +21,7 @@ from rdagent.core.utils import multiprocessing_wrapper
 from rdagent.log import rdagent_logger as logger
 from rdagent.oai.llm_conf import LLM_SETTINGS
 from rdagent.oai.llm_utils import APIBackend
-from rdagent.scenarios.qlib.factor_experiment_loader.json_loader import (
-    FactorExperimentLoaderFromDict,
-)
+from rdagent.scenarios.qlib.factor_experiment_loader.json_loader import FactorExperimentLoaderFromDict
 
 document_process_prompts = Prompts(file_path=Path(__file__).parent / "prompts.yaml")
 
@@ -50,16 +45,6 @@ def classify_report_from_dict(
       with a single key 'class' and its value being the classification result (0 or 1).
 
     """
-    # if len(substrings) == 0:
-    #     substrings = (
-    #         "金融工程",
-    #         "金工",
-    #         "回测",
-    #         "因子",
-    #         "机器学习",
-    #         "深度学习",
-    #         "量化",
-    #     )
 
     res_dict = {}
     classify_prompt = document_process_prompts["classify_system"]
@@ -75,13 +60,6 @@ def classify_report_from_dict(
             logger.warning(f"Input format does not meet the requirements: {file_name}")
             res_dict[file_name] = {"class": 0}
             continue
-
-        # pre-filter document with key words is not necessary, skip this check for now
-        # if (
-        #     not any(substring in content for substring in substrings) and False
-        # ):
-        #     res_dict[file_name] = {"class": 0}
-        # else:
         while (
             APIBackend().build_messages_and_calculate_token(
                 user_prompt=content,
@@ -118,9 +96,7 @@ def classify_report_from_dict(
 
 
 def __extract_factors_name_and_desc_from_content(
-    content: str,
-) -> dict[str, dict[str, str]]:
-    session = APIBackend().build_chat_session(
+    content: str) -> dict[str, dict[str, str]]:
         session_system_prompt=document_process_prompts["extract_factors_system"],
     )
 
@@ -145,8 +121,8 @@ def __extract_factors_name_and_desc_from_content(
 
 def __extract_factors_formulation_from_content(
     content: str,
-    factor_dict: dict[str, str],
-) -> dict[str, dict[str, str]]:
+    factor_dict: dict[str, str]) -> dict[str, dict[str, str]]:
+    
     factor_dict_df = pd.DataFrame(
         factor_dict.items(),
         columns=["factor_name", "factor_description"],
@@ -161,7 +137,9 @@ def __extract_factors_formulation_from_content(
         .render(report_content=content, factor_dict=factor_dict_df.to_string())
     )
 
-    session = APIBackend().build_chat_session(session_system_prompt=system_prompt)
+    session = APIBackend().build_chat_session(
+        session_system_prompt=system_prompt,
+    )
     factor_to_formulation = {}
 
     for _ in range(10):
@@ -172,7 +150,9 @@ def __extract_factors_formulation_from_content(
         ret_dict = json.loads(extract_result_resp)
         for name, formulation_and_description in ret_dict.items():
             if name in factor_dict:
-                factor_to_formulation[name] = formulation_and_description
+                factor_to_formulation[name] = formulation_and_description            
+        
+        remain_df = factor_dict_df[~factor_dict_df["factor_name"].isin(factor_to_formulation)]
         if len(factor_to_formulation) != len(factor_dict):
             remain_df = factor_dict_df[~factor_dict_df["factor_name"].isin(factor_to_formulation)]
             current_user_prompt = (
@@ -188,8 +168,8 @@ def __extract_factors_formulation_from_content(
 
 
 def __extract_factor_and_formulation_from_one_report(
-    content: str,
-) -> dict[str, dict[str, str]]:
+    content: str) -> dict[str, dict[str, str]]:
+    
     final_factor_dict_to_one_report = {}
     factor_dict = __extract_factors_name_and_desc_from_content(content)
     if len(factor_dict) != 0:
@@ -227,10 +207,10 @@ def __extract_factor_and_formulation_from_one_report(
 def extract_factors_from_report_dict(
     report_dict: dict[str, str],
     useful_no_dict: dict[str, dict[str, str]],
-    n_proc: int = 11,
-) -> dict[str, dict[str, dict[str, str]]]:
+    n_proc: int = 11) -> dict[str, dict[str, dict[str, str]]]:
+    
     useful_report_dict = {}
-    for key, value in useful_no_dict.items():
+    for key, value in useful_no_dict.items():        
         if isinstance(value, dict):
             if int(value.get("class")) == 1:
                 useful_report_dict[key] = report_dict[key]
@@ -255,8 +235,8 @@ def extract_factors_from_report_dict(
 
 
 def merge_file_to_factor_dict_to_factor_dict(
-    file_to_factor_dict: dict[str, dict],
-) -> dict:
+    file_to_factor_dict: dict[str, dict]) -> dict:
+    
     factor_dict = {}
     for file_name in file_to_factor_dict:
         for factor_name in file_to_factor_dict[file_name]:
@@ -276,8 +256,8 @@ def merge_file_to_factor_dict_to_factor_dict(
 
 
 def __check_factor_dict_relevance(
-    factor_df_string: str,
-) -> dict[str, dict[str, str]]:
+    factor_df_string: str) -> dict[str, dict[str, str]]:
+    
     extract_result_resp = APIBackend().build_messages_and_create_chat_completion(
         system_prompt=document_process_prompts["factor_relevance_system"],
         user_prompt=factor_df_string,
@@ -287,8 +267,8 @@ def __check_factor_dict_relevance(
 
 
 def check_factor_relevance(
-    factor_dict: dict[str, dict[str, str]],
-) -> tuple[dict[str, dict[str, str]], dict[str, dict[str, str]]]:
+    factor_dict: dict[str, dict[str, str]]) -> tuple[dict[str, dict[str, str]], dict[str, dict[str, str]]]:
+    
     factor_relevance_dict = {}
 
     factor_df = pd.DataFrame(factor_dict).T
@@ -319,8 +299,8 @@ def check_factor_relevance(
 
 
 def __check_factor_dict_viability_simulate_json_mode(
-    factor_df_string: str,
-) -> dict[str, dict[str, str]]:
+    factor_df_string: str) -> dict[str, dict[str, str]]:
+    
     extract_result_resp = APIBackend().build_messages_and_create_chat_completion(
         system_prompt=document_process_prompts["factor_viability_system"],
         user_prompt=factor_df_string,
@@ -330,8 +310,8 @@ def __check_factor_dict_viability_simulate_json_mode(
 
 
 def check_factor_viability(
-    factor_dict: dict[str, dict[str, str]],
-) -> tuple[dict[str, dict[str, str]], dict[str, dict[str, str]]]:
+    factor_dict: dict[str, dict[str, str]]) -> tuple[dict[str, dict[str, str]], dict[str, dict[str, str]]]:
+    
     factor_viability_dict = {}
 
     factor_df = pd.DataFrame(factor_dict).T
@@ -362,8 +342,8 @@ def check_factor_viability(
 
 
 def __check_factor_duplication_simulate_json_mode(
-    factor_df: pd.DataFrame,
-) -> list[list[str]]:
+    factor_df: pd.DataFrame) -> list[list[str]]:
+    
     current_user_prompt = factor_df.to_string()
 
     working_list = [factor_df]
@@ -403,7 +383,7 @@ def __check_factor_duplication_simulate_json_mode(
 
 
 def __kmeans_embeddings(embeddings: np.ndarray, k: int = 20) -> list[list[str]]:
-    x_normalized = normalize(embeddings)
+    x_normalized = normalize(embeddings, norm='l2')
 
     np.random.seed(42)
 
@@ -439,7 +419,7 @@ def __kmeans_embeddings(embeddings: np.ndarray, k: int = 20) -> list[list[str]]:
         new_centroids = np.array(
             [x_normalized[closest_clusters == i].mean(axis=0) for i in range(k)],
         )
-        new_centroids = normalize(new_centroids)  # 归一化新的簇中心
+        new_centroids = normalize(new_centroids, norm='l2')  # 归一化新的簇中心
 
         # Check whether the cluster center has changed
         if np.allclose(centroids, new_centroids):
@@ -458,7 +438,8 @@ def __kmeans_embeddings(embeddings: np.ndarray, k: int = 20) -> list[list[str]]:
     )
 
 
-def __deduplicate_factor_dict(factor_dict: dict[str, dict[str, str]]) -> list[list[str]]:
+def __deduplicate_factor_dict(
+    factor_dict: dict[str, dict[str, str]]) -> list[list[str]]:
     if len(factor_dict) == 0:
         return []
     factor_df = pd.DataFrame(factor_dict).T
@@ -595,5 +576,5 @@ class FactorExperimentLoaderFromPDFfiles(FactorExperimentLoader):
             logger.log_object(filtered_factor_dict)
 
         # factor_dict, duplication_names_list = deduplicate_factors_by_llm(factor_dict, factor_viability)
-
+        
         return FactorExperimentLoaderFromDict().load(filtered_factor_dict)

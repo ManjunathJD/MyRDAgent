@@ -16,7 +16,7 @@ import subprocess
 import time
 import uuid
 import zipfile
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from pathlib import Path
 from types import MappingProxyType
 from typing import Any, Generic, Mapping, Optional, TypeVar
@@ -79,7 +79,7 @@ class EnvConf(ExtendedBaseSettings):
 ASpecificEnvConf = TypeVar("ASpecificEnvConf", bound=EnvConf)
 
 
-class Env(Generic[ASpecificEnvConf]):
+class Env(Generic[ASpecificEnvConf], ABC):
     """
     We use BaseModel as the setting due to the features it provides
     - It provides base typing and checking features.

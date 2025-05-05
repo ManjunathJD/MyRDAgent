@@ -139,7 +139,7 @@ component_spec:
       - Handle file encoding and delimiters appropriately.
       - Combine or process multiple files if necessary.
       - Avoid using the sample submission file to infer test indices. If a dedicated test index file is available, use that. If not, use the order in the test file as the test index.
-      - If each prediction sample is linked to a file on disk, simply load the file paths (please load the full path to make it easier to write the loader in following workflows) as X/features without any additional processing.
+      - If each prediction sample is linked to a file on disk, simply load the file paths (load the full path to make it easier to write the loader in following workflows) as X/features without any additional processing.
 
     2. Data Preprocessing:
       - Convert data types correctly (e.g., numeric, categorical, date parsing).

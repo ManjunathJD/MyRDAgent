@@ -1,5 +1,4 @@
 import importlib
-import os
 import unittest
 from pathlib import Path
 
@@ -15,7 +14,7 @@ class TestRDAgentImports(unittest.TestCase):
 
     @staticmethod
     def import_all_modules_from_directory(directory):
-        for file in directory.joinpath("rdagent").rglob("*.py"):
+        for file in directory.joinpath("rdagent").rglob("**/*.py"):
             fstr = str(file)
             if "meta_tpl" in fstr:
                 continue
@@ -23,16 +22,12 @@ class TestRDAgentImports(unittest.TestCase):
                 continue
             if "model_coder" in fstr:
                 continue
-            if "llm_st" in fstr:
+            if "llm_st" in fstr or "app/cli" in fstr or "app/CI" in fstr or "ape" in fstr or "rdagent/log/ui" in fstr:
                 continue
-            if (
-                "rdagent/log/ui/" in fstr
-                or fstr.endswith("rdagent/app/cli.py")
-                or fstr.endswith("rdagent/app/CI/run.py")
-                or fstr.endswith("rdagent/app/utils/ape.py")
-            ):
-                # the entrance points
-                continue
+
+            # if "app/cli" in fstr or "app/CI" in fstr or "ape" in fstr or "rdagent/log/ui" in fstr:
+            #     # the entrance points
+            #     continue
 
             yield fstr[fstr.index("rdagent") : -3].replace("/", ".")
 

@@ -1,7 +1,7 @@
 import uuid
 from pathlib import Path
-from typing import List, Tuple, Union
-
+from typing import List, Tuple, Union, Optional
+import numpy as np
 import pandas as pd
 from scipy.spatial.distance import cosine
 
@@ -9,7 +9,7 @@ from rdagent.core.knowledge_base import KnowledgeBase
 from rdagent.log import rdagent_logger as logger
 from rdagent.oai.llm_utils import APIBackend
 
-
+import numpy
 class KnowledgeMetaData:
     def __init__(self, content: str = "", label: str = None, embedding=None, identity=None):
         self.label = label
@@ -87,7 +87,7 @@ class VectorBase(KnowledgeBase):
         """
         pass
 
-    def search(self, content: str, topk_k: int | None = None, similarity_threshold: float = 0) -> List[Document]:
+    def search(self, content: str, topk_k: Optional[int] = None, similarity_threshold: float = 0) -> List[Document]:
         """
         search vector_df by node
         Parameters
@@ -158,7 +158,7 @@ class PDVectorBase(VectorBase):
     def search(
         self,
         content: str,
-        topk_k: int | None = None,
+        topk_k: Optional[int] = None,
         similarity_threshold: float = 0,
         constraint_labels: list[str] | None = None,
     ) -> Tuple[List[Document], List]:
@@ -192,8 +192,11 @@ class PDVectorBase(VectorBase):
         if constraint_labels is not None:
             filtered_df = self.vector_df[self.vector_df["label"].isin(constraint_labels)]
 
-        similarities = filtered_df["embedding"].apply(
-            lambda x: 1 - cosine(x, document.embedding)
+        similarities = filtered_df["embedding"].apply(lambda x: (
+            1 - cosine(np.array(x), np.array(document.embedding))
+            if not isinstance(x, numpy.ndarray) or not isinstance(document.embedding, numpy.ndarray)
+            else (1-cosine(x, document.embedding))
+
         )  # cosine is cosine distance, 1-similarity
 
         searched_similarities = similarities[similarities > similarity_threshold]

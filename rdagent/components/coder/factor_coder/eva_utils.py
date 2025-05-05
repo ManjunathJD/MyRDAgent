@@ -202,7 +202,7 @@ class FactorOutputFormatEvaluator(FactorEvaluator):
                 )
             )
         )
-
+        resp_dict = {}
         # TODO: with retry_context(retry_n=3, except_list=[KeyError]):
         max_attempts = 3
         attempts = 0
@@ -217,13 +217,14 @@ class FactorOutputFormatEvaluator(FactorEvaluator):
                     json_mode=True,
                     json_target_type=Dict[str, str | bool | int],
                 )
-                resp_dict = json.loads(resp)
-                resp_dict["output_format_decision"] = str(resp_dict["output_format_decision"]).lower() in ["true", "1"]
+                resp_dict.update(json.loads(resp))
 
-                return (
-                    str(resp_dict["output_format_feedback"]),
-                    resp_dict["output_format_decision"],
-                )
+                if "output_format_decision" in resp_dict:
+                    resp_dict["output_format_decision"] = str(resp_dict["output_format_decision"]).lower() in ["true", "1"]
+                    return (
+                        str(resp_dict["output_format_feedback"]),
+                        resp_dict["output_format_decision"],
+                    )
             except (KeyError, json.JSONDecodeError) as e:
                 attempts += 1
                 if attempts >= max_attempts:
@@ -551,7 +552,7 @@ class FactorFinalDecisionEvaluator(FactorEvaluator):
         max_attempts = 3
 
         while attempts < max_attempts:
-            try:
+            try: 
                 api = APIBackend() if attempts == 0 else APIBackend(use_chat_cache=False)
                 final_evaluation_dict = json.loads(
                     api.build_messages_and_create_chat_completion(

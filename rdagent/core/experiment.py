@@ -18,7 +18,7 @@ from rdagent.utils import filter_redundant_text
 from rdagent.utils.fmt import shrink_text
 
 if typing.TYPE_CHECKING:
-    from rdagent.core.proposal import Hypothesis
+    from rdagent.core.proposal import Hypothesis  # noqa: F401
     from rdagent.utils.env import Env
 
 """
@@ -192,11 +192,11 @@ class FBWorkspace(Workspace):
         self.prepare()
         for k, v in files.items():
             target_file_path = self.workspace_path / k  # Define target_file_path before using it
-            if v == self.DEL_KEY:  # Use self.DEL_KEY to access the class variable
+            if v == self.DEL_KEY:
                 if target_file_path.exists():
-                    target_file_path.unlink()  # Unlink the file if it exists
-                self.file_dict.pop(k, None)  # Safely remove the key from file_dict
-            else:
+                    target_file_path.unlink()
+                self.file_dict.pop(k, None)
+            else:  # Use self.DEL_KEY to access the class variable
                 self.file_dict[k] = v
                 target_file_path.parent.mkdir(parents=True, exist_ok=True)
                 target_file_path.write_text(v)

@@ -106,7 +106,7 @@ class WorkflowGeneralCaseSpecEvaluator(CoSTEEREvaluator):
                 # Check model names (index)
                 if model_set_in_scores != model_set_in_folder.union({"ensemble"}):
                     score_check_text += f"\n[Error] The scores dataframe does not contain the correct model names as index.\ncorrect model names are: {model_set_in_folder.union({'ensemble'})}\nscore_df is:\n{score_df}"
-                    score_ret_code = 1
+                    score_ret_code = 2
 
                 # Check metric name (columns)
                 if score_df.columns.tolist() != [self.scen.metric_name]:
@@ -116,11 +116,11 @@ class WorkflowGeneralCaseSpecEvaluator(CoSTEEREvaluator):
                 # Check if scores contain NaN (values)
                 if score_df.isnull().values.any():
                     nan_locations = score_df[score_df.isnull().any(axis=1)]
-                    score_check_text += f"\n[Error] The scores dataframe contains NaN values at the following locations:\n{nan_locations}"
+                    score_check_text += f"\n[Error] The scores dataframe contains NaN values at the following locations:\n{nan_locations.to_string()}"
                     score_ret_code = 1
 
             except Exception as e:
-                score_check_text += f"\n[Error] in checking the scores.csv file: {e}\nscores.csv's content:\n-----\n{score_fp.read_text()}\n-----"
+                score_check_text += f"\n[Error] in checking the scores.csv file: {e}\nscores.csv's content:\n-----\n{score_fp.read_text(encoding='utf-8')}\n-----"
                 score_ret_code = 1
 
         # Check submission file

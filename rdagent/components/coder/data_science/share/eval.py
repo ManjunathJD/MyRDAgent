@@ -26,7 +26,7 @@ class ModelDumpEvaluator(CoSTEEREvaluator):
     """This evaluator assumes that it runs after the model"""
 
     def __init__(self, scen: Scenario, data_type: Literal["sample", "full"]):
-        super().__init__(scen)
+        super().__init__(scen=scen)
         self.data_type = data_type
 
     def evaluate(

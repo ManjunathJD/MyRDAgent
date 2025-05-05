@@ -100,7 +100,7 @@ def get_summary_df(log_folders: list[str]) -> tuple[dict, pd.DataFrame]:
                 v["sota_exp_score_valid"] = None
             # 调整实验名字
             if "amlt" in lf:
-                summary[f"{lf[lf.rfind('amlt')+5:].split('/')[0]} - {k}"] = v
+                summary[f"{lf[lf.rfind('amlt') + 5 :].split('/')[0]} - {k}"] = v
             elif "ep" in lf:
                 summary[f"{lf[lf.rfind('ep'):]} - {k}"] = v
             else:
@@ -152,7 +152,9 @@ def get_summary_df(log_folders: list[str]) -> tuple[dict, pd.DataFrame]:
         if s1 is None or s2 is None:
             return None
         try:
-            c_value = math.exp(abs(math.log(s1 / s2)))
+            if s1 == 0 or s2 == 0:
+                return None
+            c_value = math.exp(abs(math.log(s1 / s2)))  # type: ignore
         except Exception as e:
             c_value = None
         return c_value
@@ -285,8 +287,8 @@ def percent_df(df: pd.DataFrame, show_origin=True) -> pd.DataFrame:
 def days_summarize_win():
     lfs1 = [re.sub(r"log\.srv\d*", "log.srv", folder) for folder in state.log_folders]
     lfs2 = [re.sub(r"log\.srv\d*", "log.srv2", folder) for folder in state.log_folders]
-    lfs3 = [re.sub(r"log\.srv\d*", "log.srv3", folder) for folder in state.log_folders]
-
+    lfs3 = [re.sub(r"log\.srv\d*", "log.srv3", folder) for folder in state.log_folders]    
+    
     _, df1 = get_summary_df(lfs1)
     _, df2 = get_summary_df(lfs2)
     _, df3 = get_summary_df(lfs3)

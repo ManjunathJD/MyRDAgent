@@ -44,7 +44,7 @@ def extract_model_from_doc(doc_content: str) -> dict:
         extract_result_resp = session.build_chat_completion(
             user_prompt=current_user_prompt,
             json_mode=False,
-        )
+        )  # type: ignore
         re_search_res = re.search(r"```json(.*)```", extract_result_resp, re.S)
         ret_json_str = re_search_res.group(1) if re_search_res is not None else ""
         try:

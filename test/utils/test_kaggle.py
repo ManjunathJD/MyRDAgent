@@ -1,4 +1,5 @@
 import unittest
+import sys
 from pathlib import Path
 
 import nbformat
@@ -8,6 +9,9 @@ from rdagent.app.kaggle.conf import KAGGLE_IMPLEMENT_SETTING
 from rdagent.oai.llm_utils import APIBackend
 from rdagent.scenarios.kaggle.experiment.workspace import KGFBWorkspace
 from rdagent.scenarios.kaggle.kaggle_crawler import download_data
+from rdagent.utils.agent import ret
+from rdagent.utils.agent import tpl
+
 from rdagent.utils.agent.ret import PythonAgentOut
 from rdagent.utils.agent.tpl import T
 
@@ -33,4 +37,6 @@ class TestTpl(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    if sys.version_info >= (3, 13):
+        import asyncio
+        asyncio.run(unittest.main(argv=['first-arg-is-ignored'], exit=False))

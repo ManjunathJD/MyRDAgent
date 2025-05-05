@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Any
 
 import pandas as pd
 
@@ -14,7 +13,7 @@ class QlibFBWorkspace(FBWorkspace):
         self.inject_code_from_folder(template_folder_path)
 
     def execute(self, qlib_config_name: str = "conf.yaml", run_env: dict = {}, *args, **kwargs) -> str:
-        qtde = QTDockerEnv()
+        qtde = QTDockerEnv(name="QlibEnv")
         qtde.prepare()
 
         # Run the Qlib backtest
@@ -24,12 +23,12 @@ class QlibFBWorkspace(FBWorkspace):
             env=run_env,
         )
 
-        execute_log = qtde.run(
+        qtde.run(
             local_path=str(self.workspace_path),
             entry="python read_exp_res.py",
             env=run_env,
         )
-
+        
         ret_df = pd.read_pickle(self.workspace_path / "ret.pkl")
         logger.log_object(ret_df, tag="Quantitative Backtesting Chart")
 

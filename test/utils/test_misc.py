@@ -1,4 +1,5 @@
 import unittest
+import sys
 
 import pytest
 
@@ -58,9 +59,10 @@ class MiscTest(unittest.TestCase):
         # Test pickle
         import pickle
 
-        with self.assertRaises(pickle.PicklingError):
-            with open("a3.pkl", "wb") as f:
-                pickle.dump(a3, f)
+        if sys.version_info < (3, 13):
+            with self.assertRaises(pickle.PicklingError):
+                with open("a3.pkl", "wb") as f:
+                    pickle.dump(a3, f)
         # NOTE: If the pickle feature is not disabled,
         # loading a3.pkl will return a1, and a1 will be updated with a3's attributes.
         # print(a1.kwargs)

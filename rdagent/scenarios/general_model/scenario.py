@@ -1,7 +1,6 @@
 from copy import deepcopy
 from pathlib import Path
 
-from rdagent.core.experiment import Task
 from rdagent.core.prompts import Prompts
 from rdagent.core.scenario import Scenario
 
@@ -42,7 +41,7 @@ class GeneralModelScenario(Scenario):
         return self._rich_style_description
 
     def get_scenario_all_desc(
-        self, task: Task | None = None, filtered_tag: str | None = None, simple_background: bool | None = None
+        self, filtered_tag: str | None = None, simple_background: bool | None = None
     ) -> str:
         return f"""Background of the scenario:
 {self.background}

@@ -1,4 +1,3 @@
-import io
 import re
 import shutil
 from pathlib import Path
@@ -98,7 +97,7 @@ def get_file_desc(p: Path, variable_list=[]) -> str:
         df_info += "\n"
         if "REPORT_PERIOD" in df.columns:
             one_instrument = df.index.get_level_values("instrument")[0]
-            df_on_one_instrument = df.loc[pd.IndexSlice[:, one_instrument], ["REPORT_PERIOD"]]
+            df_on_one_instrument = df.loc[pd.IndexSlice[:, one_instrument], ["REPORT_PERIOD"]].copy()
             df_info += f"""
 A snapshot of one instrument, from which you can tell the distribution of the data:
 {df_on_one_instrument.head(5)}

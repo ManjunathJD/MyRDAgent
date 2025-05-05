@@ -1,12 +1,12 @@
 import json
 from pathlib import Path
 
-from rdagent.components.benchmark.eval_method import TestCase, TestCases
 from rdagent.components.coder.factor_coder.factor import (
     FactorExperiment,
     FactorFBWorkspace,
     FactorTask,
 )
+from rdagent.components.benchmark.eval_method import TestCase, TestCases
 from rdagent.components.loader.experiment_loader import FactorExperimentLoader
 from rdagent.core.experiment import Experiment, Loader
 from rdagent.scenarios.qlib.experiment.factor_experiment import QlibFactorExperiment

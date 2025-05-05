@@ -16,10 +16,10 @@ if TYPE_CHECKING:
 # class data_ana: XXX
 
 
-class Hypothesis:
+class Hypothesis:  # noqa: D101
     """
     TODO: We may have better name for it.
-
+    
     Name Candidates:
     - Belief
     """
@@ -55,7 +55,7 @@ class Hypothesis:
 # Origin(path of repo/data/feedback) => view/summarization => generated Hypothesis
 
 
-class ExperimentFeedback(Feedback):
+class ExperimentFeedback(Feedback):  # noqa: D101
     def __init__(
         self,
         reason: str,
@@ -85,7 +85,7 @@ class ExperimentFeedback(Feedback):
         return cls(decision=False, reason=f"The experiment fails due to {e!s}", exception=e)
 
 
-class HypothesisFeedback(ExperimentFeedback):
+class HypothesisFeedback(ExperimentFeedback):  # noqa: D101
     def __init__(
         self,
         observations: str,
@@ -111,7 +111,7 @@ ASpecificScen = TypeVar("ASpecificScen", bound=Scenario)
 ASpecificKB = TypeVar("ASpecificKB", bound=KnowledgeBase)
 
 
-class Trace(Generic[ASpecificScen, ASpecificKB]):
+class Trace(Generic[ASpecificScen, ASpecificKB]):  # noqa: D101
     NodeType = tuple[Experiment, ExperimentFeedback]  # Define NodeType as a new type representing the tuple
 
     def __init__(self, scen: ASpecificScen, knowledge_base: ASpecificKB | None = None) -> None:
@@ -135,7 +135,7 @@ class Trace(Generic[ASpecificScen, ASpecificKB]):
         return None, None
 
 
-class CheckpointSelector:
+class CheckpointSelector:  # noqa: D101
     """
     In the trace, we may start from any check point (we'll represent it as a variable `from_checkpoint_idx`)
     """
@@ -154,7 +154,7 @@ class CheckpointSelector:
         """
 
 
-class ExpGen(ABC):
+class ExpGen(ABC):  # noqa: D101
 
     def __init__(self, scen: Scenario) -> None:
         self.scen = scen
@@ -175,7 +175,7 @@ class ExpGen(ABC):
         """
 
 
-class HypothesisGen(ABC):
+class HypothesisGen(ABC):  # noqa: D101
     # NOTE: the design is a little wierd
     # - Sometimes we want accurate access the prompts in a specific level
     #   - It renders the prompt to a specific abstract level
@@ -199,7 +199,7 @@ class HypothesisGen(ABC):
         """
 
 
-class Hypothesis2Experiment(ABC, Generic[ASpecificExp]):
+class Hypothesis2Experiment(ABC, Generic[ASpecificExp]):  # noqa: D101
     """
     [Abstract description => concrete description] => Code implementation Card
     """
@@ -213,7 +213,7 @@ class Hypothesis2Experiment(ABC, Generic[ASpecificExp]):
 # Boolean, Reason, Confidence, etc.
 
 
-class Experiment2Feedback(ABC):
+class Experiment2Feedback(ABC):  # noqa: D101
     """ "Generated feedbacks on the hypothesis from **Executed** Implementations of different tasks
     & their comparisons with previous performances"""
 

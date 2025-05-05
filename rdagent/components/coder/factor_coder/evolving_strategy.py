@@ -25,7 +25,7 @@ implement_prompts = Prompts(file_path=Path(__file__).parent / "prompts.yaml")
 
 
 class FactorMultiProcessEvolvingStrategy(MultiProcessEvolvingStrategy):
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.num_loop = 0
         self.haveSelected = False
@@ -166,7 +166,7 @@ class FactorMultiProcessEvolvingStrategy(MultiProcessEvolvingStrategy):
         for _ in range(10):
             try:
                 code = json.loads(
-                    APIBackend(
+                    APIBackend(  # type: ignore
                         use_chat_cache=FACTOR_COSTEER_SETTINGS.coder_use_cache
                     ).build_messages_and_create_chat_completion(
                         user_prompt=user_prompt,
@@ -176,7 +176,7 @@ class FactorMultiProcessEvolvingStrategy(MultiProcessEvolvingStrategy):
                     )
                 )["code"]
                 return code
-            except json.decoder.JSONDecodeError:
+            except json.JSONDecodeError:
                 pass
         else:
             return ""  # return empty code if failed to get code after 10 attempts

@@ -2,6 +2,7 @@ import json
 import unittest
 
 from rdagent.oai.llm_utils import APIBackend
+from typing import Any
 
 
 class TestChatCompletion(unittest.TestCase):
@@ -25,7 +26,7 @@ class TestChatCompletion(unittest.TestCase):
         )
         assert response is not None
         assert isinstance(response, str)
-        json.loads(response)
+        json.loads(response)  # type: Any
 
     def test_build_messages_and_calculate_token(self) -> None:
         system_prompt = "You are a helpful assistant."

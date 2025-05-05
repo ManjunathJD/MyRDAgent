@@ -25,7 +25,7 @@ from rdagent.log import rdagent_logger as logger
 from rdagent.log.timer import RD_Agent_TIMER_wrapper, RDAgentTimer
 
 if RD_AGENT_SETTINGS.enable_mlflow:
-    import mlflow
+    import mlflow  # type: ignore
 
 
 class LoopMeta(type):
@@ -128,7 +128,7 @@ class LoopBase:
                 if RD_AGENT_SETTINGS.enable_mlflow:
                     mlflow.log_metric("loop_index", self.loop_idx)
                     mlflow.log_metric("step_index", self.step_idx)
-                    current_local_datetime = datetime.datetime.now(pytz.timezone("Asia/Shanghai"))
+                    current_local_datetime = datetime.datetime.now(pytz.timezone("Asia/Shanghai"))  # type: ignore
                     float_like_datetime = (
                         current_local_datetime.second
                         + current_local_datetime.minute * 1e2
@@ -142,10 +142,10 @@ class LoopBase:
                 if self.timer.started:
                     if RD_AGENT_SETTINGS.enable_mlflow:
                         mlflow.log_metric("remain_time", self.timer.remain_time().seconds)  # type: ignore[union-attr]
-                        mlflow.log_metric(
-                            "remain_percent", self.timer.remain_time() / self.timer.all_duration * 100  # type: ignore[operator]
-                        )
-
+                        if self.timer.all_duration:
+                            mlflow.log_metric(
+                                "remain_percent", self.timer.remain_time() / self.timer.all_duration * 100  # type: ignore[operator]
+                            )
                     if self.timer.is_timeout():
                         logger.warning("Timeout, exiting the loop.")
                         break
@@ -167,7 +167,7 @@ class LoopBase:
                             logger.warning(f"Skip loop {li} due to {e}")
                             # NOTE: strong assumption!  The last step is responsible for recording information
                             self.step_idx = len(self.steps) - 1  # directly jump to the last step.
-                            self.loop_prev_out[self.EXCEPTION_KEY] = e
+                            self.loop_prev_out[self.EXCEPTION_KEY] = e # type: ignore
                             continue
                         else:
                             raise

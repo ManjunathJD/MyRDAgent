@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import fire
 
 from rdagent.components.coder.model_coder.task_loader import (

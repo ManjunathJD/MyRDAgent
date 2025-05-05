@@ -3,7 +3,7 @@ import zipfile
 from pathlib import Path
 from typing import Any, List, Tuple
 
-import pandas as pd
+import pandas as pd # type: ignore
 
 from rdagent.app.kaggle.conf import KAGGLE_IMPLEMENT_SETTING
 from rdagent.core.experiment import FBWorkspace

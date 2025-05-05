@@ -213,7 +213,7 @@ def describe_data_folder(folder_path, indent=0, max_files=2, partial_expand_subf
     return "\n".join(result) + "\n"
 
 
-""" data folder description version 2 """
+"""Data folder description version 2"""
 import json
 from pathlib import Path
 
@@ -223,14 +223,15 @@ from genson import SchemaBuilder
 from pandas.api.types import is_numeric_dtype
 
 # these files are treated as code (e.g. markdown wrapped)
-code_files = {".py", ".sh", ".yaml", ".yml", ".md", ".html", ".xml", ".log", ".rst"}
+code_files = {".py", ".sh", ".yaml", ".yml", ".md", ".html", ".xml", ".log", ".rst", ".ipynb"}
 # we treat these files as text (rather than binary) files
 plaintext_files = {".txt", ".csv", ".json", ".tsv"} | code_files
 
 
 def get_file_len_size(f: Path) -> tuple[int, str]:
     """
-    Calculate the size of a file (#lines for plaintext files, otherwise #bytes)
+    Calculate the size of a file.
+    (#lines for plaintext files, otherwise #bytes)
     Also returns a human-readable string representation of the size.
     """
     if f.suffix in plaintext_files:
@@ -241,7 +242,10 @@ def get_file_len_size(f: Path) -> tuple[int, str]:
         return s, humanize.naturalsize(s)
 
 
-def file_tree(path: Path, depth=0) -> str:
+def file_tree(path: Path, depth: int = 0) -> str:
+    """
+    Generate a tree structure of files in a directory
+    """
     """Generate a tree structure of files in a directory"""
     result = []
     files = [p for p in Path(path).iterdir() if not p.is_dir()]
@@ -268,7 +272,10 @@ def _walk(path: Path):
         yield p
 
 
-def preview_csv(p: Path, file_name: str, simple=True) -> str:
+def preview_csv(p: Path, file_name: str, simple: bool = True) -> str:
+    """
+    Generate a textual preview of a csv file
+    """
     """Generate a textual preview of a csv file
 
     Args:
@@ -316,7 +323,11 @@ def preview_csv(p: Path, file_name: str, simple=True) -> str:
     return "\n".join(out)
 
 
-def preview_json(p: Path, file_name: str):
+def preview_json(p: Path, file_name: str) -> str:
+    """
+    Generate a textual preview of a json file using a generated json schema
+    """
+
     """Generate a textual preview of a json file using a generated json schema"""
     builder = SchemaBuilder()
     with open(p) as f:
@@ -346,7 +357,7 @@ def preview_json(p: Path, file_name: str):
     return f"-> {file_name} has auto-generated json schema:\n" + builder.to_json(indent=2)
 
 
-def describe_data_folder_v2(base_path, include_file_details=True, simple=False):
+def describe_data_folder_v2(base_path, include_file_details: bool = True, simple: bool = False) -> str:
     """
     Generate a textual preview of a directory, including an overview of the directory
     structure and previews of individual files

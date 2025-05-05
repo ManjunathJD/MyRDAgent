@@ -17,7 +17,7 @@ evaluate_prompts = Prompts(file_path=Path(__file__).parent / "prompts.yaml")
 
 # This shape evaluator is also used in data_science
 def shape_evaluator(prediction: np.ndarray, target_shape: Tuple = None) -> Tuple[str, bool]:
-    if target_shape is None or prediction is None:
+    if target_shape is None or prediction is None or not isinstance(prediction,np.ndarray):
         return (
             "No output generated from the model. No shape evaluation conducted.",
             False,
@@ -37,7 +37,7 @@ def value_evaluator(
     prediction: np.ndarray,
     target: np.ndarray,
 ) -> Tuple[np.ndarray, bool]:
-    if prediction is None:
+    if prediction is None or not isinstance(prediction,np.ndarray):
         return "No output generated from the model. Skip value evaluation", False
     elif target is None:
         return (
@@ -181,9 +181,9 @@ class ModelFinalEvaluator(CoSTEEREvaluator):
             ),
         )
         if isinstance(final_evaluation_dict["final_decision"], str) and final_evaluation_dict[
-            "final_decision"
+                "final_decision"
         ].lower() in ("true", "false"):
-            final_evaluation_dict["final_decision"] = bool(final_evaluation_dict["final_decision"])
+            final_evaluation_dict["final_decision"] = final_evaluation_dict["final_decision"].lower()=="true"
         return (
             final_evaluation_dict["final_feedback"],
             final_evaluation_dict["final_decision"],

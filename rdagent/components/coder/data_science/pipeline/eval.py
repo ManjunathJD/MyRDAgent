@@ -20,7 +20,7 @@ from rdagent.components.coder.data_science.utils import remove_eda_part
 from rdagent.core.experiment import FBWorkspace, Task
 from rdagent.utils.agent.tpl import T
 from rdagent.utils.agent.workflow import build_cls_from_json_with_retry
-
+from typing import Optional
 DIRNAME = Path(__file__).absolute().resolve().parent
 
 PipelineSingleFeedback = CoSTEERSingleFeedback
@@ -34,7 +34,7 @@ class PipelineCoSTEEREvaluator(CoSTEEREvaluator):
         target_task: Task,
         implementation: FBWorkspace,
         gt_implementation: FBWorkspace,
-        queried_knowledge: CoSTEERQueriedKnowledgeV2 = None,
+        queried_knowledge: Optional[CoSTEERQueriedKnowledgeV2] = None,
         **kwargs,
     ) -> PipelineSingleFeedback:
 

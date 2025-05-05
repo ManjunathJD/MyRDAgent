@@ -16,7 +16,7 @@ from rdagent.scenarios.data_science.experiment.experiment import DSExperiment
 from rdagent.scenarios.kaggle.kaggle_crawler import score_rank
 from rdagent.utils.env import DockerEnv, MLEBDockerConf
 
-de = get_ds_env(conf_type="mlebench", extra_volumes={f"{DS_RD_SETTING.local_data_path}/zip_files": "/mle/data"})
+de = get_ds_env(conf_type="mlebench", extra_volumes={f"{DS_RD_SETTING.local_data_path}/zip_files": "/mle/data"})  # type: ignore
 de.prepare()
 
 
@@ -42,13 +42,13 @@ def save_grade_info(log_trace_path: Path):
         if "running" in msg.tag:
             if isinstance(msg.content, DSExperiment):
                 mle_score_str = msg.content.experiment_workspace.execute(
-                    env=de,
+                    env=de, # type: ignore
                     entry=f"mlebench grade-sample submission.csv {competition} --data-dir /mle/data | tee mle_score.txt",
                 )
-                msg.content.experiment_workspace.execute(env=de, entry="chmod 777 mle_score.txt")
+                msg.content.experiment_workspace.execute(env=de, entry="chmod 777 mle_score.txt") # type: ignore
                 trace_storage.log(
                     mle_score_str, name=f"{msg.tag}.mle_score.pid", save_type="pkl", timestamp=msg.timestamp
-                )
+                ) # type: ignore
 
 
 def is_valid_session(p: Path) -> bool:
@@ -107,7 +107,7 @@ def summarize_folder(log_folder: Path, hours: int | None = None):
                     # get threshold scores
                     workflowexp = FBWorkspace()
                     stdout = workflowexp.execute(
-                        env=de,
+                        env=de, # type: ignore
                         entry=f"mlebench grade-sample None {stat[log_trace_path.name]['competition']} --data-dir /mle/data",
                     )
                     grade_output = extract_mle_json(stdout)

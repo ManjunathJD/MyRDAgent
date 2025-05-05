@@ -1,9 +1,8 @@
-import re
-from typing import Literal
+from typing import Literal, TypeVar
 
-import pandas as pd
 
-from rdagent.core.experiment import Experiment, FBWorkspace, Task
+from rdagent.core.experiment import Experiment, FBWorkspace
+
 
 COMPONENT = Literal["DataLoadSpec", "FeatureEng", "Model", "Ensemble", "Workflow", "Pipeline"]
 
@@ -13,11 +12,12 @@ class DSExperiment(Experiment[Task, FBWorkspace, FBWorkspace]):
         super().__init__(sub_tasks=[], *args, **kwargs)
         # Status
         # - Initial: blank;
-        # - Injecting from SOTA code;
+        # - Injecting from SOTA code;l
         # - New version no matter successful or not
         # the initial workspace or the successful new version after coding
         self.experiment_workspace = FBWorkspace()
         self.pending_tasks_list = pending_tasks_list
+
 
         self.format_check_result = None
         # this field is optional. It  is not none only when we have a format checker. Currently, only following cases are supported.
@@ -29,3 +29,6 @@ class DSExperiment(Experiment[Task, FBWorkspace, FBWorkspace]):
         (so it is different from `trace.next_incomplete_component`.)
         """
         return self.experiment_workspace is not None and "main.py" in self.experiment_workspace.file_dict
+
+
+T = TypeVar('T')

@@ -13,7 +13,7 @@ load_dotenv(".env")
 # 2) The ".env" argument is necessary to make sure it loads `.env` from the current directory.
 
 import subprocess
-from importlib.resources import path as rpath
+from importlib_resources import path as rpath
 
 import fire
 

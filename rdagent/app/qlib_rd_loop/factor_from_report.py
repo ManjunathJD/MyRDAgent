@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 from typing import Any, Dict, Tuple
-
+from json import JSONDecodeError
 import fire
 from jinja2 import Environment, StrictUndefined
 
@@ -52,16 +52,19 @@ def generate_hypothesis(factor_result: dict, report_content: str) -> str:
         json_target_type=Dict[str, str],
     )
 
-    response_json = json.loads(response)
-
-    return Hypothesis(
-        hypothesis=response_json.get("hypothesis", "No hypothesis provided"),
-        reason=response_json.get("reason", "No reason provided"),
-        concise_reason=response_json.get("concise_reason", "No concise reason provided"),
-        concise_observation=response_json.get("concise_observation", "No concise observation provided"),
-        concise_justification=response_json.get("concise_justification", "No concise justification provided"),
-        concise_knowledge=response_json.get("concise_knowledge", "No concise knowledge provided"),
-    )
+    try:
+        response_json = json.loads(response)
+        return Hypothesis(
+            hypothesis=response_json.get("hypothesis", "No hypothesis provided"),
+            reason=response_json.get("reason", "No reason provided"),
+            concise_reason=response_json.get("concise_reason", "No concise reason provided"),
+            concise_observation=response_json.get("concise_observation", "No concise observation provided"),
+            concise_justification=response_json.get("concise_justification", "No concise justification provided"),
+            concise_knowledge=response_json.get("concise_knowledge", "No concise knowledge provided"),
+        )
+    except JSONDecodeError as e:
+         logger.error(f"JSON Decode Error : {e} ,response: {response} ")
+         return Hypothesis()
 
 
 def extract_hypothesis_and_exp_from_reports(report_file_path: str) -> Tuple[QlibFactorExperiment, Hypothesis]:

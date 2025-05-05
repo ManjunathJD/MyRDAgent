@@ -1,3 +1,4 @@
+import os
 import unittest
 
 
@@ -5,7 +6,6 @@ class ConfUtils(unittest.TestCase):
 
     def test_conf(self):
         import os
-
         from rdagent.utils.env import EnvConf, QlibDockerConf
 
         os.environ["MEM_LIMIT"] = "200g"

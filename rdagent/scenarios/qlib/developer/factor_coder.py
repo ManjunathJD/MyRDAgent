@@ -1,3 +1,5 @@
-from rdagent.components.coder.factor_coder import FactorCoSTEER
+from rdagent.components.coder.factor_coder import FactorCoSTEER as BaseFactorCoSTEER
 
-QlibFactorCoSTEER = FactorCoSTEER
+
+class QlibFactorCoSTEER(BaseFactorCoSTEER):
+    pass

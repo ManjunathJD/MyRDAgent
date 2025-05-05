@@ -18,6 +18,7 @@ args = parser.parse_args()
 
 @st.cache_data
 def get_folders_sorted(log_path):
+    log_path_iterdir = list(log_path.iterdir())
     """缓存并返回排序后的文件夹列表，并加入进度打印"""
     with st.spinner("正在加载文件夹列表..."):
         folders = sorted(
@@ -25,7 +26,7 @@ def get_folders_sorted(log_path):
             key=lambda folder: folder.stat().st_mtime,
             reverse=True,
         )
-        st.write(f"找到 {len(folders)} 个文件夹")
+        st.write(f"找到 {len(log_path_iterdir)} 个文件夹")
     return [folder.name for folder in folders]
 
 
@@ -53,7 +54,7 @@ def load_data():
                 session_state.data = pickle.load(f)
             st.success(f"数据加载完成！耗时 {time.time() - start_time:.2f} 秒")
             st.session_state["current_loop"] = 1
-    except Exception as e:
+    except (Exception) as e:
         session_state.data = [{"error": str(e)}]
         st.error(f"加载数据失败: {e}")
 
@@ -93,7 +94,7 @@ def highlight_prompts_uri(uri):
 def extract_loopid_func_name(tag):
     """提取 Loop ID 和函数名称"""
     match = re.search(r"Loop_(\d+)\.(\w+)\.", tag)
-    return match.groups() if match else (None, None)
+    return match.groups() if match else (None, None)  # type: ignore
 
 
 def extract_evoid(tag):
@@ -185,7 +186,7 @@ total_pages = total_loops  # 每页展示一个 Loop
 #                 show_text(system or "No system prompt available")
 
 
-if total_pages:
+if total_pages > 0:
     # 初始化 current_loop
     if "current_loop" not in st.session_state:
         st.session_state["current_loop"] = 1
@@ -297,7 +298,7 @@ if total_pages:
                                 rdict.pop(k)
                         st.write(":red[**Other parts (except for the code or spec) in response dict:**]")
                         st.json(rdict)
-                    except:
+                    except (Exception):
                         st.json(resp)
                 with t2:
                     show_text(user)

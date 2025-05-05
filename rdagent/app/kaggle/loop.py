@@ -2,7 +2,7 @@ import subprocess
 from typing import Any
 
 import fire
-
+import os
 from rdagent.app.kaggle.conf import KAGGLE_IMPLEMENT_SETTING
 from rdagent.components.workflow.conf import BasePropSetting
 from rdagent.components.workflow.rd_loop import RDLoop
@@ -88,7 +88,7 @@ class KaggleRDLoop(RDLoop):
             ]:
                 try:
                     python_files_to_notebook(
-                        KAGGLE_IMPLEMENT_SETTING.competition, exp.experiment_workspace.workspace_path
+                        KAGGLE_IMPLEMENT_SETTING.competition, str(exp.experiment_workspace.workspace_path)
                     )
                 except Exception as e:
                     logger.error(f"Merge python files to one file failed: {e}")
@@ -100,7 +100,7 @@ class KaggleRDLoop(RDLoop):
                             "kaggle",
                             "competitions",
                             "submit",
-                            "-f",
+                           "-f",
                             str(csv_path.absolute()),
                             "-m",
                             str(csv_path.parent.absolute()),
@@ -127,8 +127,10 @@ def main(path=None, step_n=None, competition=None):
         rdagent kaggle --competition playground-series-s4e8  # You are encouraged to use this one.
     """
     if competition:
-        KAGGLE_IMPLEMENT_SETTING.competition = competition
-        download_data(competition=competition, settings=KAGGLE_IMPLEMENT_SETTING)
+        competition = str(competition)
+        KAGGLE_IMPLEMENT_SETTING.competition = competition        
+        download_data(competition=competition, settings=KAGGLE_IMPLEMENT_SETTING)        
+
         if KAGGLE_IMPLEMENT_SETTING.if_using_graph_rag:
             KAGGLE_IMPLEMENT_SETTING.knowledge_base = (
                 "rdagent.scenarios.kaggle.knowledge_management.graph.KGKnowledgeGraph"

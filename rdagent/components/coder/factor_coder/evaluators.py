@@ -44,7 +44,7 @@ class FactorEvaluatorForCoder(CoSTEEREvaluator):
             queried_knowledge is not None
             and target_task_information in queried_knowledge.success_task_to_knowledge_dict
         ):
-            return queried_knowledge.success_task_to_knowledge_dict[target_task_information].feedback
+            return queried_knowledge.success_task_to_knowledge_dict[target_task_information].feedback  # type: ignore
         elif queried_knowledge is not None and target_task_information in queried_knowledge.failed_task_info_set:
             return FactorSingleFeedback(
                 execution_feedback="This task has failed too many times, skip implementation.",
@@ -69,7 +69,7 @@ class FactorEvaluatorForCoder(CoSTEEREvaluator):
                 [line for line in execution_feedback.split("\n") if "warning" not in line.lower()]
             )
 
-            # 2. Get factor value feedback
+            # 2. Get factor value feedback.
             if gen_df is None:
                 factor_feedback.value_feedback = "No factor value generated, skip value evaluation."
                 factor_feedback.value_generated_flag = False
@@ -80,7 +80,7 @@ class FactorEvaluatorForCoder(CoSTEEREvaluator):
                     factor_feedback.value_feedback,
                     decision_from_value_check,
                 ) = self.value_evaluator.evaluate(
-                    implementation=implementation, gt_implementation=gt_implementation, version=target_task.version
+                    implementation=implementation, gt_implementation=gt_implementation, version=target_task.version,
                 )
 
             factor_feedback.final_decision_based_on_gt = gt_implementation is not None

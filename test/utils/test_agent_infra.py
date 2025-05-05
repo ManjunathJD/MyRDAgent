@@ -1,3 +1,4 @@
+import sys
 import unittest
 
 from rdagent.oai.llm_utils import APIBackend

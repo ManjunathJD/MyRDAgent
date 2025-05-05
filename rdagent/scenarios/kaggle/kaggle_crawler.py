@@ -4,7 +4,7 @@ import json
 import shutil
 import subprocess
 import time
-import zipfile
+from zipfile import ZipFile
 from itertools import chain
 from pathlib import Path
 
@@ -134,7 +134,7 @@ def download_data(
             mleb_env.run(f"cp -r ./zip_files/{competition}/prepared/public/* ./{competition}", local_path=local_path)
 
             for zip_path in (Path(local_path) / competition).rglob("*.zip"):
-                with zipfile.ZipFile(zip_path, "r") as zip_ref:
+                with ZipFile(zip_path, "r") as zip_ref:
                     if len(zip_ref.namelist()) == 1:
                         mleb_env.run(
                             f"unzip -o ./{zip_path.relative_to(local_path)} -d {zip_path.parent.relative_to(local_path)}",
@@ -184,7 +184,7 @@ def download_data(
 
 
 def unzip_data(unzip_file_path: str, unzip_target_path: str) -> None:
-    with zipfile.ZipFile(unzip_file_path, "r") as zip_ref:
+    with ZipFile(unzip_file_path, "r") as zip_ref:
         zip_ref.extractall(unzip_target_path)
 
 

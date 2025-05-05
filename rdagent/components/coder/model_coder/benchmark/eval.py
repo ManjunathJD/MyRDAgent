@@ -40,7 +40,7 @@ class ModelImpValEval:
         # run different input value
         for _ in range(round_n):
             # run different model initial parameters.
-            for init_val in [-0.2, -0.1, 0.1, 0.2]:
+            for init_val in [-0.2, -0.1, 0.0, 0.1, 0.2]:
                 _, gt_res = gt.execute(input_value=init_val, param_init_value=init_val)
                 _, res = gen.execute(input_value=init_val, param_init_value=init_val)
                 eval_pairs.append((res, gt_res))

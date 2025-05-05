@@ -2,7 +2,7 @@ import time
 from collections import defaultdict
 from copy import deepcopy
 from datetime import datetime, timezone
-from typing import Callable, Type
+from typing import Callable, Type, Any
 
 import pandas as pd
 import plotly.express as px
@@ -113,10 +113,10 @@ class ObjectsTabsWindow(StWindow):
         self.tab_names = tab_names
 
     def consume_msg(self, msg: Message):
-        if isinstance(msg.content, list):
+        if isinstance(msg.content, list) :
             if self.tab_names:
                 assert len(self.tab_names) == len(
-                    msg.content
+                   msg.content
                 ), "List of objects should have the same length as provided tab names."
                 objs_dict = {self.tab_names[id]: obj for id, obj in enumerate(msg.content)}
             else:
@@ -137,6 +137,8 @@ class ObjectsTabsWindow(StWindow):
                 timestamp=msg.timestamp,
                 caller=msg.caller,
                 pid_trace=msg.pid_trace,
+                
+                tag = msg.tag,
                 content=obj,
             )
             self.inner_class(tabs[id]).consume_msg(splited_msg)
@@ -202,8 +204,8 @@ class FactorTaskWindow(StWindow):
         self.container.latex(f"Formulation: {ft.factor_formulation}")
 
         variables_df = pd.DataFrame(ft.variables, index=["Description"]).T
-        variables_df.index.name = "Variable"
-        self.container.table(variables_df)
+        variables_df.index.name = "Variable"     
+        self.container.dataframe(variables_df)
         self.container.text(f"Factor resources: {ft.factor_resources}")
 
 
@@ -218,7 +220,7 @@ class ModelTaskWindow(StWindow):
 
         variables_df = pd.DataFrame(mt.variables, index=["Value"]).T
         variables_df.index.name = "Variable"
-        self.container.table(variables_df)
+        self.container.dataframe(variables_df)
 
 
 class FactorFeedbackWindow(StWindow):
@@ -314,7 +316,7 @@ class QlibFactorExpWindow(StWindow):
         results = pd.DataFrame({f"base_exp_{id}": e.result for id, e in enumerate(exp.based_experiments)})
         results["now"] = exp.result
 
-        self.container.expander("results table").table(results)
+        self.container.expander("results table").dataframe(results)
 
         try:
             bar_chart = px.bar(results, orientation="h", barmode="group")
@@ -347,7 +349,7 @@ class QlibModelExpWindow(StWindow):
         results = pd.DataFrame({f"base_exp_{id}": e.result for id, e in enumerate(exp.based_experiments)})
         results["now"] = exp.result
 
-        self.container.expander("results table").table(results)
+        self.container.expander("results table").dataframe(results)
 
 
 class SimpleTraceWindow(StWindow):
@@ -627,7 +629,7 @@ class TraceWindow(StWindow):
         elif msg.tag.endswith("ef.model runner result") or msg.tag.endswith("ef.factor runner result"):
             self.results.append(msg.content.result)
             if len(self.results) == 1:
-                self.chart_c.table(self.results[0])
+                self.chart_c.dataframe(self.results[0])
             else:
                 df = pd.DataFrame(self.results, index=range(1, len(self.results) + 1))
                 fig = px.line(df, x=df.index, y=df.columns, markers=True)

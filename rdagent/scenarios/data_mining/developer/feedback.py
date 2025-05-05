@@ -37,7 +37,7 @@ class DMModelExperiment2Feedback(Experiment2Feedback):
         # Define the system prompt for hypothesis feedback
         system_prompt = feedback_prompts["model_feedback_generation"]["system"]
 
-        # Define the user prompt for hypothesis feedback
+       
         context = trace.scen
         SOTA_hypothesis, SOTA_experiment = trace.get_sota_hypothesis_and_experiment()
 
@@ -59,7 +59,7 @@ class DMModelExperiment2Feedback(Experiment2Feedback):
         response_hypothesis = APIBackend().build_messages_and_create_chat_completion(
             user_prompt=user_prompt,
             system_prompt=system_prompt,
-            json_mode=True,
+            response_format={"type": "json_object"},
             json_target_type=Dict[str, str | bool | int],
         )
 

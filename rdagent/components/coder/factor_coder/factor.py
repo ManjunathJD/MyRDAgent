@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import subprocess
 import uuid
+import subprocess
 from pathlib import Path
 from typing import Tuple, Union
 
@@ -166,7 +166,7 @@ class FactorFBWorkspace(FBWorkspace):
                 import site
 
                 execution_feedback = (
-                    e.output.decode()
+                    e.output.decode(errors="ignore")
                     .replace(str(execution_code_path.parent.absolute()), r"/path/to")
                     .replace(str(site.getsitepackages()[0]), r"/path/to/site-packages")
                 )

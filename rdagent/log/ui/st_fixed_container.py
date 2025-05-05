@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Literal, Optional
 
 import streamlit as st
 from streamlit.components.v1 import html
@@ -71,10 +71,10 @@ counter = 0
 
 
 def st_fixed_container(
-    *,
-    height: int | None = None,
-    border: bool | None = None,
-    mode: Literal["fixed", "sticky"] = "fixed",
+    *,  
+    height: Optional[int] = None,
+    border: Optional[bool] = None,
+    mode: Literal["fixed", "sticky"] = "fixed", 
     position: Literal["top", "bottom"] = "top",
     margin: str | None = None,
     transparent: bool = False,

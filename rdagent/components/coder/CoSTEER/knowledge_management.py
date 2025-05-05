@@ -4,7 +4,7 @@ import copy
 import json
 import random
 import re
-from itertools import combinations
+from itertools import combinations, chain
 from pathlib import Path
 from typing import List, Union
 
@@ -513,7 +513,7 @@ class CoSTEERRAGStrategyV2(RAGStrategy):
                         if searched_node.label == "task_success_implement":
                             target_knowledge = self.knowledgebase.node_to_implementation_knowledge_dict[
                                 searched_node.id
-                            ]
+                            ] if searched_node.id in self.knowledgebase.node_to_implementation_knowledge_dict else None
                         if (
                             target_knowledge
                             not in queried_knowledge_v2.task_to_similar_task_successful_knowledge[
@@ -680,13 +680,18 @@ class CoSTEERRAGStrategyV2(RAGStrategy):
                         if (
                             searched_trace_success_node not in same_error_success_node_set
                             and searched_trace_success_node.label == "task_success_implement"
+                            and searched_trace_success_node.id in self.knowledgebase.node_to_implementation_knowledge_dict
                         ):
                             same_error_success_node_set.add(searched_trace_success_node)
 
-                            trace_knowledge = self.knowledgebase.node_to_implementation_knowledge_dict[trace_node.id]
-                            success_knowledge = self.knowledgebase.node_to_implementation_knowledge_dict[
-                                searched_trace_success_node.id
-                            ]
+                            trace_knowledge = (
+                                self.knowledgebase.node_to_implementation_knowledge_dict[trace_node.id]
+                                if trace_node.id in self.knowledgebase.node_to_implementation_knowledge_dict else None
+                            )
+                            success_knowledge = (
+                                self.knowledgebase.node_to_implementation_knowledge_dict[searched_trace_success_node.id]
+                                if searched_trace_success_node.id in self.knowledgebase.node_to_implementation_knowledge_dict else None
+                            )
                             error_content = ""
                             for index, error_node in enumerate(error_node_list):
                                 error_content += f"{index+1}. {error_node.content}; "
@@ -771,12 +776,14 @@ class CoSTEERKnowledgeBaseV2(EvolvingKnowledgeBase):
                     if type(error_node).__name__ == "str":
                         queried_node = self.graph.get_node_by_content(content=error_node)
                         if queried_node is None:
-                            new_error_node = UndirectedNode(content=error_node, label="error")
-                            self.graph.add_node(node=new_error_node)
-                            success_task_error_analysis_record[index][node_index] = new_error_node
+                        # new_error_node = UndirectedNode(content=error_node, label="error")
+                        # self.graph.add_node(node=new_error_node)
+                        # success_task_error_analysis_record[index][node_index] = new_error_node
+                        pass
                         else:
                             success_task_error_analysis_record[index][node_index] = queried_node
-                neighbor_nodes.extend(success_task_error_analysis_record[index])
+                valid_error_nodes = [node for node in success_task_error_analysis_record[index] if isinstance(node, UndirectedNode)]
+                neighbor_nodes.extend(valid_error_nodes)
                 self.graph.add_nodes(node=trace_node, neighbors=neighbor_nodes)
             else:
                 success_node = UndirectedNode(

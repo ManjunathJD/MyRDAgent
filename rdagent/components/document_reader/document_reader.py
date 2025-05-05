@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import io
+import io, os
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -8,7 +8,7 @@ import fitz
 import requests
 from azure.ai.formrecognizer import DocumentAnalysisClient
 from azure.core.credentials import AzureKeyCredential
-from langchain_community.document_loaders import PyPDFDirectoryLoader, PyPDFLoader
+from langchain_community.document_loaders import PyPDFDirectoryLoader, PyPDFLoader, DirectoryLoader
 from PIL import Image
 
 if TYPE_CHECKING:
@@ -27,7 +27,11 @@ def load_documents_by_langchain(path: str) -> list:
         list: A list of loaded documents.
     """
     if Path(path).is_dir():
-        loader = PyPDFDirectoryLoader(path, silent_errors=True)
+        if os.path.exists(path):
+            loader = DirectoryLoader(path, glob="*.pdf",loader_cls=PyPDFLoader,silent_errors=True)
+        else:
+            loader=PyPDFDirectoryLoader(path,silent_errors=True)
+
     else:
         loader = PyPDFLoader(path)
     return loader.load()
@@ -91,7 +95,7 @@ def load_and_process_pdfs_by_azure_document_intelligence(path: Path) -> dict[str
     content_dict = {}
     ab_path = path.resolve()
     if ab_path.is_file():
-        assert ".pdf" in ab_path.suffixes, "The file must be a PDF file."
+        assert any(s in ab_path.suffixes for s in [".pdf",".PDF"]), "The file must be a PDF file."
         proc = load_and_process_one_pdf_by_azure_document_intelligence
         content_dict[str(ab_path)] = proc(
             ab_path,
@@ -100,7 +104,7 @@ def load_and_process_pdfs_by_azure_document_intelligence(path: Path) -> dict[str
         )
     else:
         for file_path in ab_path.rglob("*"):
-            if file_path.is_file() and ".pdf" in file_path.suffixes:
+            if file_path.is_file() and any(s in file_path.suffixes for s in [".pdf",".PDF"]):
                 content_dict[str(file_path)] = load_and_process_one_pdf_by_azure_document_intelligence(
                     file_path,
                     RD_AGENT_SETTINGS.azure_document_intelligence_key,

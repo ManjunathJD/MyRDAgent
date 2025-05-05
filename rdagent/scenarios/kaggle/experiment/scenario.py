@@ -7,7 +7,7 @@ from typing import Dict
 
 import pandas as pd
 from jinja2 import Environment, StrictUndefined
-
+import sys
 from rdagent.app.kaggle.conf import KAGGLE_IMPLEMENT_SETTING
 from rdagent.core.experiment import Task
 from rdagent.core.prompts import Prompts
@@ -172,7 +172,7 @@ class KGScenario(Scenario):
         X_valid = pd.read_pickle(data_folder / "X_valid.pkl")
         # TODO: Hardcoded for now, need to be fixed
         if self.competition == "feedback-prize-english-language-learning":
-            return "This is a sparse matrix of descriptive text."
+            return "This is a sparse matrix of descriptive text." + f"\n{sys.version}"
 
         buffer = io.StringIO()
         X_valid.info(verbose=True, buf=buffer, show_counts=False)

@@ -25,7 +25,7 @@ class ModelCoSTEEREvaluator(CoSTEEREvaluator):
         gt_implementation: Workspace,
         queried_knowledge: QueriedKnowledge = None,
         **kwargs,
-    ) -> ModelSingleFeedback:
+    ):
         target_task_information = target_task.get_task_information()
         if (
             queried_knowledge is not None
@@ -92,7 +92,7 @@ class ModelCoSTEEREvaluator(CoSTEEREvaluator):
             model_code_feedback=code_feedback,
         )
 
-        return ModelSingleFeedback(
+        feedback =  ModelSingleFeedback(
             execution_feedback=model_execution_feedback,
             shape_feedback=shape_feedback,
             value_feedback=value_feedback,
@@ -102,3 +102,5 @@ class ModelCoSTEEREvaluator(CoSTEEREvaluator):
             value_generated_flag=(gen_np_array is not None),
             final_decision_based_on_gt=(gt_implementation is not None),
         )
+
+        return feedback

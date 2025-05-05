@@ -24,7 +24,7 @@ from rdagent.oai.llm_conf import LLM_SETTINGS
 from rdagent.oai.llm_utils import APIBackend
 
 coder_prompts = Prompts(file_path=Path(__file__).parent / "prompts.yaml")
-
+from typing import Optional
 
 class ModelMultiProcessEvolvingStrategy(MultiProcessEvolvingStrategy):
     def implement_one_task(
@@ -32,7 +32,7 @@ class ModelMultiProcessEvolvingStrategy(MultiProcessEvolvingStrategy):
         target_task: ModelTask,
         queried_knowledge: CoSTEERQueriedKnowledge = None,
         workspace: FBWorkspace | None = None,
-        prev_task_feedback: CoSTEERSingleFeedback | None = None,
+        prev_task_feedback: Optional[CoSTEERSingleFeedback] = None,
     ) -> str:
         model_information_str = target_task.get_task_information()
 
@@ -100,7 +100,7 @@ class ModelMultiProcessEvolvingStrategy(MultiProcessEvolvingStrategy):
             ),
         )["code"]
         return code
-
+    
     def assign_code_list_to_evo(self, code_list, evo):
         for index in range(len(evo.sub_tasks)):
             if code_list[index] is None:

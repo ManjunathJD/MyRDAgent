@@ -2,7 +2,6 @@ import json
 import pickle
 import shutil
 from pathlib import Path
-
 import pandas as pd
 
 from rdagent.components.runner import CachedRunner
@@ -13,7 +12,7 @@ from rdagent.core.utils import cache_with_pickle
 from rdagent.oai.llm_utils import md5_hash
 from rdagent.scenarios.kaggle.experiment.kaggle_experiment import (
     KGFactorExperiment,
-    KGModelExperiment,
+    KGModelExperiment
 )
 
 prompt_dict = Prompts(file_path=Path(__file__).parent.parent / "prompts.yaml")
@@ -36,9 +35,9 @@ class KGCachedRunner(CachedRunner[ASpecificExp]):
             for csv_file in cached_res.experiment_workspace.workspace_path.glob("*.csv"):
                 shutil.copy(csv_file, exp.experiment_workspace.workspace_path)
             for py_file in (cached_res.experiment_workspace.workspace_path / "feature").glob("*.py"):
-                shutil.copy(py_file, exp.experiment_workspace.workspace_path / "feature")
+               shutil.copy(py_file, exp.experiment_workspace.workspace_path / "feature")
             for py_file in (cached_res.experiment_workspace.workspace_path / "model").glob("*.py"):
-                shutil.copy(py_file, exp.experiment_workspace.workspace_path / "model")
+               shutil.copy(py_file, exp.experiment_workspace.workspace_path / "model")
         exp.experiment_workspace.data_description = cached_res.experiment_workspace.data_description
         return exp
 
@@ -50,7 +49,7 @@ class KGCachedRunner(CachedRunner[ASpecificExp]):
 
         env_to_use = {"PYTHONPATH": "./"}
 
-        result = exp.experiment_workspace.execute(run_env=env_to_use)
+        result= exp.experiment_workspace.execute(run_env=env_to_use)
 
         exp.result = result
 
@@ -67,19 +66,17 @@ class KGModelRunner(KGCachedRunner[KGModelExperiment]):
     def develop(self, exp: KGModelExperiment) -> KGModelExperiment:
         if exp.based_experiments and exp.based_experiments[-1].result is None:
             exp.based_experiments[-1] = self.init_develop(exp.based_experiments[-1])
-
         sub_ws = exp.sub_workspace_list[0]
         if sub_ws is not None:
-            # TODO: There's a possibility of generating a hybrid model (lightgbm + xgboost), which results in having two items in the model_type list.
             model_type = sub_ws.target_task.model_type
-
             if sub_ws.file_dict == {}:
                 raise ModelEmptyError("No model is implemented.")
             else:
                 model_file_name = f"model/model_{model_type.lower()}.py"
                 exp.experiment_workspace.inject_files(**{model_file_name: sub_ws.file_dict["model.py"]})
         else:
-            raise ModelEmptyError("No model is implemented.")
+           raise ModelEmptyError("No model is implemented.")
+
         env_to_use = {"PYTHONPATH": "./"}
 
         result = exp.experiment_workspace.execute(run_env=env_to_use)
@@ -99,13 +96,15 @@ class KGModelRunner(KGCachedRunner[KGModelExperiment]):
 class KGFactorRunner(KGCachedRunner[KGFactorExperiment]):
     @cache_with_pickle(KGCachedRunner.get_cache_key, KGCachedRunner.assign_cached_result)
     def develop(self, exp: KGFactorExperiment) -> KGFactorExperiment:
-        current_feature_file_count = len(list(exp.experiment_workspace.workspace_path.glob("feature/feature*.py")))
-        implemented_factor_count = 0
+        current_feature_file_count=len(list(exp.experiment_workspace.workspace_path.glob("feature/feature*.py")))
+        implemented_factor_count=0
         for sub_ws in exp.sub_workspace_list:
             if sub_ws.file_dict == {}:
                 continue
             execued_df = sub_ws.execute()[1]
+
             if execued_df is None:
+
                 continue
             implemented_factor_count += 1
             target_feature_file_name = f"feature/feature_{current_feature_file_count:05d}.py"
@@ -113,12 +112,13 @@ class KGFactorRunner(KGCachedRunner[KGFactorExperiment]):
             feature_shape = execued_df.shape[-1]
             exp.experiment_workspace.data_description.append((sub_ws.target_task.get_task_information(), feature_shape))
             current_feature_file_count += 1
+
         if implemented_factor_count == 0:
             raise FactorEmptyError("No factor is implemented")
 
-        # initial template result
         if exp.based_experiments and exp.based_experiments[-1].result is None:
             exp.based_experiments[-1] = self.init_develop(exp.based_experiments[-1])
+
 
         env_to_use = {"PYTHONPATH": "./"}
 
@@ -126,6 +126,7 @@ class KGFactorRunner(KGCachedRunner[KGFactorExperiment]):
 
         if result is None:
             raise CoderError("No result is returned from the experiment workspace")
+
 
         exp.result = result
         sub_result_score_path = Path(exp.experiment_workspace.workspace_path) / "sub_submission_score.csv"

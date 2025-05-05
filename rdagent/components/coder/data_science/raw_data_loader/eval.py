@@ -1,6 +1,5 @@
 # tess successfully running.
 # (GPT) if it aligns with the spec & rationality of the spec.
-import json
 import re
 from pathlib import Path
 
@@ -59,9 +58,10 @@ class DataLoaderCoSTEEREvaluator(CoSTEEREvaluator):
         test_code = (DIRNAME / "eval_tests" / "data_loader_test.txt").read_text()
         implementation.inject_files(**{fname: test_code})
         stdout, ret_code = implementation.execute_ret_code(env=env, entry=f"python {fname}")
-        match = re.search(r"(.*?)=== Start of EDA part ===(.*)=== End of EDA part ===(.*)", stdout, re.DOTALL)
-        stdout_part_1, eda_output, stdout_part_2 = match.groups() if match else (stdout, None, "")
-        stdout = stdout_part_1 + stdout_part_2
+        match = re.search(r"(.*?)=== Start of EDA part ===(.*)=== End of EDA part ===(.*)", stdout, re.DOTALL) if stdout else None
+        if match:
+            stdout_part_1, eda_output, stdout_part_2 = match.groups()
+            stdout = stdout_part_1 + stdout_part_2
         if eda_output is not None and len(eda_output.split(" ")) > 10000:
             eda_output += "Length of EDA output is too long, truncated. Please reject this implementation and motivate it to reduce the length of EDA output."
 

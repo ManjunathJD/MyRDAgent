@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from typing import Dict, List
 
-from jinja2 import Environment, StrictUndefined
+from jinja2 import Environment, StrictUndefined, Template
 
 from rdagent.components.coder.factor_coder import FactorCoSTEER
 from rdagent.components.coder.model_coder import ModelCoSTEER
@@ -41,14 +41,14 @@ class KGModelFeatureSelectionCoder(Developer[KGModelExperiment]):
         assert target_model_type in KG_SELECT_MAPPING
         if len(exp.experiment_workspace.data_description) == 1:
             code = (
-                Environment(undefined=StrictUndefined)
-                .from_string(DEFAULT_SELECTION_CODE)
-                .render(feature_index_list=None)
+                Template(DEFAULT_SELECTION_CODE, undefined=StrictUndefined)
+                .render(feature_index_list=None, variable_start_string = '{%', variable_end_string = '%}', block_start_string = '{%', block_end_string = '%}')
             )
         else:
             system_prompt = (
-                Environment(undefined=StrictUndefined)
-                .from_string(prompt_dict["model_feature_selection"]["system"])
+                Template(prompt_dict["model_feature_selection"]["system"], undefined=StrictUndefined,
+                         variable_start_string = '{%', variable_end_string = '%}', block_start_string = '{%', block_end_string = '%}')
+
                 .render(scenario=self.scen.get_scenario_all_desc(), model_type=exp.sub_tasks[0].model_type)
             )
             user_prompt = (
@@ -68,9 +68,10 @@ class KGModelFeatureSelectionCoder(Developer[KGModelExperiment]):
             chosen_index_to_list_index = [i - 1 for i in chosen_index]
 
             code = (
-                Environment(undefined=StrictUndefined)
-                .from_string(DEFAULT_SELECTION_CODE)
-                .render(feature_index_list=chosen_index_to_list_index)
+
+                Template(DEFAULT_SELECTION_CODE, undefined=StrictUndefined,
+                         variable_start_string='{%', variable_end_string='%}', block_start_string='{%',
+                         block_end_string='%}').render(feature_index_list=chosen_index_to_list_index)
             )
         exp.experiment_workspace.inject_files(**{KG_SELECT_MAPPING[target_model_type]: code})
         return exp

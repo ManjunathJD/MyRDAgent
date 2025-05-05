@@ -1,6 +1,7 @@
 import importlib
 import math
 
+import numpy as np
 import pandas as pd
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
@@ -360,9 +361,10 @@ def report_figure(df: pd.DataFrame) -> list | tuple:
     ex_max_start_date, ex_max_end_date = _calculate_maximum(report_df, True)
 
     index_name = report_df.index.name
-    _temp_df = report_df.reset_index()
-    _temp_df.loc[-1] = 0
-    _temp_df = _temp_df.shift(1)
+    _temp_df = pd.concat([pd.DataFrame({index_name: ["T0"]}), report_df.reset_index()])
+    
+    _temp_df.iloc[0] = np.nan
+    _temp_df = _temp_df.shift(1)    
     _temp_df.loc[0, index_name] = "T0"
     _temp_df.set_index(index_name, inplace=True)
     _temp_df.iloc[0] = 0

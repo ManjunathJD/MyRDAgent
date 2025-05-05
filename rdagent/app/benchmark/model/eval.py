@@ -1,3 +1,5 @@
+import sys
+
 from pathlib import Path
 
 from rdagent.components.coder.model_coder import ModelCoSTEER
@@ -8,17 +10,18 @@ from rdagent.scenarios.qlib.experiment.model_experiment import (
 )
 
 if __name__ == "__main__":
-    DIRNAME = Path(__file__).absolute().resolve().parent
+    DIRNAME = Path(__file__).resolve().parent
 
     from rdagent.components.coder.model_coder.benchmark.eval import ModelImpValEval
     from rdagent.components.coder.model_coder.one_shot import ModelCodeWriter
 
     bench_folder = DIRNAME.parent.parent.parent / "components" / "coder" / "model_coder" / "benchmark"
-    mtl = ModelTaskLoaderJson(str(bench_folder / "model_dict.json"))
+    mtl = ModelTaskLoaderJson(bench_folder / "model_dict.json")
 
     task_l = mtl.load()
 
-    task_l = [t for t in task_l if t.name == "A-DGN"]  # FIXME: other models does not work well
+    #task_l = [t for t in task_l if t.name == "A-DGN"]  # FIXME: other models does not work well
+    task_l = [t for t in task_l]
 
     model_experiment = QlibModelExperiment(sub_tasks=task_l)
     # mtg = ModelCodeWriter(scen=QlibModelScenario())
@@ -31,10 +34,15 @@ if __name__ == "__main__":
 
     mil = ModelWsLoader(bench_folder / "gt_code")
 
-    mie = ModelImpValEval()
+    
     # Evaluation:
     eval_l = []
     for impl in model_experiment.sub_workspace_list:
+        if sys.version_info < (3, 13):
+            mie = ModelImpValEval()
+        else:
+            mie = ModelImpValEval()
+
         print(impl.target_task)
         gt_impl = mil.load(impl.target_task)
         eval_l.append(mie.evaluate(gt_impl, impl))

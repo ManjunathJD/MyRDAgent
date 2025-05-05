@@ -53,7 +53,7 @@ class ModelGeneralCaseSpecEvaluator(CoSTEEREvaluator):
             return ModelSingleFeedback(
                 execution="This task has failed too many times, skip implementation.",
                 return_checking="This task has failed too many times, skip implementation.",
-                code="This task has failed too many times, skip implementation.",
+                code_generation="This task has failed too many times, skip implementation.",
                 final_decision=False,
             )
 

@@ -2,7 +2,7 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import List, Union
-
+import typing
 import pandas as pd
 from jinja2 import Environment, StrictUndefined
 
@@ -123,7 +123,7 @@ class KaggleExperienceBase(PDVectorBase):
         """
         super().__init__(vector_df_path)
         self.kaggle_experience_path = kaggle_experience_path
-        self.kaggle_experience_data = []
+        self.kaggle_experience_data : typing.List[typing.Dict] = []
         if kaggle_experience_path:
             self.load_kaggle_experience(kaggle_experience_path)
 
@@ -176,7 +176,7 @@ class KaggleExperienceBase(PDVectorBase):
             logger.info(f"Kaggle experience data loaded from {kaggle_experience_path}")
         except FileNotFoundError:
             logger.error(f"Kaggle experience data not found at {kaggle_experience_path}")
-            self.kaggle_experience_data = []
+            self.kaggle_experience_data: typing.List[typing.Dict] = []
 
     def add_experience_to_vector_base(self, experiment_feedback=None):
         """
@@ -259,7 +259,7 @@ class KaggleExperienceBase(PDVectorBase):
         # If the results do not match the target well, refine the search using LLM or further adjustment
         kaggle_docs = []
         for result in search_results:
-            kg_doc = KGKnowledgeDocument().from_dict(result.__dict__)
+            kg_doc :KGKnowledgeDocument = KGKnowledgeDocument().from_dict(result.__dict__)
 
             gpt_feedback = self.refine_with_LLM(target, kg_doc)
             if gpt_feedback:

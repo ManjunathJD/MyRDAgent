@@ -23,7 +23,7 @@ class ExtendedBaseSettings(BaseSettings):
         file_secret_settings: PydanticBaseSettingsSource,
     ) -> tuple[PydanticBaseSettingsSource, ...]:
         # 1) walk from base class
-        def base_iter(settings_cls: type[ExtendedBaseSettings]) -> list[type[ExtendedBaseSettings]]:
+        def base_iter(settings_cls: type[ExtendedBaseSettings]) -> list[type]:
             bases = []
             for cl in settings_cls.__bases__:
                 if issubclass(cl, ExtendedBaseSettings) and cl is not ExtendedBaseSettings:
@@ -34,7 +34,7 @@ class ExtendedBaseSettings(BaseSettings):
         # 2) Build EnvSettingsSource from base classes, so we can add parent Env Sources
         parent_env_settings = [
             EnvSettingsSource(
-                base_cls,
+                settings_cls=base_cls,
                 case_sensitive=base_cls.model_config.get("case_sensitive"),
                 env_prefix=base_cls.model_config.get("env_prefix"),
                 env_nested_delimiter=base_cls.model_config.get("env_nested_delimiter"),

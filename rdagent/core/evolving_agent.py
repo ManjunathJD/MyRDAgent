@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Generator
-from typing import TYPE_CHECKING, Any, Generic, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast
 
 from tqdm import tqdm
 
@@ -71,7 +71,7 @@ class RAGEvoAgent(EvoAgent[RAGEvaluator]):
         for evo_loop_id in tqdm(range(self.max_loop), "Implementing"):
             with logger.tag(f"evo_loop_{evo_loop_id}"):
                 # 1. knowledge self-evolving
-                if self.knowledge_self_gen and self.rag is not None:
+                if self.knowledge_self_gen and self.rag is not None and hasattr(self.rag,"generate_knowledge") :
                     self.rag.generate_knowledge(self.evolving_trace)
                 # 2. RAG
                 queried_knowledge = None
@@ -91,9 +91,11 @@ class RAGEvoAgent(EvoAgent[RAGEvaluator]):
 
                 # 5. Evaluation
                 if self.with_feedback:
-                    es.feedback = (
-                        eva if isinstance(eva, Feedback) else eva.evaluate(evo, queried_knowledge=queried_knowledge)
-                    )
+                    if isinstance(eva, Feedback):
+                        es.feedback = eva
+                    else:
+                        es.feedback = cast(RAGEvaluator, eva).evaluate(evo, queried_knowledge=queried_knowledge)
+
                     logger.log_object(es.feedback, tag="evolving feedback")
 
                 # 6. update trace
