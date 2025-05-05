@@ -24,7 +24,7 @@ def import_module_from_path(module_name, module_path):
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
-
+epsilon = 1e-8
 
 # 1) Preprocess the data
 X_train, X_valid, y_train, y_valid, X_test, forecast_ids = preprocess_script()
@@ -88,7 +88,6 @@ for model, predict_func, select_m in model_l:
     y_valid_pred = predict_func(model, X_valid_selected)
 
     # Add a small positive value to avoid negative or zero values
-    epsilon = 1e-8
     y_valid_cases = np.maximum(y_valid["ConfirmedCases"], epsilon)
     y_pred_cases = np.maximum(y_valid_pred["ConfirmedCases"], epsilon)
 

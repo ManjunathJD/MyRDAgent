@@ -98,6 +98,7 @@ class LINKX(torch.nn.Module):
     ):
         super().__init__()
 
+        if x is not None:
         self.num_nodes = num_nodes
         self.in_channels = in_channels
         self.out_channels = out_channels

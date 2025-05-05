@@ -126,7 +126,7 @@ class ModelMultiProcessEvolvingStrategy(MultiProcessEvolvingStrategy):
             # If the task involves model removal, assume it can only process one model at a time.
             if len(batch_edit) == 1 and batch_edit[f"{target_task.name}.py"] == "__DEL__":
                 break
-        else:
+        else:  # noqa: PLR5501
             raise CoderError("Failed to generate a new model code.")
 
         return batch_edit

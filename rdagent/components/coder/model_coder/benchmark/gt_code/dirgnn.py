@@ -1,3 +1,4 @@
+from __future__ import annotations
 import copy
 
 import torch
@@ -58,7 +59,7 @@ class DirGNNConv(torch.nn.Module):
         if self.lin is not None:
             self.lin.reset_parameters()
 
-    def forward(self, x: Tensor, edge_index: Tensor) -> Tensor:
+    def forward(self, x: Tensor, edge_index: Tensor) -> Tensor | None:
         """"""  # noqa: D419
         x_in = self.conv_in(x, edge_index)
         x_out = self.conv_out(x, edge_index.flip([0]))
@@ -70,7 +71,7 @@ class DirGNNConv(torch.nn.Module):
 
         return out
 
-    def __repr__(self) -> str:
+    def __repr__(self) -> str | None:
         return f"{self.__class__.__name__}({self.conv_in}, alpha={self.alpha})"
 
 

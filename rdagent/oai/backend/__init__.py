@@ -1,2 +1,2 @@
-from .deprec import DeprecBackend
-from .litellm import LiteLLMAPIBackend
+from rdagent.oai.backend.deprec import DeprecBackend
+from rdagent.oai.backend.litellm import LiteLLMAPIBackend

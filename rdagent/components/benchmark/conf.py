@@ -2,7 +2,7 @@ from dataclasses import field
 from pathlib import Path
 from typing import Optional
 
-from rdagent.core.conf import ExtendedBaseSettings
+from rdagent.core.conf import ExtendedBaseSettings, Field
 
 DIRNAME = Path("./")
 
@@ -24,7 +24,7 @@ class BenchmarkSettings(ExtendedBaseSettings):
     bench_method_cls: str = "rdagent.components.coder.factor_coder.FactorCoSTEER"
     """method to be used for test cases"""
 
-    bench_method_extra_kwargs: dict = field(
+    bench_method_extra_kwargs: dict = Field(
         default_factory=dict,
     )
     """extra kwargs for the method to be tested except the task list"""

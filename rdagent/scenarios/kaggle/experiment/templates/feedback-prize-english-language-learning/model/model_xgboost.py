@@ -3,8 +3,10 @@ motivation  of the model
 """
 
 import pandas as pd
-import xgboost as xgb
-from sklearn.multioutput import MultiOutputRegressor
+from sklearn.ensemble import RandomForestRegressor
+
+
+
 
 
 def is_sparse_df(df: pd.DataFrame) -> bool:
@@ -14,12 +16,10 @@ def is_sparse_df(df: pd.DataFrame) -> bool:
 
 def fit(X_train: pd.DataFrame, y_train: pd.DataFrame, X_valid: pd.DataFrame, y_valid: pd.DataFrame):
     """Define and train the model. Merge feature_select"""
-    xgb_estimator = xgb.XGBRegressor(
-        n_estimators=500, random_state=0, objective="reg:squarederror", tree_method="hist", device="cuda"
-    )
+    rf_estimator = RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1)
 
-    model = MultiOutputRegressor(xgb_estimator, n_jobs=-1)
-
+    model = rf_estimator
+    
     if is_sparse_df(X_train):
         X_train = X_train.sparse.to_coo()
 

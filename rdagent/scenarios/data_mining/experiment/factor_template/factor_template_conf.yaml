@@ -1,0 +1,52 @@
+# rdagent/scenarios/data_mining/experiment/factor_template/factor_test.py
+import unittest
+import pandas as pd
+
+from rdagent.scenarios.data_mining.experiment.factor_template.factor import Factor
+
+
+class TestFactor(unittest.TestCase):
+
+    def test_calculate(self):
+        # Create a sample DataFrame
+        data = {
+            'id': [1, 2, 3],
+            'price': [10.0, 15.0, 20.0]
+        }
+        df = pd.DataFrame(data)
+
+        # Create a Factor instance
+        factor = Factor()
+
+        # Calculate the factor
+        result = factor.calculate(df)
+
+        # Check if the result is a DataFrame
+        self.assertIsInstance(result, pd.DataFrame)
+
+        # Check if the result has the expected columns
+        self.assertIn('id', result.columns)
+        self.assertIn('factor', result.columns)
+
+        # Check if the factor values are correctly calculated (example calculation)
+        expected_factor_values = [0, 0, 0]  # Example calculation, adjust as needed
+        self.assertEqual(list(result['factor']), expected_factor_values)
+
+    def test_calculate_empty_df(self):
+         # Create an empty DataFrame
+        df = pd.DataFrame()
+        # Create a Factor instance
+        factor = Factor()
+
+        # Calculate the factor
+        result = factor.calculate(df)
+
+        # Check if the result is a DataFrame
+        self.assertIsInstance(result, pd.DataFrame)
+        # Check if the result has the expected columns
+        self.assertIn('factor', result.columns)
+        self.assertEqual(len(result),0)
+
+
+if __name__ == '__main__':
+    unittest.main()

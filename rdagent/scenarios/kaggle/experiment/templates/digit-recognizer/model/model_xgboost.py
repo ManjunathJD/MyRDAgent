@@ -3,7 +3,6 @@ motivation  of the model
 """
 
 import pandas as pd
-import xgboost as xgb
 
 
 def fit(X_train, y_train, X_valid, y_valid):
@@ -22,7 +21,7 @@ def fit(X_train, y_train, X_valid, y_valid):
     num_round = 100
 
     evallist = [(dtrain, "train"), (dvalid, "eval")]
-    model = xgb.train(params, dtrain, num_round, evallist, early_stopping_rounds=10)
+    model = xgb.train(params, dtrain, num_round, evallist, callbacks=[xgb.callback.early_stop(10)])
 
     return model
 

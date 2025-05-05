@@ -1,0 +1,361 @@
+import logging
+import os
+import sys
+from typing import Any, Dict, List, Optional, Tuple, Union
+
+from rdkit import Chem
+from rdkit.Chem import AllChem
+
+from rdagent import config as rd_config
+from rdagent.utils import env, logger as rd_logger
+from rdagent.utils.agent import ret, tpl
+
+
+class BaseMolAgent(object):
+    """Base class for all molecular agents."""
+
+    _logger: logging.Logger = rd_logger.get_logger(__name__)
+
+    def __init__(self, conf: Optional[Dict[str, Any]] = None):
+        """
+        Args:
+            conf: Configuration of agent.
+        """
+        self._conf: Dict[str, Any] = conf if conf is not None else {}
+        self.llm_client: Optional[Any] = None
+
+    @classmethod
+    def check_env(cls):
+        if not env.is_package_installed("rdkit"):
+            cls._logger.error("rdkit is not installed")
+            raise RuntimeError("rdkit is not installed")
+
+        if not env.is_package_installed("openai"):
+            cls._logger.error("openai is not installed")
+            raise RuntimeError("openai is not installed")
+
+        if not env.is_package_installed("tiktoken"):
+            cls._logger.error("tiktoken is not installed")
+            raise RuntimeError("tiktoken is not installed")
+
+    @property
+    def conf(self) -> Dict[str, Any]:
+        """Get the configuration of agent."""
+        return self._conf
+
+    @property
+    def logger(self) -> logging.Logger:
+        """Get the logger."""
+        return self._logger
+
+    def load_llm_client(self, model_name: str) -> Any:
+        """
+        Load a new LLM client.
+
+        Args:
+            model_name: The model name.
+
+        Returns:
+            The LLM client.
+        """
+        raise NotImplementedError
+
+    def _llm_call(
+        self,
+        prompt: str,
+        stop: Optional[List[str]] = None,
+        temperature: float = 0.7,
+        max_new_tokens: int = 1024,
+        top_p: float = 0.95,
+        top_k: int = 40,
+        repetition_penalty: float = 1.0,
+        stream: bool = False,
+    ) -> Union[str, List[str], Tuple[str, Dict[str, Any]], Tuple[List[str], Dict[str, Any]]]:
+        """
+        Make an LLM call.
+
+        Args:
+            prompt: The prompt.
+            stop: The stop words.
+            temperature: The temperature.
+            max_new_tokens: The maximum number of new tokens.
+            top_p: The top_p.
+            top_k: The top_k.
+            repetition_penalty: The repetition penalty.
+            stream: Whether to use stream mode.
+
+        Returns:
+            The LLM response.
+        """
+        raise NotImplementedError
+
+    def get_llm_tokens(self, prompt: str) -> int:
+        """
+        Get the number of tokens of prompt.
+
+        Args:
+            prompt: The prompt.
+
+        Returns:
+            The number of tokens.
+        """
+        raise NotImplementedError
+
+    def smile_to_mol(self, smile: str) -> Chem.Mol:
+        """
+        Convert a smile string to a rdkit molecule.
+
+        Args:
+            smile: The smile string.
+
+        Returns:
+            The rdkit molecule.
+        """
+        try:
+            mol = Chem.MolFromSmiles(smile)
+            if mol is None:
+                self._logger.error(f"Invalid smile: {smile}")
+                return None
+            return mol
+        except Exception as e:
+            self._logger.error(f"Invalid smile: {smile}, error: {e}")
+            return None
+
+    def mol_to_smile(self, mol: Chem.Mol) -> str:
+        """
+        Convert a rdkit molecule to a smile string.
+
+        Args:
+            mol: The rdkit molecule.
+
+        Returns:
+            The smile string.
+        """
+        try:
+            smile = Chem.MolToSmiles(mol)
+            return smile
+        except Exception as e:
+            self._logger.error(f"Invalid molecule: {mol}, error: {e}")
+            return None
+
+    def mol_to_mol_block(self, mol: Chem.Mol) -> str:
+        """
+        Convert a rdkit molecule to a mol block string.
+
+        Args:
+            mol: The rdkit molecule.
+
+        Returns:
+            The mol block string.
+        """
+        try:
+            mol_block = Chem.MolToMolBlock(mol)
+            return mol_block
+        except Exception as e:
+            self._logger.error(f"Invalid molecule: {mol}, error: {e}")
+            return None
+
+    def smile_to_mol_block(self, smile: str) -> str:
+        """
+        Convert a smile string to a mol block string.
+
+        Args:
+            smile: The smile string.
+
+        Returns:
+            The mol block string.
+        """
+        mol = self.smile_to_mol(smile)
+        if mol is None:
+            return None
+        return self.mol_to_mol_block(mol)
+
+    def mol_block_to_mol(self, mol_block: str) -> Chem.Mol:
+        """
+        Convert a mol block string to a rdkit molecule.
+
+        Args:
+            mol_block: The mol block string.
+
+        Returns:
+            The rdkit molecule.
+        """
+        try:
+            mol = Chem.MolFromMolBlock(mol_block)
+            if mol is None:
+                self._logger.error(f"Invalid mol_block: {mol_block}")
+                return None
+            return mol
+        except Exception as e:
+            self._logger.error(f"Invalid mol_block: {mol_block}, error: {e}")
+            return None
+
+    def smile_to_inchi(self, smile: str) -> str:
+        """
+        Convert a smile string to an inchi string.
+
+        Args:
+            smile: The smile string.
+
+        Returns:
+            The inchi string.
+        """
+        mol = self.smile_to_mol(smile)
+        if mol is None:
+            return None
+        return self.mol_to_inchi(mol)
+
+    def mol_to_inchi(self, mol: Chem.Mol) -> str:
+        """
+        Convert a rdkit molecule to an inchi string.
+
+        Args:
+            mol: The rdkit molecule.
+
+        Returns:
+            The inchi string.
+        """
+        try:
+            inchi = Chem.MolToInchi(mol)
+            return inchi
+        except Exception as e:
+            self._logger.error(f"Invalid molecule: {mol}, error: {e}")
+            return None
+
+    def inchi_to_mol(self, inchi: str) -> Chem.Mol:
+        """
+        Convert an inchi string to a rdkit molecule.
+
+        Args:
+            inchi: The inchi string.
+
+        Returns:
+            The rdkit molecule.
+        """
+        try:
+            mol = Chem.MolFromInchi(inchi)
+            if mol is None:
+                self._logger.error(f"Invalid inchi: {inchi}")
+                return None
+            return mol
+        except Exception as e:
+            self._logger.error(f"Invalid inchi: {inchi}, error: {e}")
+            return None
+
+    def inchi_to_smile(self, inchi: str) -> str:
+        """
+        Convert an inchi string to a smile string.
+
+        Args:
+            inchi: The inchi string.
+
+        Returns:
+            The smile string.
+        """
+        mol = self.inchi_to_mol(inchi)
+        if mol is None:
+            return None
+        return self.mol_to_smile(mol)
+
+    def smile_to_fp(self, smile: str) -> Chem.DataStructs.ExplicitBitVect:
+        """
+        Convert a smile string to a fingerprint.
+
+        Args:
+            smile: The smile string.
+
+        Returns:
+            The fingerprint.
+        """
+        mol = self.smile_to_mol(smile)
+        if mol is None:
+            return None
+        return self.mol_to_fp(mol)
+
+    def mol_to_fp(self, mol: Chem.Mol) -> Chem.DataStructs.ExplicitBitVect:
+        """
+        Convert a rdkit molecule to a fingerprint.
+
+        Args:
+            mol: The rdkit molecule.
+
+        Returns:
+            The fingerprint.
+        """
+        try:
+            fp = AllChem.GetMorganFingerprint(mol, 2)
+            return fp
+        except Exception as e:
+            self._logger.error(f"Invalid molecule: {mol}, error: {e}")
+            return None
+
+    def mol_to_fp_bit(self, mol: Chem.Mol) -> str:
+        """
+        Convert a rdkit molecule to a fingerprint bit string.
+
+        Args:
+            mol: The rdkit molecule.
+
+        Returns:
+            The fingerprint bit string.
+        """
+        try:
+            fp = self.mol_to_fp(mol)
+            if fp is None:
+                return None
+            fp_bit = "".join(str(x) for x in fp)
+            return fp_bit
+        except Exception as e:
+            self._logger.error(f"Invalid molecule: {mol}, error: {e}")
+            return None
+
+    def smile_to_fp_bit(self, smile: str) -> str:
+        """
+        Convert a smile string to a fingerprint bit string.
+
+        Args:
+            smile: The smile string.
+
+        Returns:
+            The fingerprint bit string.
+        """
+        mol = self.smile_to_mol(smile)
+        if mol is None:
+            return None
+        return self.mol_to_fp_bit(mol)
+
+    def fp_tanimoto_similarity(
+        self, fp1: Chem.DataStructs.ExplicitBitVect, fp2: Chem.DataStructs.ExplicitBitVect
+    ) -> float:
+        """
+        Calculate the Tanimoto similarity between two fingerprints.
+
+        Args:
+            fp1: The first fingerprint.
+            fp2: The second fingerprint.
+
+        Returns:
+            The Tanimoto similarity.
+        """
+        try:
+            return Chem.DataStructs.TanimotoSimilarity(fp1, fp2)
+        except Exception as e:
+            self._logger.error(f"Invalid fingerprint, error: {e}")
+            return None
+
+    def smile_tanimoto_similarity(self, smile1: str, smile2: str) -> float:
+        """
+        Calculate the Tanimoto similarity between two smile strings.
+
+        Args:
+            smile1: The first smile string.
+            smile2: The second smile string.
+
+        Returns:
+            The Tanimoto similarity.
+        """
+        fp1 = self.smile_to_fp(smile1)
+        fp2 = self.smile_to_fp(smile2)
+        if fp1 is None or fp2 is None:
+            return None
+        return self.fp_tanimoto_similarity(fp1, fp2)

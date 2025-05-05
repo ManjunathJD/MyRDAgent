@@ -1,4 +1,8 @@
-from rdagent.core.conf import ExtendedBaseSettings
+from rdagent.core.conf import ExtendedBaseSettings, Settings
+
+
+class BasePropConfig(Settings):
+    pass
 
 
 class BasePropSetting(ExtendedBaseSettings):

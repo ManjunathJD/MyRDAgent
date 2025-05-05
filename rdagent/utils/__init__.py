@@ -37,7 +37,7 @@ def get_module_by_module_path(module_path: Union[str, ModuleType]) -> ModuleType
             module_name = re.sub("^[^a-zA-Z_]+", "", re.sub("[^0-9a-zA-Z_]", "", module_path[:-3].replace("/", "_")))
             module_spec = importlib.util.spec_from_file_location(module_name, module_path)
             if module_spec is None:
-                raise ModuleNotFoundError(f"Cannot find module at {module_path}")
+                raise ModuleNotFoundError(f"Cannot find module at {module_path}") from None
             module = importlib.util.module_from_spec(module_spec)
             sys.modules[module_name] = module
             if module_spec.loader is not None:
@@ -61,7 +61,7 @@ def convert2bool(value: Union[str, bool]) -> bool:
         if v in ["false", "no"]:
             return False
         raise ValueError(f"Can not convert {value} to bool")
-    elif isinstance(value, bool):
+    if isinstance(value, bool):
         return value
     else:
         raise ValueError(f"Unknown value type {value} to bool")
@@ -145,7 +145,7 @@ def filter_redundant_text(stdout: str) -> str:
     return filtered_stdout
 
 
-def remove_path_info_from_str(base_path: Path, target_string: str) -> str:
+def remove_path_info_from_str(base_path: Path, target_string: str) -> str:  # pylint: disable=redefined-outer-name
     """
     Remove the absolute path from the target string
     """
@@ -156,6 +156,6 @@ def remove_path_info_from_str(base_path: Path, target_string: str) -> str:
 
 def md5_hash(input_string: str) -> str:
     hash_md5 = hashlib.md5(usedforsecurity=False)
-    input_bytes = input_string.encode("utf-8")
-    hash_md5.update(input_bytes)
+    hash_md5.update(input_string.encode("utf-8"))
     return hash_md5.hexdigest()
+

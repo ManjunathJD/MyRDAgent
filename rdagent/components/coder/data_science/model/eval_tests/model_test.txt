@@ -13,13 +13,13 @@ from sklearn.model_selection import train_test_split
 def log_execution_results(start_time, val_pred, test_pred, hypers, execution_label):
     """Log the results of a single model execution."""
     feedback_str = f"{execution_label} end.\n"
-    feedback_str += f"Validation predictions shape: {val_pred.shape if val_pred is not None else 'None'}\n"
-    feedback_str += f"Test predictions shape: {test_pred.shape if test_pred is not None else 'None'}\n"
-    feedback_str += f"Hyperparameters: {hypers if hypers is not None else 'None'}\n"
+    feedback_str += f"Validation predictions shape: {val_pred.shape if hasattr(val_pred, 'shape') else 'None'}\n"
+    feedback_str += f"Test predictions shape: {test_pred.shape if hasattr(test_pred, 'shape') else 'None'}\n"
+    feedback_str += f"Hyperparameters: {hypers if hypers is not None else 'None'}\n"  # Added handling for hypers being None
     feedback_str += f"Execution time: {time.time() - start_time:.2f} seconds.\n"
     print(feedback_str)
 
-
+import reprlib
 import reprlib
 aRepr = reprlib.Repr()
 aRepr.maxother=300
@@ -35,9 +35,7 @@ print(f"test_ids length: {len(test_ids)}")
 
 train_X, val_X, train_y, val_y = train_test_split(X, y, test_size=0.8, random_state=42)
 
-
 import sys
-import reprlib
 from joblib.memory import MemorizedFunc
 
 
@@ -58,22 +56,25 @@ print(f"val_y.shape: {val_y.shape}" if hasattr(val_y, 'shape') else f"val_y leng
 
 
 
-def debug_info_print(func):
+def debug_info_print(func):  # type: ignore
     def wrapper(*args, **kwargs):
         original_code = get_original_code(func)
+
         def local_trace(frame, event, arg):
-            if event == "return" and frame.f_code == original_code:
-                print("\n" + "="*20 + "Running model training code, local variable values:" + "="*20)
-                for k, v in frame.f_locals.items():
-                    printed = aRepr.repr(v)
-                    print(f"{k}:\n {printed}")
-                print("="*20 + "Local variable values end" + "="*20)
-            return local_trace
-        
+            if event == "return":
+                if frame.f_code == original_code:
+                    print("\n" + "=" * 20 + "Running model training code, local variable values:" + "=" * 20)
+                    for k, v in frame.f_locals.items():
+                        printed = aRepr.repr(v)
+                        print(f"{k}:\n {printed}")
+                    print("=" * 20 + "Local variable values end" + "=" * 20)
+                return local_trace
+            return local_trace  # Return local_trace in the default case
+
         sys.settrace(local_trace)
         try:
             return func(*args, **kwargs)
-        finally:
+        finally: 
             sys.settrace(None)
     return wrapper
 

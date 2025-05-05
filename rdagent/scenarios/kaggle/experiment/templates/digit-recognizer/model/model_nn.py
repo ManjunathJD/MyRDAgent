@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
@@ -31,13 +32,11 @@ class NeuralNetwork(nn.Module):
         return x
 
 
-def fit(X_train: pd.DataFrame, y_train: pd.DataFrame, X_valid: pd.DataFrame, y_valid: pd.DataFrame):
+def fit(X_train, y_train, X_valid, y_valid):
     # Convert data to PyTorch tensors and reshape it for convolutional layers
-    X_train_tensor = (
-        torch.tensor(X_train.values, dtype=torch.float32).view(-1, 1, 28, 28).to(device)
-    )  # Reshape and move to GPU
-    y_train_tensor = torch.tensor(y_train.values, dtype=torch.long).to(device)
-    X_valid_tensor = torch.tensor(X_valid.values, dtype=torch.float32).view(-1, 1, 28, 28).to(device)
+    X_train_tensor = torch.tensor(np.array(X_train), dtype=torch.float32).view(-1, 1, 28, 28).to(device)
+    y_train_tensor = torch.tensor(np.array(y_train).flatten(), dtype=torch.long).to(device)
+    y_valid_tensor = torch.tensor(y_valid.values, dtype=torch.long).to(device)
     y_valid_tensor = torch.tensor(y_valid.values, dtype=torch.long).to(device)
 
     # Create datasets and dataloaders
@@ -79,8 +78,9 @@ def fit(X_train: pd.DataFrame, y_train: pd.DataFrame, X_valid: pd.DataFrame, y_v
     return model
 
 
-def predict(model, X):
-    X_tensor = torch.tensor(X.values, dtype=torch.float32).view(-1, 1, 28, 28).to(device)
+def predict(model, X_test):
+    X_tensor = torch.tensor(np.array(X_test), dtype=torch.float32).view(-1, 1, 28, 28).to(device)
+    # X_tensor = torch.tensor(X.values, dtype=torch.float32).view(-1, 1, 28, 28).to(device)
     model.eval()
     with torch.no_grad():
         outputs = model(X_tensor)

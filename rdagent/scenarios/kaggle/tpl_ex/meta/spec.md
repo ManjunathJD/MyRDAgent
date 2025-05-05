@@ -2,7 +2,6 @@
 
 Information to generate spec
 
-
 ```python
 def feature_eng(x: {{type of the feature}}) -> {{type of the feature}}:
     """

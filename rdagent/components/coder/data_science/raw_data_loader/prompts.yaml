@@ -84,7 +84,7 @@ spec:
           - Clarify the input parameters and their data types.
           - Define the structure and format of the output.
           - Inferred data shape to each input and output data variables. To uncertain dimension, use -1.
-
+      
       2. Precautions for Feature Engineering:
         - Well handle the shape of the data:
           - The sample size of the train data and the test data should be the same in all scenarios.

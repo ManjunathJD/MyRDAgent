@@ -1,4 +1,5 @@
 import os
+import pickle
 import re
 
 import numpy as np  # linear algebra
@@ -17,7 +18,9 @@ def preprocess_script():
         y_valid = pd.read_pickle("/kaggle/input/y_valid.pkl")
         X_test = pd.read_pickle("/kaggle/input/X_test.pkl")
         others = pd.read_pickle("/kaggle/input/others.pkl")
-
+        if isinstance(others, tuple):
+            # Convert the tuple to a list, if necessary
+            others = list(others)
         return X_train, X_valid, y_train, y_valid, X_test, *others
 
     def data_cleaner(text):
@@ -40,4 +43,12 @@ def preprocess_script():
 
     X_train, X_valid, y_train, y_valid = train_test_split(X_train, y_train, test_size=0.2, random_state=42)
 
+    os.makedirs("/kaggle/input/", exist_ok=True)
+    pd.to_pickle(X_train, "/kaggle/input/X_train.pkl")
+    pd.to_pickle(X_valid, "/kaggle/input/X_valid.pkl")
+    pd.to_pickle(y_train, "/kaggle/input/y_train.pkl")
+    pd.to_pickle(y_valid, "/kaggle/input/y_valid.pkl")
+    pd.to_pickle(X_test, "/kaggle/input/X_test.pkl")
+
     return X_train, X_valid, y_train, y_valid, X_test
+

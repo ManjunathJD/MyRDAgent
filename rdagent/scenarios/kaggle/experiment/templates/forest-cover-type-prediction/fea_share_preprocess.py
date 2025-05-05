@@ -12,10 +12,10 @@ def prepreprocess():
     """
     # Load and preprocess the data
     data_df = pd.read_csv("/kaggle/input/train.csv")
-    data_df = data_df.drop(["Id"], axis=1)
+    data_df.drop(["Id"], axis=1, inplace=True)
 
-    X = data_df.drop(["Cover_Type"], axis=1)
-    y = data_df["Cover_Type"] - 1
+    X = data_df.drop(columns=["Cover_Type"])
+    y = data_df["Cover_Type"].apply(lambda x: x - 1)
 
     # Split the data into training and validation sets
     X_train, X_valid, y_train, y_valid = train_test_split(X, y, test_size=0.20, random_state=42)
@@ -42,7 +42,7 @@ def preprocess_script():
     # Load and preprocess the test data
     submission_df = pd.read_csv("/kaggle/input/test.csv")
     ids = submission_df["Id"]
-    X_test = submission_df.drop(["Id"], axis=1)
+    X_test = submission_df.drop(columns=["Id"])
 
     return X_train, X_valid, y_train, y_valid, X_test, ids
 
@@ -60,9 +60,9 @@ def clean_and_impute_data(X_train, X_valid, X_test):
 
     # Impute missing values
     imputer = SimpleImputer(strategy="mean")
-    X_train = pd.DataFrame(imputer.fit_transform(X_train), columns=X_train.columns)
-    X_valid = pd.DataFrame(imputer.transform(X_valid), columns=X_valid.columns)
-    X_test = pd.DataFrame(imputer.transform(X_test), columns=X_test.columns)
+    X_train = pd.DataFrame(imputer.fit_transform(X_train), columns=X_train.columns, index=X_train.index)
+    X_valid = pd.DataFrame(imputer.transform(X_valid), columns=X_valid.columns, index=X_valid.index)
+    X_test = pd.DataFrame(imputer.transform(X_test), columns=X_test.columns, index=X_test.index)
 
     # Remove duplicate columns
     X_train = X_train.loc[:, ~X_train.columns.duplicated()]

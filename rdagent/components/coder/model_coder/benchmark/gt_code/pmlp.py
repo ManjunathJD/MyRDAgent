@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 import torch
 import torch.nn.functional as F
@@ -46,11 +46,11 @@ class PMLP(torch.nn.Module):
         self.dropout = dropout
         self.bias = bias
 
-        self.lins = torch.nn.ModuleList()
+        self.lins: List[Linear] = torch.nn.ModuleList()
         self.lins.append(Linear(in_channels, hidden_channels, self.bias))
         for _ in range(self.num_layers - 2):
             lin = Linear(hidden_channels, hidden_channels, self.bias)
-            self.lins.append(lin)
+            self.lins.append(lin)  # type: ignore
         self.lins.append(Linear(hidden_channels, out_channels, self.bias))
 
         self.norm = None
@@ -77,7 +77,7 @@ class PMLP(torch.nn.Module):
         x: torch.Tensor,
         edge_index: Optional[Tensor] = None,
     ) -> torch.Tensor:
-        """"""  # noqa: D419
+        """Forward pass."""  # noqa: D419
         if not self.training and edge_index is None:
             raise ValueError(f"'edge_index' needs to be present during " f"inference in '{self.__class__.__name__}'")
 
@@ -96,10 +96,10 @@ class PMLP(torch.nn.Module):
         return x
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}({self.in_channels}, " f"{self.out_channels}, num_layers={self.num_layers})"
+        return f"{self.__class__.__name__}({self.in_channels}, " f"{self.out_channels}, num_layers={self.num_layers})" # type: ignore
 
 
-model_cls = PMLP
+model_cls = PMLP # type: ignore
 
 if __name__ == "__main__":
     node_features = torch.load("node_features.pt")

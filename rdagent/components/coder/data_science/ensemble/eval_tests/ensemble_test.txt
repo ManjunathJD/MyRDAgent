@@ -30,7 +30,7 @@ def print_preds_info(model_name, data_type, preds):
         elif isinstance(preds, (np.ndarray, torch.Tensor, tf.Tensor)):
             print(preds[:2])
         elif isinstance(preds, list):
-            print(pd.DataFrame(preds[:5]))
+            print(pd.DataFrame(preds[:min(5,len(preds))]))
         else:
             print(f"Unknown prediction type: {type(preds)}")
 
@@ -63,14 +63,14 @@ for key in val_preds_dict.keys():
     if val_preds_dict[key] is None: 
         print(f"Model {key} validation predictions (val_preds_dict[key]) is None.")
     elif isinstance(val_preds_dict[key], list):
-        print(f"Model {key} validation predictions (val_preds_dict[key]) (list type) length: {len(val_preds_dict[key])}")
+        print(f"Model {key} validation predictions (val_preds_dict[key]) (list type) length: {len(val_preds_dict[key]) if val_preds_dict[key] is not None else 'None'}")
     else:
         print(f"Model {key} validation predictions (val_preds_dict[key]) shape: {val_preds_dict[key].shape}")
 
     if test_preds_dict[key] is None: 
         print(f"Model {key} test predictions (test_preds_dict[key]) is None.")
     elif isinstance(test_preds_dict[key], list):
-        print(f"Model {key} test predictions (test_preds_dict[key]) (list type) length: {len(test_preds_dict[key])}")
+        print(f"Model {key} test predictions (test_preds_dict[key]) (list type) length: {len(test_preds_dict[key]) if test_preds_dict[key] is not None else 'None'}")
     else:
         print(f"Model {key} test predictions (test_preds_dict[key]) shape: {test_preds_dict[key].shape}")
 

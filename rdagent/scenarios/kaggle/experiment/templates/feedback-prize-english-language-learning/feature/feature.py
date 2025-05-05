@@ -1,5 +1,6 @@
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
+import scipy.sparse
 
 """
 Here is the feature engineering code for each task, with a class that has a fit and transform method.
@@ -20,7 +21,7 @@ class IdentityFeature:
         Transform the input data.
         """
         X = self.vectorizer.transform(X["full_text"])
-        X = pd.DataFrame.sparse.from_spmatrix(X)
+        X = pd.DataFrame.sparse.from_spmatrix(X) if isinstance(X, scipy.sparse.spmatrix) else pd.DataFrame(X.toarray())
         return X
 
 

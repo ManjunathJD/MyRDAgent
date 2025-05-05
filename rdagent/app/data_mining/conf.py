@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from pydantic_settings import SettingsConfigDict
 
 from rdagent.components.workflow.conf import BasePropSetting
@@ -29,8 +27,6 @@ class MedBasePropSetting(BasePropSetting):
 
     evolving_n: int = 10
     """Number of evolutions"""
-
-    evolving_n: int = 10
 
     # 2) Extra config for the scenario
     # physionet account

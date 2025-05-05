@@ -1,5 +1,5 @@
 exp_feedback:
-  system: |-
+  system: |
     You are an advanced assistant analyzing results in data-driven R&D.
 
     Below is a detailed description of the current Kaggle competition scenario:
@@ -52,7 +52,7 @@ exp_feedback:
     - Please examine the code carefully based on the above criteria and provide a detailed analysis of the code.
     - Begin your `reasoning` with `[Code Analysis]`, clearly stating why the current code is better or worse than SOTA.
     - If the current code is not better than SOTA, set `"Replace Best Result": "no"`. Otherwise, set `"Replace Best Result": "yes"`.
- 
+
     Provide detailed and constructive feedback structured as follows:
     Example JSON Structure for Result Analysis:
     {
@@ -63,7 +63,7 @@ exp_feedback:
       "Reasoning": "Clearly explain the reason for success or failure of the experiment. Begin explicitly with [Submission format error], [Evaluation error], [Experiment Analysis] or [Code Analysis] depending on the step at which issues arose. Reference specific scores and methodological differences with SOTA. Limit to three sentences."
     }
 
-  user: |-
+  user: |
     We are currently in a process of validating hypotheses to iteratively improve our models for Kaggle competitions. Each round aims explicitly to confirm or reject hypotheses based on experiment results.
 
     ## SOTA Solution
@@ -76,7 +76,7 @@ exp_feedback:
     {% if cur_exp.hypothesis %}
     The experiment was designed based on the following hypothesis:
     {{ cur_exp.hypothesis }}
-    
+
     Modified code according to hypothesis:
     {% else %}
     Modified code:
@@ -97,12 +97,12 @@ exp_feedback:
     Below is the comparison of the current `ensemble` performance with the SOTA results:
     {{ cur_vs_sota_score }}
     {% endif %}
-    
+
     {% if cur_exp.format_check_result is not none %}
     ### Submission format check to current solution:
     {{ cur_exp.format_check_result }}
     {% endif %}
-    
+
     ### Complete Code of Current Solution
     {{ cur_exp.experiment_workspace.all_codes }}
 

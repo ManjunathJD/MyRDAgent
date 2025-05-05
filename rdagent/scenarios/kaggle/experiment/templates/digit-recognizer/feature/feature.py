@@ -7,17 +7,17 @@ Remember
 
 
 class IdentityFeature:
-    def fit(self, train_df: pd.DataFrame):
+    def fit(self, train_df: pd.DataFrame) -> None:
         """
         Fit the feature engineering model to the training data.
         """
         pass
 
-    def transform(self, X: pd.DataFrame):
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
         """
         Transform the input data.
         """
-        return X
+        return X.copy()
 
 
 feature_engineering_cls = IdentityFeature

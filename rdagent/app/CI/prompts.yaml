@@ -1,6 +1,5 @@
 generate_lint_command_template: |
   Please generate a command to lint or format a {language} repository.
-  Here are some information about different linting tools ```{linting_tools}```
 linting_system_prompt_template: |
   You are a software engineer. You can write code to a high standard and are adept at solving {language} linting problems.
 session_manual_template: |

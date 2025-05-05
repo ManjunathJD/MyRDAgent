@@ -1,4 +1,4 @@
-import pandas as pd
+import pandas as pd  # type: ignore
 
 """
 Here is the feature engineering code for each task, with a class that has a fit and transform method.
@@ -7,13 +7,13 @@ Remember
 
 
 class IdentityFeature:
-    def fit(self, train_df: pd.DataFrame):
+    def fit(self, train_df: pd.DataFrame) -> None:
         """
         Fit the feature engineering model to the training data.
         """
         pass
 
-    def transform(self, X: pd.DataFrame):
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
         """
         Transform the input data.
         """

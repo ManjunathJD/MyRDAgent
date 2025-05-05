@@ -81,7 +81,6 @@ pd.Series(data=[metrics_all[max_index]], index=["multi-class accuracy"]).to_csv(
 # 6) Submit predictions for the test
 ids = range(1, len(X_test) + 1)
 
-# TODO: fix selection
 print(X_valid_selected.columns)
 y_test_pred = model_l[max_index][1](model_l[max_index][0], model_l[max_index][2].select(X_test)).flatten()
 submission_result = pd.DataFrame({"ImageId": ids, "Label": y_test_pred})

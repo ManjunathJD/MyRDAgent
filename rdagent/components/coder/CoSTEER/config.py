@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Optional
 
 from rdagent.core.conf import ExtendedBaseSettings
 
@@ -27,10 +27,10 @@ class CoSTEERSettings(ExtendedBaseSettings):
     v2_error_summary: bool = False
     v2_knowledge_sampler: float = 1.0
 
-    knowledge_base_path: Union[str, None] = None
+    knowledge_base_path: Optional[str] = None
     """Path to the knowledge base"""
 
-    new_knowledge_base_path: Union[str, None] = None
+    new_knowledge_base_path: Optional[str] = None
     """Path to the new knowledge base"""
 
     max_seconds: int = 10**6

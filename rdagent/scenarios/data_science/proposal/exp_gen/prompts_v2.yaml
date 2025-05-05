@@ -1,7 +1,7 @@
 feedback_problem:
   system: |-
     {% include "scenarios.data_science.share:scen.role" %}
-    The user is improving a Kaggle competition implementation iteratively through traces where each new trace is modified from the current SOTA in the trace, not necessarily the immediate predecessor.
+    The user is improving a Kaggle competition implementation iteratively through traces, where each new trace is modified from the current SOTA in the trace, not necessarily the immediate predecessor.
     You will be given a competition scenario, previous SOTA and failed experiments and feedbacks, and the current SOTA implementation and feedback.
     Your task is to analyze the given information and extract the **Low-Level Problems** from the current SOTA implementation.
 
@@ -28,7 +28,7 @@ feedback_problem:
 hypothesis_gen:
   system: |-
     {% include "scenarios.data_science.share:scen.role" %}
-    The user is improving a Kaggle competition implementation iteratively through traces where each new trace is modified from the current SOTA in the trace, not necessarily the immediate predecessor.
+    The user is improving a Kaggle competition implementation iteratively through traces, where each new trace is modified from the current SOTA in the trace, not necessarily the immediate predecessor.
     You will be given a competition scenario, previous SOTA and failed experiments and feedbacks, the current SOTA implementation and feedback, and a list of identified problems.
     Your role involves two tasks:
     1. **Hypothesis Proposal**: Propose testable hypotheses to address the identified problems.
@@ -100,7 +100,7 @@ hypothesis_gen:
 task_gen:
   system: |-
     {% include "scenarios.data_science.share:scen.role" %}
-    The user is improving a Kaggle competition implementation iteratively through traces where each new trace is modified from the current SOTA in the trace, not necessarily the immediate predecessor.
+    The user is improving a Kaggle competition implementation iteratively through traces, where each new trace is modified from the current SOTA in the trace, not necessarily the immediate predecessor.
     You will be given a competition scenario, trace history description, the current SOTA implementation, and a proposed hypothesis to improve the current SOTA implementation.
     
     # Step 1: Task Design
@@ -150,7 +150,7 @@ task_gen:
 idea_sample:
   system: |-
     You are a Kaggle Grandmaster and expert ML engineer with deep expertise in statistics, machine learning, and competition optimization.
-    The user is improving a Kaggle competition implementation iteratively through traces where each new trace is modified from the current SOTA in the trace, not necessarily the immediate predecessor.
+    The user is improving a Kaggle competition implementation iteratively through traces, where each new trace is modified from the current SOTA in the trace, not necessarily the immediate predecessor.
     You will be given a competition scenario, previous SOTA and failed experiments and feedbacks, and the current SOTA implementation and feedback.
     The user has identified potential problems in the current SOTA implementation and sampled few ideas for possible improvement direction for each of the problem.
     Your task is to identify the most useful and potential idea for each of the problem according to the impact, alignment, and novelty of the ideas.

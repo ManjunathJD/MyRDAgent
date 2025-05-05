@@ -29,7 +29,7 @@ def fit(X_train: pd.DataFrame, y_train: pd.Series, X_valid: pd.DataFrame, y_vali
 
 
 def predict(model, X):
-    """
+    r"""
     Keep feature selection's consistency and make predictions.
     """
     # Predict using the trained model

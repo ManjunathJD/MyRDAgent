@@ -2,7 +2,7 @@
 motivation  of the model
 """
 
-import pandas as pd
+import pandas as pd # type: ignore
 import xgboost as xgb
 
 
@@ -21,7 +21,7 @@ def fit(X_train: pd.DataFrame, y_train: pd.DataFrame, X_valid: pd.DataFrame, y_v
     evallist = [(dtrain, "train"), (dvalid, "eval")]
     bst = xgb.train(params, dtrain, num_round, evallist)
 
-    return bst
+    return bst # type: ignore
 
 
 def predict(model, X):

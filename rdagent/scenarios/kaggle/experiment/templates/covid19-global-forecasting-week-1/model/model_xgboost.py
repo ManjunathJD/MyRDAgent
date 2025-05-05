@@ -17,7 +17,7 @@ def fit(X_train: pd.DataFrame, y_train: pd.DataFrame, X_valid: pd.DataFrame, y_v
             "device": "cuda",
         }
         num_round = 1000
-
+        
         evallist = [(dtrain, "train"), (dvalid, "eval")]
         models[target] = xgb.train(params, dtrain, num_round, evallist, early_stopping_rounds=50)
 

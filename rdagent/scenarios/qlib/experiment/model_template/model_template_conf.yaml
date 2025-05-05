@@ -1,0 +1,248 @@
+import logging
+import os
+import sys
+from typing import Any, Dict, List, Optional, Tuple, Union
+
+import qlib
+from qlib.config import C
+from qlib.constant import REG_CN
+from qlib.data import D
+from qlib.data.dataset import DatasetH
+from qlib.data.dataset.handler import DataHandlerLP
+from qlib.log import get_module_logger
+from qlib.utils import init_instance_by_config, unpack_df_to_tuple
+
+from rdagent.log.storage import Storage
+from rdagent.scenarios.qlib.experiment.utils import get_pred_score_from_model
+from rdagent.utils.env import get_env_manager
+
+
+class FactorExperiment:
+    def __init__(self, config: dict = None, logger: logging.Logger = None) -> None:
+        self.logger = logger or get_module_logger("FactorExperiment", level=logging.INFO)
+        self.qlib_config = config or C.qlib_config
+        self.model_config = self.qlib_config.get("model", {})
+        self.dataset_config = self.qlib_config.get("dataset", {})
+        self.train_config = self.qlib_config.get("train", {})
+        self.factor_config = self.qlib_config.get("factor", {})
+        self.pred_config = self.qlib_config.get("pred", {})
+        self.metric_config = self.qlib_config.get("metric", {})
+        self.data_type = self.dataset_config.get("data_type", "full")
+        self.storage = Storage()
+
+        self.dataset = None
+        self.model = None
+        self.pred_score = None
+
+        self.data_dir = self.factor_config.get("data_dir")
+        self.data_path = self.factor_config.get("data_path")
+        self.factor_name = self.factor_config.get("factor_name")
+        self.model_dir = self.factor_config.get("model_dir")
+        self.factor_dir = self.factor_config.get("factor_dir")
+        self.score_dir = self.factor_config.get("score_dir")
+        self.factor_eval_start_time = self.factor_config.get("eval_start_time")
+        self.factor_eval_end_time = self.factor_config.get("eval_end_time")
+        self.report_info = {
+            "factor_name": self.factor_name,
+            "factor_data_dir": self.data_path,
+            "start_time": self.factor_eval_start_time,
+            "end_time": self.factor_eval_end_time,
+        }
+
+    def set_storage(self, storage: Storage) -> None:
+        self.storage = storage
+
+    def setup_qlib(self) -> None:
+        """setup qlib environment"""
+        if qlib.get_provider() is None:
+            qlib.init(
+                region=REG_CN,
+                provider_uri=self.data_dir,
+                custom_model_dir=self.model_dir,
+                custom_factor_dir=self.factor_dir,
+                custom_score_dir=self.score_dir,
+            )
+
+    def setup_dataset(self) -> None:
+        """
+        Load dataset
+        """
+        self.dataset = init_instance_by_config(self.dataset_config)
+
+    def setup_model(self) -> None:
+        """
+        Setup model
+        """
+        self.model = init_instance_by_config(self.model_config)
+
+    def update_train_config(self, factor_names: List[str]) -> None:
+        self.train_config["feature"]["module_path"] = self.train_config["feature"]["module_path"].format(
+            factor_names=factor_names
+        )
+
+    def train_model(self, factor_names: List[str]) -> None:
+        """train model
+
+        Args:
+            factor_names (List[str]): factor name
+        """
+        self.update_train_config(factor_names)
+        self.logger.info(f"train config: {self.train_config}")
+        data_handler = init_instance_by_config(self.train_config)
+        train_dataset = DatasetH(data_handler, segments="train")
+        test_dataset = DatasetH(data_handler, segments="test")
+        self.model.fit(train_dataset)
+        # get pred score
+        self.pred_score = get_pred_score_from_model(
+            self.model, test_dataset, data_handler.get_data(), self.logger
+        )
+        self.logger.info(f"model training finished.")
+
+    def get_dataset(self) -> Dict:
+        """
+        Get data from dataset
+
+        Returns:
+            Dict: data from dataset
+        """
+        train_data, test_data = {}, {}
+        if self.data_type == "full":
+            train_data = self.dataset.prepare(segments="train")
+            test_data = self.dataset.prepare(segments="test")
+        elif self.data_type == "val":
+            train_data = self.dataset.prepare(segments="train")
+            test_data = self.dataset.prepare(segments="valid")
+        elif self.data_type == "test":
+            train_data = self.dataset.prepare(segments="train")
+            test_data = self.dataset.prepare(segments="test")
+        else:
+            raise ValueError(f"Unknown data_type {self.data_type}")
+
+        return train_data, test_data
+
+    def load_data(self, factor_names: List[str]) -> Tuple[Dict, Dict]:
+        """load factor data
+
+        Args:
+            factor_names (List[str]): factor names
+
+        Returns:
+            Tuple[Dict, Dict]: factor train data and test data
+        """
+        # set qlib env
+        self.setup_qlib()
+        # set dataset
+        self.setup_dataset()
+        # get dataset data
+        train_data, test_data = self.get_dataset()
+        return train_data, test_data
+
+    def create_factor_data(
+        self, factor_names: List[str], train_data: Dict, test_data: Dict
+    ) -> Tuple[Dict, Dict]:
+        """create factor data
+            1. load factor data
+            2. get factor data
+        Args:
+            factor_names (List[str]): factor names
+            train_data (Dict): factor train data
+            test_data (Dict): factor test data
+
+        Returns:
+            Tuple[Dict, Dict]: factor data, factor data
+        """
+        # set qlib env
+        self.setup_qlib()
+        # create factor data
+        train_data, test_data = {}, {}
+        self.logger.info(f"factor data creation is starting")
+        factor_list_data, factor_list_test_data = [], []
+        for name in factor_names:
+            self.logger.info(f"factor name {name} data loading is starting")
+            if name.startswith("$"):
+                factor_list_data.append(D.features(train_data["instrument"], factors=name))
+                factor_list_test_data.append(D.features(test_data["instrument"], factors=name))
+            else:
+                factor_list_data.append(D.features(train_data["instrument"], factors=[name]))
+                factor_list_test_data.append(D.features(test_data["instrument"], factors=[name]))
+
+        if factor_list_data[0].empty:
+            self.logger.warning("factor data is empty")
+            self.report_info["factor_data_is_empty"] = True
+            return train_data, test_data
+
+        factor_data = factor_list_data[0]
+        factor_test_data = factor_list_test_data[0]
+        for i in range(1, len(factor_list_data)):
+            factor_data = factor_data.join(factor_list_data[i], how="left")
+            factor_test_data = factor_test_data.join(factor_list_test_data[i], how="left")
+        self.report_info["factor_data_len"] = len(factor_data)
+        self.report_info["factor_data_columns"] = list(factor_data.columns)
+        self.logger.info(f"factor data columns: {list(factor_data.columns)}")
+        train_data["data"] = factor_data
+        test_data["data"] = factor_test_data
+        return train_data, test_data
+
+    def train(self, factor_names: List[str]) -> None:
+        """
+        Train model
+
+        Args:
+            factor_names (List[str]): factor names
+        """
+        # set qlib env
+        self.setup_qlib()
+        # load dataset
+        train_data, test_data = self.load_data(factor_names)
+        self.logger.info(f"factor train data len: {len(train_data)}")
+        self.logger.info(f"factor test data len: {len(test_data)}")
+
+        train_data, test_data = self.create_factor_data(factor_names, train_data, test_data)
+        self.logger.info(f"factor train data len: {len(train_data['data'])}")
+        self.logger.info(f"factor test data len: {len(test_data['data'])}")
+        # init model
+        self.setup_model()
+        self.logger.info(f"model: {self.model}")
+        self.train_model(factor_names)
+
+    def prepare_data(self, data: Any) -> Any:
+        if isinstance(data, dict):
+            for k, v in data.items():
+                data[k] = self.prepare_data(v)
+        elif isinstance(data, list):
+            data = [self.prepare_data(v) for v in data]
+        elif hasattr(data, "to_pandas") and callable(data.to_pandas):
+            data = data.to_pandas()
+        elif hasattr(data, "to_list") and callable(data.to_list):
+            data = data.to_list()
+        elif hasattr(data, "tolist") and callable(data.tolist):
+            data = data.tolist()
+        return data
+
+    def get_report(self) -> Dict:
+        """get factor eval report
+
+        Returns:
+            Dict: factor eval report
+        """
+
+        # get report info
+        report_info = self.report_info
+        # save factor result
+        factor_dir = get_env_manager().get_factor_dir()
+        if not os.path.exists(factor_dir):
+            os.makedirs(factor_dir)
+
+        self.logger.info(f"report info: {report_info}")
+        self.storage.log_metric("report_info", report_info)
+        return report_info
+
+    def get_pred_score(self) -> Optional[Dict]:
+        """get pred score
+
+        Returns:
+            Optional[Dict]: pred score
+        """
+        self.logger.info(f"pred score: {self.pred_score}")
+        self.storage.log_metric("pred_score", self.pred_score)
+        return self.pred_score

@@ -103,7 +103,7 @@ class ExpNormalSmearing(torch.nn.Module):
             dist (torch.Tensor): A tensor of distances.
         """
         dist = dist.unsqueeze(-1)
-        smeared_dist = self.cutoff_fn(dist) * (-self.betas * ((self.alpha * (-dist)).exp() - self.means) ** 2).exp()
+        smeared_dist = self.cutoff_fn(dist) * ((-self.betas * ((self.alpha * (-dist)).exp() - self.means) ** 2).exp())
         return smeared_dist
 
 

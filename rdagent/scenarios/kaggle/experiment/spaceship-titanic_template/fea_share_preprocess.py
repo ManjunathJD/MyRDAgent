@@ -63,7 +63,7 @@ def preprocess_transform(X: pd.DataFrame, preprocessor, label_encoders):
     # Encode categorical features
     for col, le in label_encoders.items():
         # Handle unseen labels by setting them to a default value (e.g., -1)
-        X[col] = X[col].apply(lambda x: le.transform([x])[0] if x in le.classes_ else -1)
+        X[col] = X[col].apply(lambda x: le.transform([x])[0] if x in le.classes_ else -1 if pd.notna(x) else -1)
 
     # Transform the data using the fitted preprocessor
     X_array = preprocessor.transform(X)

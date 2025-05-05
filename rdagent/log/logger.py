@@ -21,10 +21,10 @@ from psutil import Process
 from rdagent.core.conf import RD_AGENT_SETTINGS
 from rdagent.core.utils import SingletonBaseClass
 
-from .storage import FileStorage
+from rdagent.log.storage import FileStorage
 from .utils import LogColors, get_caller_info
 
-
+# add async support to avoid block
 class RDAgentLog(SingletonBaseClass):
     """
     The files are organized based on the tag & PID
@@ -105,7 +105,7 @@ class RDAgentLog(SingletonBaseClass):
 
     def file_format(self, record: "Record", raw: bool = False) -> str:
         # FIXME: the formmat is tightly coupled with the message reading in storage.
-        record["message"] = LogColors.remove_ansi_codes(record["message"])
+        record["message"] = str(LogColors.remove_ansi_codes(record["message"]))
         if raw:
             return "{message}"
         return "{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {name}:{function}:{line} - {message}\n"
@@ -132,7 +132,7 @@ class RDAgentLog(SingletonBaseClass):
 
         logp = self.storage.log(obj, name=tag, save_type="pkl")
 
-        file_handler_id = logger.add(
+        file_handler_id = logger.add( 
             self.log_trace_path / tag.replace(".", "/") / "common_logs.log", format=self.file_format
         )
         logger.patch(lambda r: r.update(caller_info)).info(f"Logging object in {Path(logp).absolute()}")
@@ -149,11 +149,12 @@ class RDAgentLog(SingletonBaseClass):
         log_file_path = self.log_trace_path / tag.replace(".", "/") / "common_logs.log"
         if raw:
             file_handler_id = logger.add(log_file_path, format=partial(self.file_format, raw=True))
+            logger.patch(lambda r: r.update(caller_info)).info(msg)
+            logger.remove(file_handler_id)
         else:
             file_handler_id = logger.add(log_file_path, format=self.file_format)
-
-        logger.patch(lambda r: r.update(caller_info)).info(msg)
-        logger.remove(file_handler_id)
+            logger.patch(lambda r: r.update(caller_info)).info(msg)
+            logger.remove(file_handler_id)
 
         if raw:
             logger.remove()

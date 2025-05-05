@@ -1,0 +1,245 @@
+# rdagent/app/CI/run.py
+import os
+import subprocess
+import sys
+
+from rdagent.log.logger import logger
+from rdagent.utils.env import get_env_variable
+from rdagent.utils.repo.diff import get_commit_diff_files
+
+
+def run_cmd(cmd, shell=True, cwd=None, timeout=None):
+    """run cmd"""
+    logger.info(f'run cmd: {cmd}')
+    try:
+        proc = subprocess.Popen(
+            cmd,
+            shell=shell,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            cwd=cwd,
+            universal_newlines=True,
+        )
+        stdout, stderr = proc.communicate(timeout=timeout)
+        if proc.returncode != 0:
+            logger.error(f"Error during command execution: {cmd}")
+            logger.error(f"stdout: {stdout}")
+            logger.error(f"stderr: {stderr}")
+            return False, stdout, stderr
+        logger.info(f"stdout: {stdout}")
+        return True, stdout, stderr
+    except Exception as e:
+        logger.error(f"Error during command execution: {cmd}, error: {e}")
+        return False, None, e
+
+
+def run_cmd_pipe(cmd, shell=True, cwd=None, timeout=None):
+    """run cmd and pipe result"""
+    logger.info(f'run cmd: {cmd}')
+    try:
+        proc = subprocess.Popen(
+            cmd,
+            shell=shell,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            cwd=cwd,
+            universal_newlines=True,
+        )
+        for line in iter(proc.stdout.readline, ''):
+            yield line.strip()
+        if proc.wait() != 0:
+            logger.error(f"Error during command execution: {cmd}")
+            return False
+        return True
+    except Exception as e:
+        logger.error(f"Error during command execution: {cmd}, error: {e}")
+        return False
+
+
+def run_python(path, params=None, cwd=None, timeout=None):
+    """run python script"""
+    cmd = [sys.executable, path]
+    if params:
+        cmd.extend(params)
+    return run_cmd(cmd, cwd=cwd, timeout=timeout)
+
+
+def run_pytest(path, params=None, cwd=None, timeout=None):
+    """run python test"""
+    cmd = [sys.executable, '-m', 'pytest', path]
+    if params:
+        cmd.extend(params)
+    return run_cmd(cmd, cwd=cwd, timeout=timeout)
+
+
+def get_modified_files():
+    """get modified files"""
+    diff_files = get_commit_diff_files()
+    if not diff_files:
+        return []
+    modified_files = [
+        file
+        for file in diff_files
+        if file.endswith(".py")
+    ]
+    return modified_files
+
+
+def run_format(file, fix=False, cwd=None, timeout=None):
+    """run format"""
+    if fix:
+        cmd = ['autopep8', '--in-place', '--aggressive', '--aggressive', file]
+    else:
+        cmd = ['autopep8', '--diff', file]
+    return run_cmd(cmd, cwd=cwd, timeout=timeout)
+
+
+def run_lint(file, fix=False, cwd=None, timeout=None):
+    """run lint"""
+    if fix:
+        cmd = ['pylint', '--rcfile', 'pylintrc', '--exit-zero', file]
+    else:
+        cmd = ['pylint', '--rcfile', 'pylintrc', file]
+    return run_cmd(cmd, cwd=cwd, timeout=timeout)
+
+
+def run_type_check(file, cwd=None, timeout=None):
+    """run type check"""
+    cmd = ['mypy', '--config-file', 'mypy.ini', file]
+    return run_cmd(cmd, cwd=cwd, timeout=timeout)
+
+
+def check_format(modified_files, fix=False, cwd=None, timeout=None):
+    """check format"""
+    for file in modified_files:
+        ret, stdout, stderr = run_format(file, fix=fix, cwd=cwd, timeout=timeout)
+        if not ret:
+            return False, stdout, stderr
+    return True, None, None
+
+
+def check_lint(modified_files, fix=False, cwd=None, timeout=None):
+    """check lint"""
+    for file in modified_files:
+        ret, stdout, stderr = run_lint(file, fix=fix, cwd=cwd, timeout=timeout)
+        if not ret:
+            return False, stdout, stderr
+    return True, None, None
+
+
+def check_type(modified_files, cwd=None, timeout=None):
+    """check type"""
+    for file in modified_files:
+        ret, stdout, stderr = run_type_check(file, cwd=cwd, timeout=timeout)
+        if not ret:
+            return False, stdout, stderr
+    return True, None, None
+
+
+def check_test(modified_files, cwd=None, timeout=None):
+    """check test"""
+    for file in modified_files:
+        ret, stdout, stderr = run_pytest(file, cwd=cwd, timeout=timeout)
+        if not ret:
+            return False, stdout, stderr
+    return True, None, None
+
+
+def check_compile(cwd=None, timeout=None):
+    """check compile"""
+    ret, stdout, stderr = run_cmd(['bash', 'compile.sh'], cwd=cwd, timeout=timeout)
+    return ret, stdout, stderr
+
+
+def check_env():
+    """check env"""
+    env = get_env_variable('CI_ENV')
+    if env == 'dev':
+        return True
+    return False
+
+
+def run_all(fix=False, cwd=None, timeout=None):
+    """run all check"""
+    modified_files = get_modified_files()
+    logger.info(f'modified_files: {modified_files}')
+    if not modified_files:
+        logger.info('no modified files')
+        return True
+    ret, stdout, stderr = check_format(modified_files, fix=fix, cwd=cwd, timeout=timeout)
+    if not ret:
+        logger.error(f'check format failed, stdout: {stdout}, stderr: {stderr}')
+        if fix:
+            return False
+        else:
+            return False
+    ret, stdout, stderr = check_lint(modified_files, fix=fix, cwd=cwd, timeout=timeout)
+    if not ret:
+        logger.error(f'check lint failed, stdout: {stdout}, stderr: {stderr}')
+        if fix:
+            return False
+        else:
+            return False
+    ret, stdout, stderr = check_type(modified_files, cwd=cwd, timeout=timeout)
+    if not ret:
+        logger.error(f'check type failed, stdout: {stdout}, stderr: {stderr}')
+        return False
+    ret, stdout, stderr = check_test(modified_files, cwd=cwd, timeout=timeout)
+    if not ret:
+        logger.error(f'check test failed, stdout: {stdout}, stderr: {stderr}')
+        return False
+    logger.info('check all success')
+    return True
+
+
+def run_build(fix=False, cwd=None, timeout=None):
+    """run build check"""
+    modified_files = get_modified_files()
+    logger.info(f'modified_files: {modified_files}')
+    if not modified_files:
+        logger.info('no modified files')
+        return True
+    ret, stdout, stderr = check_format(modified_files, fix=fix, cwd=cwd, timeout=timeout)
+    if not ret:
+        logger.error(f'check format failed, stdout: {stdout}, stderr: {stderr}')
+        if fix:
+            return False
+        else:
+            return False
+    ret, stdout, stderr = check_lint(modified_files, fix=fix, cwd=cwd, timeout=timeout)
+    if not ret:
+        logger.error(f'check lint failed, stdout: {stdout}, stderr: {stderr}')
+        if fix:
+            return False
+        else:
+            return False
+    ret, stdout, stderr = check_type(modified_files, cwd=cwd, timeout=timeout)
+    if not ret:
+        logger.error(f'check type failed, stdout: {stdout}, stderr: {stderr}')
+        return False
+    ret, stdout, stderr = check_compile(cwd=cwd, timeout=timeout)
+    if not ret:
+        logger.error(f'check compile failed, stdout: {stdout}, stderr: {stderr}')
+        return False
+    logger.info('check all success')
+    return True
+
+
+if __name__ == '__main__':
+    env = get_env_variable('CI_ENV')
+    if env == 'dev':
+        ret = run_all(fix=True)
+        if ret:
+            logger.info('dev ci success')
+            os._exit(0)
+        else:
+            logger.error('dev ci failed')
+            os._exit(1)
+    else:
+        ret = run_build(fix=False)
+        if ret:
+            logger.info('build ci success')
+            os._exit(0)
+        else:
+            logger.error('build ci failed')
+            os._exit(1)

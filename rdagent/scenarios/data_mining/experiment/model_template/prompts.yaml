@@ -1,0 +1,73 @@
+import logging
+import sys
+from typing import Optional
+
+import rich.logging
+
+def get_logger(name: str, level: Optional[int] = None, log_file: Optional[str] = None, is_console_out: bool = True) -> logging.Logger:
+    """
+    Get logger instance.
+
+    Args:
+        name (str): Logger name.
+        level (Optional[int]): Logger level. If not set, use logging.INFO.
+        log_file (Optional[str]): Log file. If not set, will not output to file.
+        is_console_out (bool): Whether output to console.
+
+    Returns:
+        logging.Logger: Logger instance.
+    """
+    logger = logging.getLogger(name)
+    if level is None:
+        level = logging.INFO
+    logger.setLevel(level)
+
+    if logger.hasHandlers():
+        return logger
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+
+    if log_file:
+        file_handler = logging.FileHandler(log_file, mode="w")
+        file_handler.setLevel(level)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+
+    if is_console_out:
+        console_handler = rich.logging.RichHandler(
+            rich_tracebacks=True,
+            markup=True,
+            show_time=True,
+            show_level=True,
+            show_path=False,
+            log_time_format="%Y-%m-%d %H:%M:%S",
+            logging_time_format="%Y-%m-%d %H:%M:%S"
+        )
+        console_handler.setLevel(level)
+        console_handler.setFormatter(formatter)
+        logger.addHandler(console_handler)
+
+    return logger
+
+def get_stream_logger(name: str, level: int = logging.INFO) -> logging.Logger:
+    """Get a simple stream logger instance.
+
+    Args:
+        name (str): Logger name.
+        level (int): Logger level. Default is logging.INFO.
+
+    Returns:
+        logging.Logger: Logger instance.
+    """
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+
+    if logger.hasHandlers():
+        return logger
+
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(level)
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
+    return logger

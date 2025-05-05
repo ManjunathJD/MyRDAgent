@@ -2,7 +2,6 @@ from pathlib import Path
 from typing import Dict
 
 import pandas as pd
-
 from rdagent.app.data_science.conf import DS_RD_SETTING
 from rdagent.components.coder import CoSTEER
 from rdagent.components.coder.CoSTEER import CoSTEER
@@ -10,12 +9,12 @@ from rdagent.components.coder.CoSTEER.config import CoSTEER_SETTINGS
 from rdagent.components.coder.CoSTEER.evaluators import (
     CoSTEERMultiEvaluator,
     CoSTEERSingleFeedback,
-)
+)  # noqa: F401
 from rdagent.components.coder.CoSTEER.evolvable_subjects import FBWorkspace
 from rdagent.components.coder.CoSTEER.evolving_strategy import (
     CoSTEERQueriedKnowledge,
     MultiProcessEvolvingStrategy,
-)
+)  # noqa: F401
 from rdagent.components.coder.CoSTEER.task import CoSTEERTask
 from rdagent.components.coder.data_science.conf import get_ds_env
 from rdagent.components.coder.data_science.share.eval import ModelDumpEvaluator
@@ -25,7 +24,7 @@ from rdagent.log import rdagent_logger as logger
 from rdagent.oai.llm_utils import APIBackend, md5_hash
 from rdagent.scenarios.data_science.dev.runner.eval import DSCoSTEERCoSTEEREvaluator
 from rdagent.utils.agent.ret import PythonBatchEditOut
-from rdagent.utils.agent.tpl import T
+from rdagent.utils.agent.tpl import T # noqa: F401
 from rdagent.utils.env import DockerEnv, MLEBDockerConf
 
 
@@ -94,7 +93,7 @@ class DSCoSTEERRunner(CoSTEER):
 
         eva = CoSTEERMultiEvaluator(
             single_evaluator=eval_l, scen=scen
-        )  # Please specify whether you agree running your eva in parallel or not
+        )
         es = DSRunnerMultiProcessEvolvingStrategy(scen=scen, settings=CoSTEER_SETTINGS)
 
         # In runner, we don't need very big loops, so we set max_loop to 3

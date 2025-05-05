@@ -1,6 +1,6 @@
 hypothesis_gen: # It is deprecated now, please refer to direct_exp_gen
   system: |-
-    The user is working on generating new hypotheses for the {{ targets }} in a data-driven research and development process. 
+    The user is working on generating new hypotheses for the {{ targets }} in a data-driven research and development process.
     The {{ targets }} are used in the following scenario:
     {{ scenario }}
     
@@ -26,7 +26,7 @@ hypothesis_gen: # It is deprecated now, please refer to direct_exp_gen
     {% else %}
     This is not the first round. The user has already proposed several hypotheses and conducted evaluations.
     
-    The previous hypotheses and their corresponding feedback are as follows (focus on the most recent hypothesis, its derived insights, and reasoning):
+    The previous hypotheses and their corresponding feedback are as follows (focus on the most recent hypothesis, its derived insights, and reasoning): # type: ignore
     {{ exp_and_feedback_desc }}
     {% endif %}
     
@@ -35,7 +35,7 @@ hypothesis_gen: # It is deprecated now, please refer to direct_exp_gen
 
 hypothesis_model: # It is deprecated now, please refer to direct_exp_gen
   system: |-
-    The user is working on generating new hypotheses for the {{ targets }} in a data-driven research and development process. 
+    The user is working on generating new hypotheses for the {{ targets }} in a data-driven research and development process.
     The {{ targets }} are used in the following scenario:
     {{ scenario }}
     {% if model_enough %}
@@ -70,7 +70,7 @@ hypothesis_and_feedback: |-
 
 task_gen:
   system: |-
-    The user is trying to generate new {{ targets }} based on the hypothesis generated in the previous step. 
+    The user is trying to generate new {{ targets }} based on the hypothesis generated in the previous step.
     The {{ targets }} are used in certain scenario, the scenario is as follows:
     {{ scenario }}
 
@@ -92,7 +92,7 @@ task_gen:
 
     Please generate the output following the format below:
     {{ task_output_format }}
-    
+
   user: |-
     {% if workspace_code %}
     Here is a list of all the filenames and their corresponding content in the workspace:
@@ -103,11 +103,11 @@ task_gen:
     The user has made several task on this scenario but didn't get the expected result due to wrong implementation or just bad luck. The former task is as follows:
     {{ former_task_desc }}
     Please avoid generating similar task to the former task to avoid the same mistake and boost efficiency.
-    
+
     {% if targets == "Model" %}
     Based on the feedback from previous experiment failures, if the failure was due to exceeding the time limit or memory constraints, start with the smallest model size or choose alternative algorithms or methods with significantly lower time or space complexity instead of using a neural network. You can then iteratively refine and optimize the model in later stages.
     {% endif %}
-    
+
     {% endif %}
 
     {% if hypothesis is not none %}
@@ -123,10 +123,10 @@ task_gen:
 
 task_gen_model: # It is deprecated now, please refer to direct_exp_gen
   system: |-
-    {% if hypothesis is not none %}
-    The user is trying to generate new {{ targets }} based on the hypothesis generated in the previous step. 
+    {% if hypothesis is not none %} # type: ignore
+    The user is trying to generate new {{ targets }} based on the hypothesis generated in the previous step.
     {% else %}
-    The user is trying to generate new {{ targets }} based on the information provided. 
+    The user is trying to generate new {{ targets }} based on the information provided.
     {% endif %}
     The {{ targets }} are used in certain scenario, the scenario is as follows:
     {{ scenario }}
@@ -140,10 +140,10 @@ task_gen_model: # It is deprecated now, please refer to direct_exp_gen
     {% endif %}
     Please generate the output following the format below:
     {{ task_output_format }}
-    
+
   user: |-
-    {% if hypothesis is not none %}
-    The user has made several hypothesis on this scenario and did several evaluation on them.
+    {% if hypothesis is not none %} # type: ignore
+    The user has made several hypothesis on this scenario and did several evaluation on them. # type: ignore
     The target hypothesis you are targeting to generate {{ targets }} for is as follows:
     {{ hypothesis }}
     The former hypothesis and the corresponding feedbacks are as follows:
@@ -158,7 +158,7 @@ direct_exp_gen:
     {% include "scenarios.data_science.share:scen.role" %}
     You are a world-class data scientist and machine learning engineer with deep expertise in statistics, mathematics, and computer science.
     Your knowledge spans cutting-edge data analysis techniques, advanced machine learning algorithms, and their practical applications to solve complex real-world problems.
-    
+
     The user is working on creating a solution for a Kaggle competition. Your task is to first suggest a hypothesis and then design a task to enhance the current best solution based on that hypothesis.
 
     The component to focus on for the next hypothesis is already determined as: {{ component }}.
@@ -215,7 +215,7 @@ direct_exp_gen:
   user: |-
     # All former experiments and their feedbacks
     {{ exp_and_feedback_list_desc }}
-    
+
     {% if targets == "Model" %}
     Based on the feedback from previous experiment failures, if the failure was due to exceeding the time limit or memory constraints, start with the smallest model size or choose alternative algorithms or methods with significantly lower time or space complexity instead of using a neural network. You can then iteratively refine and optimize the model in later stages.
 
@@ -223,7 +223,7 @@ direct_exp_gen:
     {{ sota_exp_desc }}
     Pay attention to the **Results** section. If there are sufficient models available and there is a model with a significantly worse score, consider removing that model. In this case, `model_name` in task_design should be the model you are going to remove (the name must be the same as the name in the model column in the **Results** section), and `description` should start with "Model removal".
     
-    Otherwise, if the number of available models is insufficient. Your task is to first decide whether to:
+    Otherwise, if the number of available models is insufficient. Your task is to first decide whether to: # type: ignore
       a. Tune an existing model: Select one of the current models for further tuning and improvement.
       b. Add a new model: Introduce a new model to expand the hypothesis space.
 
@@ -234,7 +234,7 @@ direct_exp_gen:
       b. If you decide to add a new model, specify the type of model you would add and generate a new hypothesis related to the new model.
 
     When building the model, if the runtime permits, consider incorporating hyperparameter search methods to improve performance.
-    {% endif %}
+    {% endif %} # type: ignore
     
     {% if last_exp_diff %}
     # Here are the differences between the latest version of implementation and the current best version of implementation
@@ -271,7 +271,7 @@ component_gen:
   user: |-
     Here are the former experiments and their feedbacks:
     {{ exp_and_feedback_list_desc }}
-    
+
     Please choose the most proper component to focus on based on the information above. Please balance the exploration and exploitation.
     Avoid selecting the same component more than 5 times in a row to ensure that the chosen component is not overly repetitive.
 
@@ -321,7 +321,7 @@ output_format:
     {
         "description": "A precise and comprehensive description of feature engineering task",
     }
-  model: |-
+  model: |- # type: ignore
     Design a specific and detailed model task based on the given hypothesis. The output should be detailed enough to directly implement the corresponding code.
     The output should follow JSON format. The schema is as follows: 
     {

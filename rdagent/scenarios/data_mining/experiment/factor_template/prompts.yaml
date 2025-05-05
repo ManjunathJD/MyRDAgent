@@ -1,0 +1,50 @@
+# rdagent/scenarios/data_mining/experiment/factor_template/infer_test.py
+import unittest
+import pandas as pd
+
+from rdagent.scenarios.data_mining.experiment.factor_template.infer import Infer
+
+
+class TestInfer(unittest.TestCase):
+
+    def test_init(self):
+        infer = Infer()
+        self.assertIsNotNone(infer)
+
+    def test_data_loader(self):
+        infer = Infer()
+        data = infer.data_loader()
+        self.assertIsNotNone(data)
+        self.assertIsInstance(data, pd.DataFrame)
+        # self.assertEqual(data.shape[0], 100)  # need to generate or read data first
+
+    def test_feature_engineer(self):
+        infer = Infer()
+        data = infer.data_loader()
+        data_after_fea = infer.feature_engineer(data)
+        self.assertIsNotNone(data_after_fea)
+        self.assertIsInstance(data_after_fea, pd.DataFrame)
+        # self.assertEqual(data.shape[1], 20)  # need to complete the feature first
+
+    def test_model_loader(self):
+        infer = Infer()
+        model = infer.model_loader()
+        self.assertIsNotNone(model)
+
+    def test_infer(self):
+        infer = Infer()
+        data = infer.data_loader()
+        data_after_fea = infer.feature_engineer(data)
+        model = infer.model_loader()
+        pred = infer.infer(data_after_fea, model)
+        self.assertIsNotNone(pred)
+        self.assertIsInstance(pred, pd.DataFrame)
+
+    def test_output(self):
+        infer = Infer()
+        data = infer.data_loader()
+        data_after_fea = infer.feature_engineer(data)
+        model = infer.model_loader()
+        pred = infer.infer(data_after_fea, model)
+        infer.output(pred)
+        self.assertTrue(True)  # check output file

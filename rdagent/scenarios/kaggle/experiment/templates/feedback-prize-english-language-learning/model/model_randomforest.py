@@ -4,7 +4,7 @@ from sklearn.ensemble import RandomForestRegressor
 
 
 def fit(X_train: pd.DataFrame, y_train: pd.Series, X_valid: pd.DataFrame, y_valid: pd.Series):
-    """
+    r"""
     Define and train the Random Forest model. Merge feature selection into the pipeline.
     """
     # Initialize the Random Forest model
@@ -17,7 +17,7 @@ def fit(X_train: pd.DataFrame, y_train: pd.Series, X_valid: pd.DataFrame, y_vali
 
 
 def predict(model, X):
-    """
+    r"""
     Keep feature selection's consistency and make predictions.
     """
     # Predict using the trained model

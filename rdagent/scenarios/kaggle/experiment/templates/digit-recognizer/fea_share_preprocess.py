@@ -33,7 +33,7 @@ def preprocess_script():
         y_train = pd.read_pickle("/kaggle/input/y_train.pkl")
         y_valid = pd.read_pickle("/kaggle/input/y_valid.pkl")
         X_test = pd.read_pickle("/kaggle/input/X_test.pkl")
-        others = pd.read_pickle("/kaggle/input/others.pkl")
+        others = list(pd.read_pickle("/kaggle/input/others.pkl"))
 
         return X_train, X_valid, y_train, y_valid, X_test, *others
 

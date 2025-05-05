@@ -1,6 +1,6 @@
-from pydantic_settings import SettingsConfigDict
+from pydantic import ConfigDict
 
-from rdagent.components.workflow.conf import BasePropSetting
+from rdagent.components.workflow.conf import BasePropSetting, SettingsConfigDict
 
 
 class ModelBasePropSetting(BasePropSetting):
@@ -56,7 +56,7 @@ class FactorBasePropSetting(BasePropSetting):
 
 
 class FactorFromReportPropSetting(FactorBasePropSetting):
-    # 1) override the scen attribute
+    model_config = ConfigDict(protected_namespaces=())
     scen: str = "rdagent.scenarios.qlib.experiment.factor_from_report_experiment.QlibFactorFromReportScenario"
     """Scenario class for Qlib Factor from Report"""
 

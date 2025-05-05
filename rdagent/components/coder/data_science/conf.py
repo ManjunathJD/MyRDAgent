@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Literal, Dict
 
 from rdagent.app.data_science.conf import DS_RD_SETTING
 from rdagent.components.coder.CoSTEER.config import CoSTEERSettings
@@ -26,7 +26,7 @@ class DSCoderCoSTEERSettings(CoSTEERSettings):
 
 def get_ds_env(
     conf_type: Literal["kaggle", "mlebench"] = "kaggle",
-    extra_volumes: dict = {},
+    extra_volumes: Dict = {},
     running_timeout_period: int = DS_RD_SETTING.debug_timeout,
 ) -> Env:
     """
@@ -48,7 +48,9 @@ def get_ds_env(
         env = LocalEnv(
             conf=(
                 CondaConf(conda_env_name=conf_type) if conf_type == "kaggle" else MLECondaConf(conda_env_name=conf_type)
-            )
+            ),
+            extra_volumes=extra_volumes,
+            running_timeout_period=running_timeout_period,
         )
     else:
         raise ValueError(f"Unknown env type: {conf.env_type}")

@@ -12,7 +12,7 @@ def prepreprocess():
     test = pd.read_csv("/kaggle/input/test.csv")
 
     # Combine train and test for preprocessing
-    all_data = pd.concat([train, test], sort=False)
+    all_data = pd.concat([train, test], sort=False, ignore_index=True)
 
     # Convert date to datetime
     all_data["Date"] = pd.to_datetime(all_data["Date"])
@@ -62,3 +62,4 @@ def preprocess_script():
         forecast_ids.to_pickle("/kaggle/input/forecast_ids.pkl")
 
     return X_train, X_valid, y_train, y_valid, X_test, forecast_ids
+

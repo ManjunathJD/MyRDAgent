@@ -1,4 +1,5 @@
-from rdagent.components.coder.CoSTEER import CoSTEER
+from __future__ import annotations
+from rdagent.components.coder.CoSTEER.base import CoSTEER
 from rdagent.components.coder.CoSTEER.config import CoSTEER_SETTINGS
 from rdagent.components.coder.CoSTEER.evaluators import CoSTEERMultiEvaluator
 from rdagent.components.coder.model_coder.evaluators import ModelCoSTEEREvaluator
@@ -15,7 +16,7 @@ class ModelCoSTEER(CoSTEER):
         *args,
         **kwargs,
     ) -> None:
-        eva = CoSTEERMultiEvaluator(ModelCoSTEEREvaluator(scen=scen), scen=scen)
+        eva = CoSTEERMultiEvaluator(ModelCoSTEEREvaluator(scen=scen), scen=scen) # type: ignore
         es = ModelMultiProcessEvolvingStrategy(scen=scen, settings=CoSTEER_SETTINGS)
 
         super().__init__(*args, settings=CoSTEER_SETTINGS, eva=eva, es=es, evolving_version=2, scen=scen, **kwargs)

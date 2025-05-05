@@ -117,7 +117,7 @@ class FeatureMultiProcessEvolvingStrategy(MultiProcessEvolvingStrategy):
         return evo
 
 
-class FeatureCoSTEER(CoSTEER):
+class FeatureCoSTEER(CoSTEER):  # type: ignore
     def __init__(
         self,
         scen: Scenario,

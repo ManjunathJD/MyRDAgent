@@ -5,7 +5,7 @@ from rdagent.core.conf import ExtendedBaseSettings
 
 class KaggleBasePropSetting(ExtendedBaseSettings):
     model_config = SettingsConfigDict(env_prefix="KG_", protected_namespaces=())
-
+    
     # 1) overriding the default
     scen: str = "rdagent.scenarios.kaggle.experiment.scenario.KGScenario"
     """Scenario class for data mining model"""
@@ -55,7 +55,7 @@ class KaggleBasePropSetting(ExtendedBaseSettings):
     if_action_choosing_based_on_UCB: bool = False
     """Enable decision mechanism based on UCB algorithm"""
 
-    domain_knowledge_path: str = "/data/userdata/share/kaggle/domain_knowledge"
+    domain_knowledge_path: str = "git_ignore_folder/domain_knowledge"
     """Folder storing domain knowledge files in .case format"""
 
     knowledge_base_path: str = "kg_graph.pkl"

@@ -1,5 +1,5 @@
 import json
-from typing import TYPE_CHECKING, Dict
+from typing import Dict
 
 from rdagent.app.data_science.conf import DS_RD_SETTING
 from rdagent.components.coder.data_science.ensemble.exp import EnsembleTask
@@ -8,7 +8,7 @@ from rdagent.components.coder.data_science.model.exp import ModelTask
 from rdagent.components.coder.data_science.pipeline.exp import PipelineTask
 from rdagent.components.coder.data_science.raw_data_loader.exp import DataLoaderTask
 from rdagent.components.coder.data_science.workflow.exp import WorkflowTask
-from rdagent.core.proposal import ExpGen, Hypothesis
+from rdagent.core.proposal import ExpGen
 from rdagent.oai.llm_utils import APIBackend
 from rdagent.scenarios.data_science.experiment.experiment import COMPONENT, DSExperiment
 from rdagent.scenarios.data_science.proposal.exp_gen.base import DSHypothesis, DSTrace
@@ -24,7 +24,7 @@ class DSDraftExpGen(ExpGen):
         task_output_format: str,
         workspace_code: str | None = None,
         spec: str = None,
-        hypothesis: Hypothesis | None = None,
+        hypothesis: str | None = None,
         exp_and_feedback_desc: str | None = None,
         former_task: str | None = None,
     ) -> dict:

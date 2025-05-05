@@ -19,26 +19,26 @@ pipeline_coder:
     {% if queried_similar_successful_knowledge|length != 0 %}
     --------- Successful Implementations for Similar Models ---------
     ====={% for similar_successful_knowledge in queried_similar_successful_knowledge %} Model {{ loop.index }}:=====
-    {{ similar_successful_knowledge.target_task.get_task_information() }}
+    {{similar_successful_knowledge.target_task.get_task_information()}}
     =====Code:=====
-    {{ similar_successful_knowledge.implementation.all_codes }}
-    {% endfor %} 
+    {{similar_successful_knowledge.implementation.all_codes}}
+    {% endfor %}
     {% endif %}
 
     {% if queried_former_failed_knowledge|length != 0 %}
     --------- Previous Failed Attempts ---------
     {% for former_failed_knowledge in queried_former_failed_knowledge %} Attempt {{ loop.index }}:
     =====Code:=====
-    {{ former_failed_knowledge.implementation.all_codes }}
+    {{former_failed_knowledge.implementation.all_codes}}
     =====Feedback:=====
-    {{ former_failed_knowledge.feedback }}
+    {{former_failed_knowledge.feedback}}
     {% endfor %}
     {% endif %}
 
 
     ## Guidelines
     1. Ensure that the dataset is loaded strictly from `{% include "scenarios.data_science.share:scen.input_path" %}`, following the exact folder structure described in the **Data Folder Description**, and do not attempt to load data from the current directory (`./`).
-    2. You should avoid using logging module to output information in your generated code, and instead use the print() function.
+    2. You should avoid using the logging module to output information in your generated code, and instead use the print() function.
     
     ## Exploratory Data Analysis (EDA) part(Required):
     - Before returning the data, you should always add an EDA part describing the data to help the following steps understand the data better.

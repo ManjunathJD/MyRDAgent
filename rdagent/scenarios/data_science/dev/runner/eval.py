@@ -50,7 +50,7 @@ class DSCoSTEERCoSTEEREvaluator(CoSTEEREvaluator):
         # execute workflow
         stdout, execute_ret_code = implementation.execute_ret_code(env=env, entry="python -m coverage run main.py")
         match = re.search(r"(.*?)=== Start of EDA part ===(.*)=== End of EDA part ===", stdout, re.DOTALL)
-        eda_output = match.groups()[1] if match else None
+        eda_output = match.group(2) if match and match.groups() else None
         if eda_output is None:
             eda_output = "No EDA output."
         implementation.inject_files(**{"EDA.md": eda_output})
@@ -114,7 +114,7 @@ class DSCoSTEERCoSTEEREvaluator(CoSTEEREvaluator):
                 (Path(__file__).absolute().resolve().parent / "eval_tests" / "mle_submission_format_test.txt")
                 .read_text()
                 .replace("<competition_id>", self.scen.competition)
-            )
+            ).replace("\r\n", "\n")
             implementation.inject_files(**{"test/mle_submission_format_test.py": mle_check_code})
             submission_check_out, submission_ret_code = implementation.execute_ret_code(
                 env=mde, entry="python test/mle_submission_format_test.py"

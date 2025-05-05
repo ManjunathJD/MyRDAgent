@@ -29,7 +29,7 @@ class DSExpGen(ExpGen):
         # handy design:dynamically change the "current selection" attribute of the trace, and we donot need to pass selection as an argument to other functions
         trace.set_current_selection(selection)
 
-        if DS_RD_SETTING.proposal_version not in ["v1", "v2"]:
+        if DS_RD_SETTING.proposal_version not in {"v1", "v2"}:
             return import_class(DS_RD_SETTING.proposal_version)(scen=self.scen).gen(trace=trace)
 
         if trace.sota_experiment() is None:

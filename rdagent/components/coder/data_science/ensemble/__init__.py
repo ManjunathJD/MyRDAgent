@@ -50,7 +50,7 @@ class EnsembleMultiProcessEvolvingStrategy(MultiProcessEvolvingStrategy):
         workspace: FBWorkspace | None = None,
         prev_task_feedback: CoSTEERSingleFeedback | None = None,
     ) -> dict[str, str]:
-        # Get task information for knowledge querying
+        # Get task information for knowledge querying+
         ensemble_information_str = target_task.get_task_information()
 
         # Query knowledge
@@ -65,11 +65,13 @@ class EnsembleMultiProcessEvolvingStrategy(MultiProcessEvolvingStrategy):
             else []
         )
         queried_former_failed_knowledge = (
-            [
-                knowledge
-                for knowledge in queried_former_failed_knowledge[0]
-                if knowledge.implementation.file_dict.get("ensemble.py") != workspace.file_dict.get("ensemble.py")
-            ],
+            [knowledge
+             for knowledge in queried_former_failed_knowledge[0]
+             if knowledge.implementation.file_dict.get(
+                 "ensemble.py"
+             )
+             != workspace.file_dict.get("ensemble.py")
+             ],
             queried_former_failed_knowledge[1],
         )
 

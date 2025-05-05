@@ -30,11 +30,13 @@ class FileStorage(Storage):
         **kwargs: Any,
     ) -> Union[str, Path]:
         # TODO: We can remove the timestamp after we implement PipeLog
-        if timestamp is None:
-            timestamp = datetime.now(timezone.utc)
-        else:
-            timestamp = timestamp.astimezone(timezone.utc)
-
+        timestamp = (
+            datetime.now(timezone.utc)
+            if timestamp is None
+            else timestamp.astimezone(timezone.utc)
+        )
+        
+        
         cur_p = self.path / name.replace(".", "/")
         cur_p.mkdir(parents=True, exist_ok=True)
 
@@ -123,7 +125,7 @@ class FileStorage(Storage):
         for file in self.path.glob("**/*.log"):
             with file.open("r") as f:
                 content = f.read()
-
+            
             new_content = ""
 
             matches, next_matches = self.log_pattern.finditer(content), self.log_pattern.finditer(content)

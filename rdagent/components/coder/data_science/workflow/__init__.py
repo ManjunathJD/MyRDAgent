@@ -48,13 +48,13 @@ class WorkflowMultiProcessEvolvingStrategy(MultiProcessEvolvingStrategy):
             else []
         )
         queried_former_failed_knowledge = (
-            [
+            [x
                 knowledge
                 for knowledge in queried_former_failed_knowledge[0]
                 if knowledge.implementation.file_dict.get("main.py") != workspace.file_dict.get("main.py")
             ],
             queried_former_failed_knowledge[1],
-        )
+        ) if queried_former_failed_knowledge else ([], [])
 
         # 2. code
         system_prompt = T(".prompts:workflow_coder.system").r(

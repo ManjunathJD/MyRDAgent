@@ -14,12 +14,12 @@ data_handler_config: &data_handler_config
           kwargs:
               fields_group: feature
               col_list: ["RESI5", "WVMA5", "RSQR5", "KLEN", "RSQR10", "CORR5", "CORD5", "CORR10", 
-                            "ROC60", "RESI10", "VSTD5", "RSQR60", "CORR60", "WVMA60", "STD5", 
-                            "RSQR20", "CORD60", "CORD10", "CORR20", "KLOW"
-                        ]
+                         "ROC60", "RESI10", "VSTD5", "RSQR60", "CORR60", "WVMA60", "STD5",
+                         "RSQR20", "CORD60", "CORD10", "CORR20", "KLOW"
+                         ]
         - class: RobustZScoreNorm
           kwargs:
-              fields_group: feature
+            fields_group: feature
               clip_outlier: true
         - class: Fillna
           kwargs:
@@ -27,7 +27,7 @@ data_handler_config: &data_handler_config
     learn_processors:
         - class: DropnaLabel
         - class: CSRankNorm
-          kwargs:
+        kwargs:
               fields_group: label
     label: ["Ref($close, -2) / Ref($close, -1) - 1"] 
 
@@ -75,11 +75,11 @@ task:
             pt_model_uri: "model.model_cls"
             pt_model_kwargs: {
                 "num_features": 20,
-                {% if num_timesteps %}num_timesteps: {{ num_timesteps }}{% endif %}
+                {% if num_timesteps %} "num_timesteps": {{ num_timesteps }} {% endif %}
             }            
                 # input_dim: 20
             #   How should I use jinja to put step len here conditionally          
-    dataset:
+    dataset: 
         class: {{ dataset_cls | default("DatasetH") }}
         module_path: qlib.data.dataset
         kwargs:
@@ -91,7 +91,7 @@ task:
                 train: [2008-01-01, 2014-12-31]
                 valid: [2015-01-01, 2016-12-31]
                 test: [2017-01-01, 2020-08-01]
-            {% if step_len %}step_len: {{ step_len }}{% endif %}
+            {% if step_len %} "step_len": {{ step_len }} {% endif %}
     record: 
         - class: SignalRecord
           module_path: qlib.workflow.record_temp

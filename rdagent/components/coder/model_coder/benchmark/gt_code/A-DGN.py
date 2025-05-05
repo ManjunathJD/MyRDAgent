@@ -103,7 +103,7 @@ class AntiSymmetricConv(torch.nn.Module):
 
             if self.act is not None:
                 h = self.act(h)
-
+            h = h.float()
             x = x + self.epsilon * h
 
         return x

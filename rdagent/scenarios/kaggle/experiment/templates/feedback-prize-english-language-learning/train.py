@@ -27,7 +27,7 @@ X_train_l, X_valid_l = [], []
 X_test_l = []
 
 for f in DIRNAME.glob("feature/feat*.py"):
-    cls = import_module_from_path(f.stem, f).feature_engineering_cls()
+    cls = import_module_from_path(f.stem, str(f)).feature_engineering_cls()
     print(X_train.head())
     cls.fit(X_train)
     X_train_f = cls.transform(X_train.copy())
@@ -50,10 +50,10 @@ model_l = []  # list[tuple[model, predict_func,]]
 for f in DIRNAME.glob("model/model*.py"):
     select_python_path = f.with_name(f.stem.replace("model", "select") + f.suffix)
     select_m = import_module_from_path(select_python_path.stem, select_python_path)
-    X_train_selected = select_m.select(X_train.copy())
-    X_valid_selected = select_m.select(X_valid.copy())
+    X_train_selected = select_m.select(X_train.copy()).copy()
+    X_valid_selected = select_m.select(X_valid.copy()).copy()
 
-    m = import_module_from_path(f.stem, f)
+    m = import_module_from_path(f.stem, str(f))
     model_l.append((m.fit(X_train_selected, y_train, X_valid_selected, y_valid), m.predict))
 
 # 4) Evaluate the model on the validation set
@@ -70,7 +70,7 @@ min_index = np.argmin(metrics_all)
 pd.Series(data=[metrics_all[min_index]], index=["MCRMSE"]).to_csv("submission_score.csv")
 
 # 6) Make predictions on the test set and save them
-X_test_selected = select_m.select(X_test.copy())
+X_test_selected = select_m.select(X_test.copy()).copy()
 y_test_pred = model_l[min_index][1](model_l[min_index][0], X_test_selected)
 
 # 7) Submit predictions for the test set

@@ -113,7 +113,7 @@ class GPSConv(torch.nn.Module):
             signature = inspect.signature(self.norm1.forward)
             self.norm_with_batch = "batch" in signature.parameters
 
-    def reset_parameters(self):
+    def reset_parameters(self) -> None:
         r"""Resets all learnable parameters of the module."""
         if self.conv is not None:
             self.conv.reset_parameters()

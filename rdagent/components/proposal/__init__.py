@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from pathlib import Path
-from typing import Tuple
-
+from typing import Any, Tuple
+ 
 from jinja2 import Environment, StrictUndefined
 
 from rdagent.core.experiment import Experiment
@@ -19,12 +19,14 @@ prompt_dict = Prompts(file_path=Path(__file__).parent / "prompts.yaml")
 
 
 class LLMHypothesisGen(HypothesisGen):
-    def __init__(self, scen: Scenario):
+    def __init__(self, scen: Scenario) -> None:
         super().__init__(scen)
 
     # The following methods are scenario related so they should be implemented in the subclass
     @abstractmethod
-    def prepare_context(self, trace: Trace) -> Tuple[dict, bool]: ...
+    def prepare_context(self, trace: Trace) -> Tuple[dict[str, Any], bool]:
+        ...
+
 
     @abstractmethod
     def convert_response(self, response: str) -> Hypothesis: ...
@@ -32,7 +34,7 @@ class LLMHypothesisGen(HypothesisGen):
     def gen(self, trace: Trace) -> Hypothesis:
         context_dict, json_flag = self.prepare_context(trace)
 
-        system_prompt = (
+        system_prompt: str = (
             Environment(undefined=StrictUndefined)
             .from_string(prompt_dict["hypothesis_gen"]["system_prompt"])
             .render(
@@ -42,7 +44,7 @@ class LLMHypothesisGen(HypothesisGen):
                 hypothesis_specification=context_dict["hypothesis_specification"],
             )
         )
-        user_prompt = (
+        user_prompt: str = (
             Environment(undefined=StrictUndefined)
             .from_string(prompt_dict["hypothesis_gen"]["user_prompt"])
             .render(
@@ -60,26 +62,26 @@ class LLMHypothesisGen(HypothesisGen):
 
 
 class FactorHypothesisGen(LLMHypothesisGen):
-    def __init__(self, scen: Scenario):
+    def __init__(self, scen: Scenario) -> None:
         super().__init__(scen)
         self.targets = "factors"
 
 
 class ModelHypothesisGen(LLMHypothesisGen):
-    def __init__(self, scen: Scenario):
+    def __init__(self, scen: Scenario) -> None:
         super().__init__(scen)
         self.targets = "model tuning"
 
 
 class FactorAndModelHypothesisGen(LLMHypothesisGen):
-    def __init__(self, scen: Scenario):
+    def __init__(self, scen: Scenario) -> None:
         super().__init__(scen)
         self.targets = "feature engineering and model building"
 
 
 class LLMHypothesis2Experiment(Hypothesis2Experiment[Experiment]):
     @abstractmethod
-    def prepare_context(self, hypothesis: Hypothesis, trace: Trace) -> Tuple[dict, bool]: ...
+    def prepare_context(self, hypothesis: Hypothesis, trace: Trace) -> Tuple[dict[str, Any], bool]: ...
 
     @abstractmethod
     def convert_response(self, response: str, hypothesis: Hypothesis, trace: Trace) -> Experiment: ...
@@ -87,7 +89,7 @@ class LLMHypothesis2Experiment(Hypothesis2Experiment[Experiment]):
     def convert(self, hypothesis: Hypothesis, trace: Trace) -> Experiment:
         context, json_flag = self.prepare_context(hypothesis, trace)
         system_prompt = (
-            Environment(undefined=StrictUndefined)
+            Environment(undefined=StrictUndefined, extensions=['jinja2.ext.do'])
             .from_string(prompt_dict["hypothesis2experiment"]["system_prompt"])
             .render(
                 targets=self.targets,
@@ -95,7 +97,7 @@ class LLMHypothesis2Experiment(Hypothesis2Experiment[Experiment]):
                 experiment_output_format=context["experiment_output_format"],
             )
         )
-        user_prompt = (
+        user_prompt: str = (
             Environment(undefined=StrictUndefined)
             .from_string(prompt_dict["hypothesis2experiment"]["user_prompt"])
             .render(
@@ -113,18 +115,18 @@ class LLMHypothesis2Experiment(Hypothesis2Experiment[Experiment]):
 
 
 class FactorHypothesis2Experiment(LLMHypothesis2Experiment):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.targets = "factors"
 
 
 class ModelHypothesis2Experiment(LLMHypothesis2Experiment):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.targets = "model tuning"
 
 
 class FactorAndModelHypothesis2Experiment(LLMHypothesis2Experiment):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.targets = "feature engineering and model building"

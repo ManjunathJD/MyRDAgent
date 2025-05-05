@@ -2,9 +2,10 @@ import re
 from pathlib import Path
 
 from jinja2 import Environment, StrictUndefined
+from typing import List
 
-from rdagent.components.coder.model_coder.model import ModelExperiment, ModelFBWorkspace
-from rdagent.core.developer import Developer
+from rdagent.components.coder.model_coder.model import ModelExperiment, ModelFBWorkspace,ModelTask
+from rdagent.core.developer import Developer,TaskWorkspace
 from rdagent.core.prompts import Prompts
 from rdagent.oai.llm_utils import APIBackend
 
@@ -12,12 +13,15 @@ DIRNAME = Path(__file__).absolute().resolve().parent
 
 
 class ModelCodeWriter(Developer[ModelExperiment]):
+
     def develop(self, exp: ModelExperiment) -> ModelExperiment:
-        mti_l = []
-        for t in exp.sub_tasks:
-            mti = ModelFBWorkspace(t)
-            mti.prepare()
-            pr = Prompts(file_path=DIRNAME / "prompt.yaml")
+
+        mti_l:List[TaskWorkspace] = []
+        
+        for t in exp.sub_tasks:          
+            mti:ModelFBWorkspace = ModelFBWorkspace(t)
+            mti.prepare()            
+            pr:Prompts = Prompts(file_path=DIRNAME / "prompt.yaml")
 
             user_prompt_tpl = Environment(undefined=StrictUndefined).from_string(pr["code_implement_user"])
             sys_prompt_tpl = Environment(undefined=StrictUndefined).from_string(pr["code_implement_sys"])

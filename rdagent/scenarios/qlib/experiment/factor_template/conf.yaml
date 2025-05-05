@@ -1,4 +1,4 @@
-qlib_init:
+qlib_init:#
     provider_uri: "~/.qlib/qlib_data/cn_data"
     region: cn
 

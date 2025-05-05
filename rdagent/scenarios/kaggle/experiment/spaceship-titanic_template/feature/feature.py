@@ -13,7 +13,7 @@ class IdentityFeature:
         """
         pass
 
-    def transform(self, X: pd.DataFrame):
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
         """
         Transform the input data.
         """

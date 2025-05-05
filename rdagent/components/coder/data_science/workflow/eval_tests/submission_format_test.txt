@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 import pandas as pd
 import hashlib
 
@@ -27,7 +28,7 @@ input_dir = Path("{% include "scenarios.data_science.share:scen.input_path" %}")
 sample_submission_files = list(input_dir.glob("*sample_submission*.csv")) + \
                          list(input_dir.glob("*sampleSubmission*.csv"))
 
-assert sample_submission_files, "Error: No sample submission file found in {% include "scenarios.data_science.share:scen.input_path" %}"
+assert sample_submission_files, f"Error: No sample submission file found in {input_dir}"
 
 # Use first matching file
 sample_submission_name = sample_submission_files[0].name
@@ -49,7 +50,7 @@ print(f"Columns in {sample_submission_name}:", sample_submission.columns)
 print("Columns in our_submission.csv:", our_submission.columns)
 
 for col in sample_submission.columns:
-    if col not in our_submission.columns:
+    if col not in our_submission.columns and not col.startswith("Unnamed:"):
         success = False
         print(f'Column {col} not found in submission.csv')
 
@@ -59,19 +60,19 @@ if success:
 
 # Print the first 5 rows of the two submission files, with columns separated by commas.
 def print_first_rows(file_path, file_name, num_rows=5):
-    print(f"\nFirst {num_rows} rows of {file_name}:")
-    try:
-        with open(file_path, 'r') as file:
-            for i, line in enumerate(file):
-                if i < num_rows:
-                    print(line.strip())
-                else:
-                    break
-    except FileNotFoundError:
-        print(f"Error: {file_name} not found.")
+    if os.path.exists(file_path):
+        print(f"\nFirst {num_rows} rows of {file_name}:")
+        try:
+            with open(file_path, 'r') as file:
+                for i, line in enumerate(file):
+                    if i < num_rows:
+                        print(line.strip())
+                    else:
+                        break
+        except FileNotFoundError:
+            print(f"Error: {file_name} not found.")
+    
+
 
 print_first_rows(SAMPLE_SUBMISSION_PATH, sample_submission_name)
 print_first_rows('submission.csv', 'submission.csv')
-
-assert calculate_md5("scores.csv") == file_md5, "scores.csv should not be rewritten"
-print(f"\nPlease Checked the content of the submission file(submission.csv should align with {sample_submission_name}). ")

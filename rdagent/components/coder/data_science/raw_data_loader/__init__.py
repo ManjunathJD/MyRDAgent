@@ -21,7 +21,6 @@ File structure
 - test.py
     - Each coder could be tested.
 """
-
 import json
 import re
 from pathlib import Path
@@ -51,6 +50,7 @@ from rdagent.core.exception import CoderError
 from rdagent.core.experiment import FBWorkspace
 from rdagent.core.scenario import Scenario
 from rdagent.oai.llm_utils import APIBackend
+from rdagent.utils.agent.prompt_util import PromptUtil
 from rdagent.utils.agent.ret import PythonAgentOut
 from rdagent.utils.agent.tpl import T
 
@@ -96,23 +96,21 @@ class DataLoaderMultiProcessEvolvingStrategy(MultiProcessEvolvingStrategy):
         if DS_RD_SETTING.spec_enabled:
             if "spec/data_loader.md" not in workspace.file_dict:  # Only generate the spec once
                 system_prompt = T(".prompts:spec.system").r(
-                    runtime_environment=runtime_environment,
-                    task_desc=data_loader_task_info,
-                    competition_info=competition_info,
-                    folder_spec=data_folder_info,
+                    runtime_environment=runtime_environment, task_desc=data_loader_task_info,
+                    competition_info=competition_info, folder_spec=data_folder_info
                 )
-                data_loader_prompt = T(".prompts:spec.user.data_loader").r(
-                    latest_spec=workspace.file_dict.get("spec/data_loader.md")
+                data_loader_prompt = T(".prompts:spec.user.data_loader").r(latest_spec=workspace.file_dict.get("spec/data_loader.md"))
+                feature_prompt = T(".prompts:spec.user.feature").r(latest_spec=workspace.file_dict.get(
+                    "spec/feature.md"
                 )
-                feature_prompt = T(".prompts:spec.user.feature").r(
-                    latest_spec=workspace.file_dict.get("spec/feature.md")
-                )
-                model_prompt = T(".prompts:spec.user.model").r(latest_spec=workspace.file_dict.get("spec/model.md"))
+                model_prompt = T(".prompts:spec.user.model").r(latest_spec=workspace.file_dict.get(
+                    "spec/model.md"
+                ))
                 ensemble_prompt = T(".prompts:spec.user.ensemble").r(
                     latest_spec=workspace.file_dict.get("spec/ensemble.md")
                 )
-                workflow_prompt = T(".prompts:spec.user.workflow").r(
-                    latest_spec=workspace.file_dict.get("spec/workflow.md")
+                workflow_prompt = T(".prompts:spec.user.workflow").r(latest_spec=workspace.file_dict.get(
+                    "spec/workflow.md"
                 )
 
                 spec_session = APIBackend().build_chat_session(session_system_prompt=system_prompt)
@@ -130,13 +128,11 @@ class DataLoaderMultiProcessEvolvingStrategy(MultiProcessEvolvingStrategy):
                 workflow_spec = workspace.file_dict["spec/workflow.md"]
 
         # 2. code
-        system_prompt = T(".prompts:data_loader_coder.system").r(
-            task_desc=data_loader_task_info,
-            queried_similar_successful_knowledge=queried_similar_successful_knowledge,
-            queried_former_failed_knowledge=queried_former_failed_knowledge[0],
-            out_spec=PythonAgentOut.get_spec(),
+        system_prompt = T(".prompts:data_loader_coder.system").r(task_desc=data_loader_task_info,
+            queried_similar_successful_knowledge=queried_similar_successful_knowledge, queried_former_failed_knowledge=queried_former_failed_knowledge[0],
+            out_spec=PythonAgentOut.get_spec()
         )
-        code_spec = (
+        code_spec = (  
             data_loader_spec
             if DS_RD_SETTING.spec_enabled
             else T("scenarios.data_science.share:component_spec.general").r(
@@ -144,9 +140,7 @@ class DataLoaderMultiProcessEvolvingStrategy(MultiProcessEvolvingStrategy):
                 test_code=(DIRNAME / "eval_tests" / "data_loader_test.txt").read_text(),
             )
         )
-        user_prompt = T(".prompts:data_loader_coder.user").r(
-            competition_info=competition_info,
-            code_spec=code_spec,
+        user_prompt = T(".prompts:data_loader_coder.user").r(competition_info=competition_info, code_spec=code_spec,
             folder_spec=data_folder_info,
             latest_code=workspace.file_dict.get("load_data.py"),
             latest_code_feedback=prev_task_feedback,
@@ -208,12 +202,10 @@ class DataLoaderCoSTEER(CoSTEER):
         settings = DSCoderCoSTEERSettings()
         eva = CoSTEERMultiEvaluator(
             DataLoaderCoSTEEREvaluator(scen=scen), scen=scen
-        )  # Please specify whether you agree running your eva in parallel or not
+        )
         es = DataLoaderMultiProcessEvolvingStrategy(scen=scen, settings=settings)
 
-        super().__init__(
-            *args,
-            settings=settings,
+        super().__init__(*args, settings=settings,
             eva=eva,
             es=es,
             evolving_version=2,

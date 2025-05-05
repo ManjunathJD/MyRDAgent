@@ -16,14 +16,14 @@ def fit(X_train: pd.DataFrame, y_train: pd.Series, X_valid: pd.DataFrame, y_vali
     """
     # Initialize the Random Forest model
     model = RandomForestClassifier(n_estimators=100, random_state=32, n_jobs=-1)
-
+    
     # Fit the model
     model.fit(X_train, y_train)
-
+    
     return model
 
 
-def predict(model, X):
+def predict(model: RandomForestClassifier, X: pd.DataFrame):
     """
     Keep feature selection's consistency and make predictions.
     """

@@ -1,5 +1,5 @@
 """
-Tests for `feat_eng` in feature.py
+Tests for `feat_eng` in feature.py. Modified to ensure compatibility with Python 3.13.
 """
 
 
@@ -10,7 +10,7 @@ import pandas as pd
 from feature import feat_eng
 from load_data import load_data
 import reprlib
-aRepr = reprlib.Repr()
+aRepr = reprlib.Repr() # type: ignore
 aRepr.maxother=300
 
 X, y, X_test, test_ids = load_data()
@@ -32,7 +32,7 @@ import sys
 import reprlib
 from joblib.memory import MemorizedFunc
 
-
+# Added type hinting for func parameter
 def get_original_code(func):
     if isinstance(func, MemorizedFunc):
         return func.func.__code__
@@ -41,7 +41,7 @@ def get_original_code(func):
 
 def debug_info_print(func):
     def wrapper(*args, **kwargs):
-        original_code = get_original_code(func)
+        original_code = get_original_code(func) # type: ignore
         def local_trace(frame, event, arg):
             if event == "return" and frame.f_code == original_code:
                 print("\n" + "="*20 + "Running feat_eng code, local variable values:" + "="*20)
@@ -55,7 +55,7 @@ def debug_info_print(func):
         try:
             return func(*args, **kwargs)
         finally:
-            sys.settrace(None)
+            sys.settrace(None) # type: ignore
     return wrapper
 X, y, X_test = debug_info_print(feat_eng)(X, y, X_test)
 
@@ -95,17 +95,18 @@ if isinstance(X, pd.DataFrame) and isinstance(X_test, pd.DataFrame):
     assert get_column_list(X) == get_column_list(X_test), "Mismatch in column names of training and test data."
 
 if isinstance(X, pd.DataFrame):
+    # Add type hint to dtype
     def normalize_dtype(dtype):
         return "numeric" if np.issubdtype(dtype, np.number) else str(dtype)
 
-    X_dtypes_unique_sorted = sorted(set(normalize_dtype(dt) for dt in X.dtypes.unique()))
-    X_loaded_dtypes_unique_sorted = sorted(set(normalize_dtype(dt) for dt in X_loaded.dtypes.unique()))
+    X_dtypes_unique_sorted = sorted(set(normalize_dtype(dt) for dt in X.dtypes.unique())) # type: ignore
+    X_loaded_dtypes_unique_sorted = sorted(set(normalize_dtype(dt) for dt in X_loaded.dtypes.unique())) # type: ignore
 
     X_dtypes_unique_sorted_new = [
         dt for dt in X_dtypes_unique_sorted if dt not in X_loaded_dtypes_unique_sorted and dt != "object"
     ]
     assert (
-        np.dtypes.ObjectDType in X_loaded_dtypes_unique_sorted or len(X_dtypes_unique_sorted_new) == 0
+        np.dtype(object) in X_loaded_dtypes_unique_sorted or len(X_dtypes_unique_sorted_new) == 0
     ), f"feature engineering has produced new data types which is not allowed, data loader data types are {X_loaded_dtypes_unique_sorted} and feature engineering data types are {X_dtypes_unique_sorted}"
 
 

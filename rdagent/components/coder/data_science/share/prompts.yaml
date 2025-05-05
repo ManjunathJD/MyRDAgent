@@ -52,7 +52,7 @@ dump_model_eval:
     # Inference:
     {{scores_content_after}}
 
-
+  
 docdev:
   system: |-
     {% include "scenarios.data_science.share:scen.role" %}  Your task is to create documentation for a data science solution.
@@ -72,7 +72,7 @@ docdev:
     Don't introduce anything other than models.
 
     {% include "utils.agent.tpl:MarkdownOut" %}
-
+    
   user: |-
     --------------- The file list in the workspace ---------------
     {% for f in file_li %}

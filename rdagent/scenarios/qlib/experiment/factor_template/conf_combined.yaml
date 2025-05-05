@@ -13,15 +13,15 @@ data_handler_config: &data_handler_config
         class: NestedDataLoader
         kwargs:
             dataloader_l:
-                - class: qlib.contrib.data.loader.Alpha158DL
-                  kwargs:
-                    config:
-                        label: 
-                            - ["Ref($close, -2)/Ref($close, -1) - 1"]
-                            - ["LABEL0"]
-                - class: qlib.data.dataset.loader.StaticDataLoader
-                  kwargs:
-                    config: "combined_factors_df.parquet"
+              - class: qlib.contrib.data.loader.Alpha158DL
+                kwargs:
+                  config:
+                    label:
+                      - ["Ref($close, -2)/Ref($close, -1) - 1"]
+                      - ["LABEL0"]
+              - class: qlib.data.dataset.loader.StaticDataLoader
+                kwargs:
+                  config: "combined_factors_df.parquet"
 
     learn_processors:
         - class: DropnaLabel

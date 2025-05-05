@@ -29,7 +29,7 @@ keywords = [
 ]
 name = "rdagent"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.10,<3.14"
 
 [project.scripts]
 rdagent = "rdagent.app.cli:app"

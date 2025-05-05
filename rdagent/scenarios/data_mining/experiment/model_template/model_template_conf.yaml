@@ -1,0 +1,131 @@
+import logging
+import os
+import sys
+import time
+from pathlib import Path
+from typing import Optional
+
+from rdagent.core.conf import get_config, get_env
+from rdagent.core.utils import get_function_name
+from rdagent.log.base import BaseLogger
+from rdagent.utils.fmt import fmt_dict, format_time_cost
+
+
+class Logger(BaseLogger):
+    _LOG_PATH_ENV_KEY = "LOG_PATH"
+    _LOG_PATH_DEFAULT = "log/rdagent"
+    _LOG_PREFIX_ENV_KEY = "LOG_PREFIX"
+    _LOG_PREFIX_DEFAULT = ""
+
+    _logger_cls = logging.getLoggerClass()
+
+    def __init__(self, name=None, prefix=None, log_path=None, is_child_logger=False):
+        if not name:
+            name = "rdagent"
+
+        if not log_path:
+            log_path = os.environ.get(self._LOG_PATH_ENV_KEY, self._LOG_PATH_DEFAULT)
+        if not prefix:
+            prefix = os.environ.get(self._LOG_PREFIX_ENV_KEY, self._LOG_PREFIX_DEFAULT)
+
+        self._log_dir = Path(log_path)
+        if prefix:
+            log_name = f"{prefix}_{name}"
+        else:
+            log_name = name
+
+        self._log_path = self._log_dir / f"{log_name}.log"
+        self._log_dir.mkdir(parents=True, exist_ok=True)
+
+        if is_child_logger:
+            self._logger = logging.getLogger(log_name)
+        else:
+            self._logger = self._logger_cls(log_name)
+        self._logger.propagate = False
+
+        self._logger.setLevel(logging.DEBUG)
+        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+
+        file_handler = logging.FileHandler(self._log_path, encoding="utf-8")
+        file_handler.setFormatter(formatter)
+        self._logger.addHandler(file_handler)
+
+        stream_handler = logging.StreamHandler(sys.stdout)
+        stream_handler.setFormatter(formatter)
+        self._logger.addHandler(stream_handler)
+
+        self._log_prefix = log_name
+        self._start_time = time.time()
+
+    def set_level(self, level):
+        self._logger.setLevel(level)
+
+    def info(self, msg, *args, **kwargs):
+        if not isinstance(msg, str):
+            msg = str(msg)
+        self._logger.info(f"{self._log_prefix} {msg}", *args, **kwargs)
+
+    def debug(self, msg, *args, **kwargs):
+        if not isinstance(msg, str):
+            msg = str(msg)
+        self._logger.debug(f"{self._log_prefix} {msg}", *args, **kwargs)
+
+    def warning(self, msg, *args, **kwargs):
+        if not isinstance(msg, str):
+            msg = str(msg)
+        self._logger.warning(f"{self._log_prefix} {msg}", *args, **kwargs)
+
+    def error(self, msg, *args, **kwargs):
+        if not isinstance(msg, str):
+            msg = str(msg)
+        self._logger.error(f"{self._log_prefix} {msg}", *args, **kwargs)
+
+    def critical(self, msg, *args, **kwargs):
+        if not isinstance(msg, str):
+            msg = str(msg)
+        self._logger.critical(f"{self._log_prefix} {msg}", *args, **kwargs)
+
+    def exception(self, msg, *args, **kwargs):
+        if not isinstance(msg, str):
+            msg = str(msg)
+        self._logger.exception(f"{self._log_prefix} {msg}", *args, **kwargs)
+
+    def success(self, msg, *args, **kwargs):
+        if not isinstance(msg, str):
+            msg = str(msg)
+        self.info(f"SUCCESS: {msg}", *args, **kwargs)
+
+    def fail(self, msg, *args, **kwargs):
+        if not isinstance(msg, str):
+            msg = str(msg)
+        self.error(f"FAIL: {msg}", *args, **kwargs)
+
+    def print_log(self, level, msg, *args, **kwargs):
+        if level == "debug":
+            self.debug(msg, *args, **kwargs)
+        elif level == "info":
+            self.info(msg, *args, **kwargs)
+        elif level == "warning":
+            self.warning(msg, *args, **kwargs)
+        elif level == "error":
+            self.error(msg, *args, **kwargs)
+        elif level == "critical":
+            self.critical(msg, *args, **kwargs)
+        else:
+            raise ValueError(f"Unsupport log level {level}")
+
+    def start_timer(self):
+        self._start_time = time.time()
+
+    def end_timer(self, msg, *args, **kwargs):
+        end_time = time.time()
+        time_cost = end_time - self._start_time
+        self.info(f"{msg} {format_time_cost(time_cost)}", *args, **kwargs)
+
+    @staticmethod
+    def setup_logger(name, prefix=None, log_path=None, is_child_logger=False):
+        logger = Logger(name, prefix=prefix, log_path=log_path, is_child_logger=is_child_logger)
+        return logger
+
+    def get_child_logger(self, child_name: str) -> "Logger":
+        return Logger(name=child_name, prefix=self._log_prefix, log_path=str(self._log_dir), is_child_logger=True)

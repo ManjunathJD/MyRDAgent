@@ -25,7 +25,7 @@ class DataScienceScen(Scenario):
     """Data Science Scenario"""
 
     def __init__(self, competition: str) -> None:
-
+        super().__init__()
         # 1) prepare data
         if not Path(f"{DS_RD_SETTING.local_data_path}/{competition}").exists():
             logger.error(f"Please prepare data for competition {competition} first.")
@@ -168,6 +168,7 @@ class KaggleScen(DataScienceScen):
     """
 
     def __init__(self, competition: str) -> None:
+        
         download_data(competition=competition, settings=DS_RD_SETTING, enable_create_debug_data=False)
         super().__init__(competition)
 

@@ -26,7 +26,7 @@ ensemble_coder:
     {% endif %}
 
     {% if queried_former_failed_knowledge|length != 0 %}
-    --------- Previous Failed Attempts ---------
+    --------- Previous Failed Attempts {% for _ in queried_former_failed_knowledge %} {%- endfor -%} ---------
     {% for former_failed_knowledge in queried_former_failed_knowledge %} Attempt {{ loop.index }}:
     =====Code:=====
     {{ former_failed_knowledge.implementation.file_dict["ensemble.py"] }}

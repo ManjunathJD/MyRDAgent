@@ -13,7 +13,7 @@ KG_hypothesis_gen_RAG: |-
   - conclusion: {{ insight.conclusion }}
   {% endfor %}
   {% endif %}
-
+  
   {% if experiences %}
   The experiences are as follows:
   {% for experience in experiences %}
@@ -25,13 +25,13 @@ KG_hypothesis_gen_RAG: |-
   {% endif %}
 
 hypothesis_and_feedback: |-
-  {% for experiment, feedback in trace.hist[-10:] %}
-  Hypothesis {{ loop.index }}: {{ experiment.hypothesis }}
-  Observation on the result with the hypothesis: {{ feedback.observations }}
-  Feedback on the original hypothesis:  {{ feedback.hypothesis_evaluation }}
-  Did changing to this hypothesis work? (focus on the change):  {{ feedback.decision }}
-  {% endfor %}
-
+    {% for experiment, feedback in trace.hist[-10:] %}
+    Hypothesis {{ loop.index }}: {{ experiment.hypothesis }}
+    Observation on the result with the hypothesis: {{ feedback.observations }}
+    Feedback on the original hypothesis:  {{ feedback.hypothesis_evaluation }}
+    Did changing to this hypothesis work? (focus on the change):  {{ feedback.decision }}
+    {% endfor %}
+  
 hypothesis_output_format: |-
   The output should follow JSON format. The schema is as follows:
   {
@@ -52,13 +52,13 @@ hypothesis_specification:
     
     1. Type of Feature and Data Characteristics:
       - Clearly define the type of feature being introduced.
-      - Explain what data characteristics or patterns this feature captures.
-      - Keep descriptions focused, avoiding redundant details to ensure clarity.
-
+        - Explain what data characteristics or patterns this feature captures.
+        - Keep descriptions focused, avoiding redundant details to ensure clarity.
+    
     2. Simple and Effective Features First:
-      - Start by introducing features that are simple yet likely to be effective.
-      - Provide a concise explanation of why these features are expected to perform well.
-      - Avoid complex or combined features during the initial stages.
+        - Start by introducing features that are simple yet likely to be effective.
+        - Provide a concise explanation of why these features are expected to perform well.
+        - Avoid complex or combined features during the initial stages.
     
     3. Gradual Complexity Increase:
       - After initial feature testing, introduce more complex features.
@@ -80,22 +80,22 @@ hypothesis_specification:
     
     1. Feature Transformation and Normalization:
       - Clearly define any transformations applied to features (e.g., scaling, normalization, log transforms).
-      - Explain how these transformations improve the data's suitability for the model.
-      - Ensure transformations do not introduce unnecessary complexity early on.
+        - Explain how these transformations improve the data's suitability for the model.
+        - Ensure transformations do not introduce unnecessary complexity early on.
     
     2. Handling Missing Values and Outliers:
       - Define any imputation methods used for missing data (e.g., mean, median, or more complex methods).
-      - Explain how outliers are handled (e.g., clipping, removal, or transformation).
-      - Ensure these processes are straightforward, enhancing data quality without overcomplicating early feature processing.
+        - Explain how outliers are handled (e.g., clipping, removal, or transformation).
+        - Ensure these processes are straightforward, enhancing data quality without overcomplicating early feature processing.
     
     3. Feature Interactions and Combinations:
       - After testing individual features, introduce combinations or interactions.
-      - Discuss the potential advantages of feature interaction terms (e.g., polynomial or multiplicative features).
-      - Ensure interactions are only applied after simpler, individual features have been processed.
-
+        - Discuss the potential advantages of feature interaction terms (e.g., polynomial or multiplicative features).
+        - Ensure interactions are only applied after simpler, individual features have been processed.
+    
     4. 1-3 Feature Tasks per Generation:
-      - Each generation should produce 1-3 feature tasks.
-      - Maintain a balance between simplicity and complexity to develop a diverse and robust feature library.
+        - Each generation should produce 1-3 feature tasks.
+        - Maintain a balance between simplicity and complexity to develop a diverse and robust feature library.
 
   Model feature selection: |-
     Action: Model feature selection
@@ -112,12 +112,12 @@ hypothesis_specification:
     Action: Model tuning
       
     1. Overview:
-    - Clearly explain your hypothesis.
-      - Which model are you tuning (one of the four types)?
-      - How are you revising it, and why?
-      - What are the innovations?
-    - Base your hypothesis on previous structures and your understanding of the model code.
-    - "Tuning" includes changing the model architecture or hyperparameters.
+        - Clearly explain your hypothesis.
+        - Which model are you tuning (one of the four types)?
+        - How are you revising it, and why?
+        - What are the innovations?
+        - Base your hypothesis on previous structures and your understanding of the model code.
+        - "Tuning" includes changing the model architecture or hyperparameters.
 
     2. Focus on Architecture and/or Hyperparameter Tuning:
       - Concentrate on designing new model architectures one at a time, hyperparameter tuning, or both.
@@ -134,14 +134,14 @@ hypothesis_specification:
       - Explain the reasoning behind your architectural design or tuning approach.
       - Justify how the new structure or parameter changes more effectively capture data patterns and improve learning efficiency.
 
-feature_experiment_output_format: |-
-  According to the hypothesis, please help user design one or more feature engineering tasks.
-  The output should follow JSON format. The schema is as follows:
-  {
-      "factor or group name 1": {
-          "description": "description of factor or group name 1",
-          "formulation": "latex formulation of factor or group name 1",
-          "variables": {
+  feature_experiment_output_format: |-
+    According to the hypothesis, please help user design one or more feature engineering tasks.
+    The output should follow JSON format. The schema is as follows:
+    {
+        "factor or group name 1": {
+            "description": "description of factor or group name 1",
+            "formulation": "latex formulation of factor or group name 1",
+            "variables": {
               "variable or function name 1": "description of variable or function 1",
               "variable or function name 2": "description of variable or function 2"
           }
@@ -156,66 +156,66 @@ feature_experiment_output_format: |-
       }
       # Don't add ellipsis (...) or any filler text that might cause JSON parsing errors here!
   }
-
-model_experiment_output_format: |-
-  According to the hypothesis, please help user design one model task.
-  We only build one model from four main model types: ["XGBoost", "RandomForest", "LightGBM", "NN"].
-  The output should follow JSON format. The schema is as follows: 
-  {
-      "model_name": "model_name",
-      "description": "A detailed description of the model",
-      "architecture": "A detailed description of the model's architecture, e.g., neural network layers or tree structures",
-      "hyperparameters": {
-          "hyperparameter_name_1": "value of hyperparameter 1",
-          "hyperparameter_name_2": "value of hyperparameter 2",
-          "hyperparameter_name_3": "value of hyperparameter 3"
-      },
-      "model_type": "Please select only **one** model type from the following four options: XGBoost, RandomForest, LightGBM, or NN. The selected model must be unique and used as the **primary model**. You may choose an auxiliary model for support or optimization on specific tasks if necessary, but the primary model must come from the provided options."
-
-  }
-
-kg_feedback_generation_user: |-
-  We are in a process of finding and validating hypotheses to build a powerful model. Each round aims to confirm or reject hypotheses based on results.
-
-  The SOTA solution for the task is as follows:
-  Features and its corresponding channel: {{ sota_features }}
-  Models and its corresponding code: {{ sota_models }}
-  Final result of the SOTA solution (we select the best-performing model's metric as the final result): {{ sota_result }}
-  {% if sota_sub_results %}
-  Sub-results of all sub-models: {{ sota_sub_results }}
-  {% endif %}
-
-  Current solution to be evaluated:
-  Hypothesis: {{ current_hypothesis }}
-  Reasoning: {{ current_hypothesis_reason }}
-  Current target action: {{ current_target_action }}
-  Experiments conducted and their code: {{ current_sub_exps_to_code }}
-  Final result of the current solution (we select the best-performing model's metric as the final result): {{ current_result }}
-  {% if current_sub_results %}
-  Sub-results of all sub-models: {{ current_sub_results }}
-  {% endif %}
-
-  A more detailed comparison between the current solution and the SOTA solution:
-  {{ combined_result }}
-
-  Some information about comparing the current solution with the SOTA solution:
-  {{ evaluation_description }}
-
-  {% if last_hypothesis_and_feedback %}
-  The user has made some hypothesis and conducted experiments to validate them, and the results are as follows:
-  hypothesis: {{ last_hypothesis_and_feedback[0].hypothesis }}
-  feedback decision: {{ last_hypothesis_and_feedback[1].decision }} 
-  reason: {{ last_hypothesis_and_feedback[1].reason }}
-  {% endif %}
-  Please refer to these hypothesis and feedback to help you recommend new hypothesis
-
-  Consider Changing Direction for Significant Gaps with the Best Result and the last round:
-    - If the new results significantly differ from SOTA, consider a new direction.
-    - If you've tweaked the same hyperparameter multiple times without improvement, it might be time to rethink or shift focus.
-    - If it is model tuning, focus on comparing the SOTA's Sub-results of all sub-models: {{ sota_sub_results }} with the current experiment's Sub-results of all sub-models: {{ current_sub_results }}. For example, identify which model is currently the best, which model was adjusted in this experiment, and whether the adjustment was effective. Determine if there is potential to continue with this model or if another model shows more promise.
-
-model_tuning_feedback_generation:
-  system: |-
+  
+  model_experiment_output_format: |-
+    According to the hypothesis, please help user design one model task.
+    We only build one model from four main model types: ["XGBoost", "RandomForest", "LightGBM", "NN"].
+    The output should follow JSON format. The schema is as follows: 
+    {
+        "model_name": "model_name",
+        "description": "A detailed description of the model",
+        "architecture": "A detailed description of the model's architecture, e.g., neural network layers or tree structures",
+        "hyperparameters": {
+            "hyperparameter_name_1": "value of hyperparameter 1",
+            "hyperparameter_name_2": "value of hyperparameter 2",
+            "hyperparameter_name_3": "value of hyperparameter 3"
+        },
+        "model_type": "Please select only **one** model type from the following four options: XGBoost, RandomForest, LightGBM, or NN. The selected model must be unique and used as the **primary model**. You may choose an auxiliary model for support or optimization on specific tasks if necessary, but the primary model must come from the provided options."
+    
+    }
+  
+  kg_feedback_generation_user: |-
+    We are in a process of finding and validating hypotheses to build a powerful model. Each round aims to confirm or reject hypotheses based on results.
+  
+    The SOTA solution for the task is as follows:
+    Features and its corresponding channel: {{ sota_features }}
+    Models and its corresponding code: {{ sota_models }}
+    Final result of the SOTA solution (we select the best-performing model's metric as the final result): {{ sota_result }}
+    {% if sota_sub_results %}
+    Sub-results of all sub-models: {{ sota_sub_results }}
+    {% endif %}
+  
+    Current solution to be evaluated:
+    Hypothesis: {{ current_hypothesis }}
+    Reasoning: {{ current_hypothesis_reason }}
+    Current target action: {{ current_target_action }}
+    Experiments conducted and their code: {{ current_sub_exps_to_code }}
+    Final result of the current solution (we select the best-performing model's metric as the final result): {{ current_result }}
+    {% if current_sub_results %}
+    Sub-results of all sub-models: {{ current_sub_results }}
+    {% endif %}
+  
+    A more detailed comparison between the current solution and the SOTA solution:
+    {{ combined_result }}
+  
+    Some information about comparing the current solution with the SOTA solution:
+    {{ evaluation_description }}
+  
+    {% if last_hypothesis_and_feedback %}
+    The user has made some hypothesis and conducted experiments to validate them, and the results are as follows:
+    hypothesis: {{ last_hypothesis_and_feedback[0].hypothesis }}
+    feedback decision: {{ last_hypothesis_and_feedback[1].decision }} 
+    reason: {{ last_hypothesis_and_feedback[1].reason }}
+    {% endif %}
+    Please refer to these hypothesis and feedback to help you recommend new hypothesis
+  
+    Consider Changing Direction for Significant Gaps with the Best Result and the last round:
+      - If the new results significantly differ from SOTA, consider a new direction.
+      - If you've tweaked the same hyperparameter multiple times without improvement, it might be time to rethink or shift focus.
+      - If it is model tuning, focus on comparing the SOTA's Sub-results of all sub-models: {{ sota_sub_results }} with the current experiment's Sub-results of all sub-models: {{ current_sub_results }}. For example, identify which model is currently the best, which model was adjusted in this experiment, and whether the adjustment was effective. Determine if there is potential to continue with this model or if another model shows more promise.
+  
+  model_tuning_feedback_generation:
+    system: |-
     You are an advanced assistant for analyzing results in data-driven R&D, in the context of designing machine learning models.
     The task is described in the following scenario:
     {{ scenario }}
@@ -250,8 +250,8 @@ model_tuning_feedback_generation:
       - Adjust (if unsuccessful): Use 5 layers, Leaky ReLU, dropout 0.3 rate.
 
 factor_feedback_generation:
-  system: |-
-    You are a professional data feature engineering assistant in data-driven R&D. 
+    system: |-
+      You are a professional data feature engineering assistant in data-driven R&D. 
     The task is described in the following scenario:
     {{ scenario }}
     
@@ -288,8 +288,8 @@ factor_feedback_generation:
     }
 
 feature_selection_feedback_generation:
-  system: |-
-    You are a professional feature selection assistant for machine learning models. Your task is to analyze the current feature selection strategy, evaluate its effectiveness, and suggest improvements.
+    system: |-
+      You are a professional feature selection assistant for machine learning models. Your task is to analyze the current feature selection strategy, evaluate its effectiveness, and suggest improvements.
     The task is described in the following scenario:
     {{ scenario }}
     
@@ -312,8 +312,8 @@ feature_selection_feedback_generation:
 
 
 model_feature_selection:
-  system: |-
-    You are an assistant for model feature selection in machine learning. Your task is to understand the current feature groups and choose the most relevant features for the model to get the best performance.
+    system: |-
+      You are an assistant for model feature selection in machine learning. Your task is to understand the current feature groups and choose the most relevant features for the model to get the best performance.
 
     The user is currently working on a Kaggle competition scenario as follows:
     {{ scenario }}
@@ -330,9 +330,9 @@ model_feature_selection:
       "Selected Group Index": [1, 3, 5], # List of selected group indices, notice: the index starts from 1
     }
 
-  user: |-
-    Current feature groups:
-    {% for feature in feature_groups %}
+    user: |-
+      Current feature groups:
+      {% for feature in feature_groups %}
       Group {{ loop.index }}: 
       {{ feature }}
     {% endfor %}

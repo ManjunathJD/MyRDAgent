@@ -5,9 +5,11 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import KFold
 from sklearn.impute import SimpleImputer
 from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import StandardScaler
+
 
 # Set random seed for reproducibility
 SEED = 42
@@ -15,6 +17,8 @@ random.seed(SEED)
 np.random.seed(SEED)
 DIRNAME = Path(__file__).absolute().resolve().parent
 
+
+kf = KFold(n_splits=5, shuffle=True, random_state=SEED)
 
 def import_module_from_path(module_name, module_path):
     spec = importlib.util.spec_from_file_location(module_name, module_path)

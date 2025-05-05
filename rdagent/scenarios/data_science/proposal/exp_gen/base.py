@@ -8,7 +8,7 @@ from rdagent.scenarios.data_science.experiment.experiment import COMPONENT, DSEx
 from rdagent.scenarios.data_science.scen import DataScienceScen
 
 
-class DSHypothesis(Hypothesis):
+class DSHypothesis(Hypothesis[COMPONENT]):
     def __init__(
         self,
         component: COMPONENT,
@@ -77,7 +77,7 @@ class DSTrace(Trace[DataScienceScen, KnowledgeBase]):
         """
         # Build a set of all parent indices found in dag_parent (skip empty tuples which represent roots)
         parent_indices = set(idx for parents in self.dag_parent for idx in parents)
-        # All node indices
+        # All node indices    
         all_indices = set(range(len(self.hist)))
         # The leaf nodes have no children, so they are not present as parents of any other node
         leaves = list(sorted(all_indices - parent_indices))

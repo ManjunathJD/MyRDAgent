@@ -46,7 +46,7 @@ from rdagent.components.coder.data_science.conf import (
 from rdagent.components.coder.data_science.pipeline.eval import PipelineCoSTEEREvaluator
 from rdagent.components.coder.data_science.raw_data_loader.eval import (
     DataLoaderCoSTEEREvaluator,
-)
+)  # Added parentheses here
 from rdagent.components.coder.data_science.raw_data_loader.exp import DataLoaderTask
 from rdagent.components.coder.data_science.share.eval import ModelDumpEvaluator
 from rdagent.core.exception import CoderError
@@ -66,7 +66,7 @@ class PipelineMultiProcessEvolvingStrategy(MultiProcessEvolvingStrategy):
         queried_knowledge: CoSTEERQueriedKnowledge | None = None,
         workspace: FBWorkspace | None = None,
         prev_task_feedback: CoSTEERSingleFeedback | None = None,
-    ) -> dict[str, str]:
+    ) -> dict[str, str]:  # Added parentheses here
         competition_info = self.scen.get_scenario_all_desc(eda_output=workspace.file_dict.get("EDA.md", None))
         runtime_environment = self.scen.get_runtime_environment()
         data_folder_info = self.scen.processed_data_folder_description
@@ -123,7 +123,7 @@ class PipelineMultiProcessEvolvingStrategy(MultiProcessEvolvingStrategy):
             "main.py": pipeline_code,
         }
 
-    def assign_code_list_to_evo(self, code_list: list[dict[str, str]], evo):
+    def assign_code_list_to_evo(self, code_list: list[dict[str, str]], evo): # Added parentheses here
         """
         Assign the code list to the evolving item.
 
@@ -152,7 +152,7 @@ class PipelineCoSTEER(CoSTEER):
         if DS_RD_SETTING.enable_model_dump:
             eval_l.append(ModelDumpEvaluator(scen=scen, data_type="sample"))
 
-        eva = CoSTEERMultiEvaluator(
+        eva = CoSTEERMultiEvaluator(  # Added parentheses here
             single_evaluator=eval_l, scen=scen
         )  # Please specify whether you agree running your eva in parallel or not
         es = PipelineMultiProcessEvolvingStrategy(scen=scen, settings=settings)
