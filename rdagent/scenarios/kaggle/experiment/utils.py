@@ -70,7 +70,6 @@ def python_files_to_notebook(competition: str, py_dir: str):
         .replace("[2].select", "[2]")
     )
     train_py = train_py.replace(" mc().", "").replace(").", "").replace(".feature_engineering_cls()", "")
-    )
     nb = nbf.v4.new_notebook()
     all_py = ""
 

@@ -15,9 +15,6 @@ from rdagent.components.knowledge_management.vector_base import (
 from rdagent.core.knowledge_base import KnowledgeBase
 from rdagent.log import rdagent_logger as logger
 
-if sys.version_info >= (3, 13):
-    from typing import override
-
 from rdagent.oai.llm_utils import APIBackend
 
 Node = KnowledgeMetaData
@@ -132,11 +129,6 @@ class UndirectedGraph(Graph):
     def __str__(self) -> str:
         return f"UndirectedGraph(nodes={self.nodes})"
 
-    if sys.version_info >= (3, 13):  # pragma: no cover
-
-        @override
-        pass
-
     def add_node(
         self,
         node: UndirectedNode,
@@ -186,6 +178,9 @@ class UndirectedGraph(Graph):
 
             node.add_neighbor(neighbor)
 
+    
+    
+
     def add_nodes(self, node: UndirectedNode, neighbors: list[UndirectedNode]) -> None:
         if not neighbors:
             self.add_node(node)
@@ -213,12 +208,7 @@ class UndirectedGraph(Graph):
         if match:
             return match[0]
         return None
-
-    if sys.version_info >= (3, 13):  # pragma: no cover
-
-        @override
-        pass
-
+   
     def get_nodes_within_steps(
         self,
         start_node: UndirectedNode,
@@ -248,7 +238,7 @@ class UndirectedGraph(Graph):
                     self.get_node(node.id).neighbors,
                     key=lambda x: x.content,
                 ):  # to make sure the result is deterministic
-                    if neighbor not in visited and not (block and neighbor.label not in constraint_labels):
+                    if neighbor not in visited and not (block and constraint_labels is not None and neighbor.label not in constraint_labels):
                         queue.append((neighbor, current_steps + 1))
 
         if constraint_labels:
@@ -343,10 +333,6 @@ class UndirectedGraph(Graph):
             constraint_labels=constraint_labels,
         )
         return [self.get_node(doc.id) for doc in docs]
-
-    def clear(self) -> None:
-        self.nodes.clear()
-        self.vector_base: VectorBase = PDVectorBase()
 
     def query_by_node(
         self,
@@ -459,11 +445,6 @@ class UndirectedGraph(Graph):
             )
         return res_list
 
-    if sys.version_info >= (3, 13):  # pragma: no cover
-
-        @override
-        pass
-
     @staticmethod
     def intersection(nodes1: list[UndirectedNode], nodes2: list[UndirectedNode]) -> list[UndirectedNode]:
         return [node for node in nodes1 if node in nodes2]
@@ -480,8 +461,14 @@ class UndirectedGraph(Graph):
     def filter_label(nodes: list[UndirectedNode], labels: list[str]) -> list[UndirectedNode]:
         return [node for node in nodes if node.label in labels]
 
+    def clear(self) -> None:
+        self.nodes.clear()
+        self.vector_base: VectorBase = PDVectorBase()
+    
+    pass
 
-def graph_to_edges(graph: dict[str, list[str]]) -> list[tuple[str, str]]:
+
+def graph_to_edges(graph: dict[str, list[str]]) -> list[tuple[str, str]]: 
     edges = []
 
     for node, neighbors in graph.items():

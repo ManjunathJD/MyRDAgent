@@ -41,10 +41,20 @@ class KGExperiment2Feedback(Experiment2Feedback):
         return combined_df, evaluation_description
 
     def generate_feedback(self, exp: Experiment, trace: Trace) -> Any:
-        Args:
-            exp: The experiment to generate feedback for.
+        """
+        Generates feedback for a given experiment.
 
-            trace: The trace of the experiment.       
+        This method processes the results of an experiment and generates feedback based on the
+        experiment's hypothesis and its comparison with other experiments. It uses prompt templates
+        to create user and system prompts for an API, and processes the API's response to form a
+        structured feedback.
+
+        Args:
+            exp (Experiment): The experiment object for which to generate feedback.
+            trace (Trace): The trace object containing the history of experiments and other relevant information.
+
+        Returns:
+            HypothesisFeedback: An object containing the generated feedback.
         """
         hypothesis = exp.hypothesis
         logger.info("Generating feedback...")
