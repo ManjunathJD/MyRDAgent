@@ -10,7 +10,7 @@ SHELL := /bin/bash
 PIPRUN := $(shell [ "$$CI" != "true" ] && command -v pipenv > /dev/null 2>&1 && echo "pipenv run")
 
 # Get the Python version in `major.minor` format, using the environment variable or the virtual environment if exists.
-PYTHON_VERSION := $(shell echo $${PYTHON_VERSION:-$$(python -V 2>&1 | cut -d ' ' -f 2)} | cut -d '.' -f 1,2)
+PYTHON_VERSION := $(shell echo $${PYTHON_VERSION:-3.13} | cut -d '.' -f 1,2)
 
 # Determine the constraints file based on the Python version.
 CONSTRAINTS_FILE := constraints/$(PYTHON_VERSION).txt
@@ -61,10 +61,6 @@ dev-%:
 # Build submodules.
 # Install the pacakge in editable mode with all optional dependencies and pre-commit hook.
 init-qlib-env:
-	# note: You may need to install torch manually
-	# todo: downgrade ruamel.yaml in pyqlib
-	conda create -n qlibRDAgent python=3.8 -y
-	@source $$(conda info --base)/etc/profile.d/conda.sh && conda activate qlibRDAgent && which pip && pip install pyqlib && pip install ruamel-yaml==0.17.21 && pip install torch==2.1.1 && pip install catboost==0.24.3 && conda deactivate
 
 dev:
 	$(PIPRUN) pip install -e .[docs,lint,package,test] -c $(CONSTRAINTS_FILE)
@@ -151,12 +147,12 @@ test-run-offline:
 # Generate coverage report for terminal and xml.
 # TODO: we may have higher coverage rate if we have more test
 test: test-run
-	$(PIPRUN) python -m coverage report --fail-under 20  # 80
-	$(PIPRUN) python -m coverage xml --fail-under 20  # 80
+	$(PIPRUN) python -m coverage report --fail-under 40
+	$(PIPRUN) python -m coverage xml --fail-under 40
 
 test-offline: test-run-offline
-	$(PIPRUN) python -m coverage report --fail-under 20  # 80
-	$(PIPRUN) python -m coverage xml --fail-under 20  # 80
+	$(PIPRUN) python -m coverage report --fail-under 40
+	$(PIPRUN) python -m coverage xml --fail-under 40
 
 ########################################################################################
 # Package

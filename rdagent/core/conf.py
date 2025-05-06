@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from __future__ import annotations
+
 # TODO: use pydantic for other modules in Qlib
 from pathlib import Path
 from typing import cast

@@ -1,5 +1,3 @@
 # Requirements for package.
-build
-setuptools-scm
-twine
-wheel
+setuptools>=68.2.2
+setuptools_scm>=8.0.4
