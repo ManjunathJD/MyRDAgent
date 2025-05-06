@@ -1,7 +1,65 @@
-azure-identity>=1.15.0
-dill>=0.3.7
-pillow>=10.1.0
-psutil>=5.9.6
-rich>=13.7.0
-scipy>=1.11.3
-tqdm>=4.66.1
+
+# Requirements for runtime.
+pydantic-settings
+
+python-Levenshtein
+scikit-learn
+filelock
+loguru
+fire
+fuzzywuzzy
+openai
+litellm
+azure.identity
+pyarrow
+rich
+tqdm
+
+numpy # we use numpy as default data format. So we have to install numpy
+pandas # we use pandas as default data format. So we have to install pandas
+pandarallel # parallelize pandas
+matplotlib
+langchain
+langchain-community
+tiktoken
+pymupdf  # Extract shotsreens from pdf
+
+# PDF related
+pypdf
+azure-ai-formrecognizer
+
+# factor implementations
+tables
+
+# CI Fix Tool
+tree-sitter-python
+tree-sitter
+
+python-dotenv
+
+# infrastructure related.
+docker
+
+# demo related
+streamlit
+plotly
+st-theme
+
+# kaggle crawler
+selenium
+kaggle
+nbformat
+
+# tool
+setuptools-scm
+seaborn
+azure.ai.inference
+
+# data folder desc
+humanize
+genson
+
+# mlflow
+mlflow
+azureml-mlflow
+types-pytz
