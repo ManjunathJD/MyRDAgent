@@ -43,13 +43,12 @@ class KGExperiment2Feedback(Experiment2Feedback):
     def generate_feedback(self, exp: Experiment, trace: Trace) -> Any:
         Args:
             exp: The experiment to generate feedback for.
-            hypothesis: The hypothesis to generate feedback for.
-            trace: The trace of the experiment.
-        Returns:
-            Any: The feedback generated for the given experiment and hypothesis.
+
+            trace: The trace of the experiment.       
         """
         hypothesis = exp.hypothesis
         logger.info("Generating feedback...")
+
         current_result = exp.result
 
         evaluation_description = None
@@ -63,16 +62,16 @@ class KGExperiment2Feedback(Experiment2Feedback):
             combined_result, evaluation_description = self.process_results(
                 current_result, current_result
             )  # Compare with itself
-            print("Warning: No previous experiments to compare against. Using current result as baseline.")
+            logger.info("Warning: No previous experiments to compare against. Using current result as baseline.")
 
         # Generate the user prompt based on the action type
         if hypothesis.action == "Model tuning":
             prompt_key = "model_tuning_feedback_generation"
         elif hypothesis.action == "Model feature selection":
-            prompt_key = "feature_selection_feedback_generation"
-        else:
+            prompt_key = "feature_selection_feedback_generation"        
+        elif hypothesis.action == "Factor generation":
             prompt_key = "factor_feedback_generation"
-
+        
         # Generate the system prompt
         sys_prompt = (
             Environment(undefined=StrictUndefined)
@@ -90,7 +89,7 @@ class KGExperiment2Feedback(Experiment2Feedback):
         current_hypothesis: str = hypothesis.hypothesis
         current_hypothesis_reason: str = hypothesis.reason
         current_target_action: str = hypothesis.action
-
+        
         current_sub_exps_to_code = {}
         if hypothesis.action == "Model tuning":
             current_sub_exps_to_code[exp.sub_tasks[0].get_task_information()] = exp.sub_workspace_list[0].all_codes
@@ -102,7 +101,7 @@ class KGExperiment2Feedback(Experiment2Feedback):
             current_sub_exps_to_code = {
                 sub_ws.target_task.get_task_information(): sub_ws.all_codes for sub_ws in exp.sub_workspace_list
             }
-        current_sub_exps_to_code_str = json.dumps(current_sub_exps_to_code, indent=2)
+        current_sub_exps_to_code_str = json.dumps(current_sub_exps_to_code, indent=2)       
         current_result = exp.result
         current_sub_results = exp.sub_results
 
@@ -127,7 +126,7 @@ class KGExperiment2Feedback(Experiment2Feedback):
             "last_hypothesis_and_feedback": last_hypothesis_and_feedback,
         }
 
-        usr_prompt = (
+        usr_prompt = (            
             Environment(undefined=StrictUndefined)
             .from_string(prompt_dict["kg_feedback_generation_user"])
             .render(**render_dict)

@@ -22,6 +22,9 @@ def _worker(system_prompt: str, user_prompt: str) -> Any:
 
 class TestAdvanced(unittest.TestCase):
 
+    def test_add(self) -> None:
+        self.assertTrue(True)
+        
     def test_chat_cache_multiprocess(self) -> None:
         """
         Tests:

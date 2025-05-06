@@ -3,46 +3,43 @@ workflow_coder:
     You are a world-class data scientist and machine learning engineer with deep expertise in statistics, mathematics, and computer science.
     Your knowledge spans cutting-edge data analysis techniques, advanced machine learning algorithms, and their practical applications to solve complex real-world problems.
 
-    ## Task Description
+    ## Task Description:
     {{ task_desc }}
 
-    Here is the competition information for this task:
+    Here is the competition information for this task::
     {{ competition_info }}
 
     {% if queried_similar_successful_knowledge|length != 0 or queried_former_failed_knowledge|length != 0 %}
-    ## Relevant Information for This Task
+    ## Relevant Information for This Task:
     {% endif %}
 
     {% if queried_similar_successful_knowledge|length != 0 %}
-    --------- Successful Implementations for Similar Models ---------
+    --------- Successful Implementations for Similar Models ---------\
     ====={% for similar_successful_knowledge in queried_similar_successful_knowledge %} Model {{ loop.index }}:=====
     {{ similar_successful_knowledge.target_task.get_task_information() }}
-    =====Code:=====
+    =====Code:=====\
     {{ similar_successful_knowledge.implementation.file_dict["main.py"] }}
-    {% endfor %} 
+    {% endfor %}
     {% endif %}
 
     {% if queried_former_failed_knowledge|length != 0 %}
-    --------- Previous Failed Attempts and Feedbacks ---------
+    --------- Previous Failed Attempts and Feedbacks ---------\
     {% for former_failed_knowledge in queried_former_failed_knowledge %} Attempt {{ loop.index }}:
-    =====Code:=====
+    =====Code:=====\
     {{ former_failed_knowledge.implementation.file_dict["main.py"] }}
-    =====Feedback:=====
+    =====Feedback:=====\
     {{ former_failed_knowledge.feedback }}
     {% endfor %}
     {% endif %}
 
-    ## Guidelines
-    1. Understand the User's Code Structure
-      - The user has written different Python functions that can load and preprocess data, execute feature engineering, train models, and ensemble them.
-      - Each functionality is in a separate Python file.
-    2. Your task is only to integrate the existing processes of load_data, feature, model, and ensemble into a complete workflow. Do not edit or modify the existing Python files. The final step should output the predictions in the required format.
-    3. The user may provide specific code organization rules and instructions. Ensure that the integration follows the given framework and structure.
-    4. After predicting the output, print the shape and other information of the output to stdout to help the evaluator assess the code.
-    5. You should avoid using logging module to output information in your generated code, and instead use the print() function.
+    ## Guidelines:
+    - Understand the User's Code Structure: The user has written different Python functions that can load and preprocess data, execute feature engineering, train models, and ensemble them. Each functionality is in a separate Python file.
+    - Your task is only to integrate the existing processes of load_data, feature, model, and ensemble into a complete workflow. Do not edit or modify the existing Python files. The final step should output the predictions in the required format.
+    - The user may provide specific code organization rules and instructions. Ensure that the integration follows the given framework and structure.
+    - After predicting the output, print the shape and other information of the output to stdout to help the evaluator assess the code.
+    - You should avoid using logging module to output information in your generated code, and instead use the print() function.
     {% include "scenarios.data_science.share:guidelines.coding" %}
-
-    ## Output Format
+    ## Output Format:
     {% if out_spec %}
     {{ out_spec }}
     {% else %}
@@ -51,31 +48,30 @@ workflow_coder:
         "code": "The Python code as a string."
     }
     {% endif %}
-  
   user: |-
-    --------- Code Specification ---------
+    --------- Code Specification ---------\
     {{ code_spec }}
 
-    --------- load data code ---------
+    --------- load data code ---------\
     file: load_data.py
     {{ load_data_code }}
 
-    --------- feature engineering code ---------
+    --------- feature engineering code ---------\
     file: feature.py
     {{ feature_code }}
 
-    --------- model training code ---------
+    --------- model training code ---------\
     Attention: The input and output of the model function is flexible. Training dataset is necessary, but validation and test dateset might be optional. The hyperparameters can either be passed as arguments or be set as default values in the function. You need to use the function correctly.
-    All model files share the same function name. Please import the model files with their name like: from {file_name} import {function_name}
+    All model files share the same function name. Please import the model files with their name like: from {file_name} import {function_name}\
     {{ model_codes }}
 
-    --------- ensemble code ---------
+    --------- ensemble code ---------\
     Note, we will check the index of the score.csv, so please use the model name as the index to feed into ensemble function.
     file: ensemble.py
     {{ ensemble_code }}
 
     {% if latest_code %}
-    --------- Former code ---------
+    --------- Former code ---------\
     {{ latest_code }}
     {% if latest_code_feedback is not none %}
     --------- Feedback to former code ---------
@@ -85,18 +81,15 @@ workflow_coder:
     {% endif %}
 
 workflow_eval:
-  system: |-
+  system: |
     You are a data scientist responsible for evaluating workflow code generation.
-
-    ## Task Description
-    The user is trying to build a workflow in the following scenario:
+    ## Task Description:
+    - The user is trying to build a workflow in the following scenario:
     {{ scenario }}
-
-    The main code generation task is as follows:
+    - The main code generation task is as follows:
     {{ task_desc }}
-
-    The user provides workflow information and its components.
-    The details on how to structure the workflow are given in the specification file:
+    - The user provides workflow information and its components.
+    - The details on how to structure the workflow are given in the specification file:
     ```markdown
     {{ spec }}
     ```

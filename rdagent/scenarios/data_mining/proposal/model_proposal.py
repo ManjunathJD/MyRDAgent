@@ -38,13 +38,14 @@ class DMModelHypothesisGen(ModelHypothesisGen):
         hypothesis_and_feedback = (
             Environment()
             .from_string(prompt_dict["hypothesis_and_feedback"])
-            .render(trace=trace)
-            )
-            if len(trace.hist) > 0
-            else "No previous hypothesis and feedback available since it's the first round."
-        )
+            .render(trace=trace))
+        if len(trace.hist) == 0:
+            hypothesis_and_feedback = "No previous hypothesis and feedback available since it's the first round."
+        else:
+            hypothesis_and_feedback = Environment().from_string(prompt_dict["hypothesis_and_feedback"]).render(trace=trace)
+
         context_dict = {
-            "hypothesis_and_feedback": hypothesis_and_feedback,
+           "hypothesis_and_feedback": hypothesis_and_feedback,
             "RAG": None,
             "hypothesis_output_format": prompt_dict["hypothesis_output_format"],
             "hypothesis_specification": prompt_dict["model_hypothesis_specification"],
@@ -69,14 +70,14 @@ class DMModelHypothesis2Experiment(ModelHypothesis2Experiment):
         scenario = trace.scen.get_scenario_all_desc()
         experiment_output_format = prompt_dict["model_experiment_output_format"]
 
-        hypothesis_and_feedback = (
-            Environment()
-            .from_string(prompt_dict["hypothesis_and_feedback"])
-            .render(trace=trace)
-            )
-            if len(trace.hist) > 0
-            else "No previous hypothesis and feedback available since it's the first round."
-        )
+        if len(trace.hist) > 0:
+            hypothesis_and_feedback = Environment().from_string(prompt_dict["hypothesis_and_feedback"]).render(trace=trace)
+        else:
+            hypothesis_and_feedback = "No previous hypothesis and feedback available since it's the first round."
+            
+
+        
+
 
         experiment_list: List[ModelExperiment] = [t[0] for t in trace.hist]
 

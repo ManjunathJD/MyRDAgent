@@ -4,12 +4,8 @@ from rdagent.components.coder.model_coder.model import (
     ModelExperiment,
     ModelFBWorkspace,
     ModelTask,
-) from rdagent.components.coder.model_coder.model import (
-    ModelExperiment,
-    ModelFBWorkspace,
-    ModelTask,
 )
-from rdagent.core.experiment import Task
+from rdagent.core.experiment import Task 
 from rdagent.core.prompts import Prompts, PromptTemplate
 
 

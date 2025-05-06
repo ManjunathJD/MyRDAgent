@@ -68,10 +68,10 @@ class CoSTEERKnowledgeBaseV1(EvolvingKnowledgeBase):
         super().__init__(path)
 
     def query(self) -> CoSTEERQueriedKnowledge | None:
-        """
-        Query the knowledge base to get the queried knowledge. So far is handled in RAG strategy.
-        """
-        raise NotImplementedError
+        """Query the knowledge base to get the queried knowledge. So far is handled in RAG strategy."""
+        
+        raise NotImplementedError 
+
 
 
 class CoSTEERQueriedKnowledgeV1(CoSTEERQueriedKnowledge):
@@ -99,6 +99,7 @@ class CoSTEERRAGStrategyV1(RAGStrategy):
         *,
         return_knowledge: bool = False,
     ) -> Knowledge | None:
+        
         raise NotImplementedError(
             "This method should be considered as an un-implemented method because we encourage everyone to use v2."
         )
@@ -125,7 +126,7 @@ class CoSTEERRAGStrategyV1(RAGStrategy):
                         feedback=single_feedback,
                     )
                     if target_task_information not in self.knowledgebase.success_task_info_set:
-                        self.knowledgebase.implementation_trace.setdefault(
+                        self.knowledgebase.implementation_trace.setdefault( 
                             target_task_information,
                             [],
                         ).append(single_knowledge)
@@ -141,6 +142,7 @@ class CoSTEERRAGStrategyV1(RAGStrategy):
         evo: EvolvableSubjects,
         evolving_trace: list[EvoStep],
     ) -> CoSTEERQueriedKnowledge | None:
+        
         raise NotImplementedError(
             "This method should be considered as an un-implemented method because we encourage everyone to use v2."
         )
@@ -199,6 +201,7 @@ class CoSTEERRAGStrategyV1(RAGStrategy):
 
 
 class CoSTEERQueriedKnowledgeV2(CoSTEERQueriedKnowledgeV1):
+    
     # Aggregation of knowledge
     def __init__(
         self,
@@ -223,11 +226,12 @@ class CoSTEERRAGStrategyV2(RAGStrategy):
         self.current_generated_trace_count = 0
         self.settings = settings
 
-    def generate_knowledge(
+    def generate_knowledge(  # noqa: C901
         self,
         evolving_trace: list[EvoStep],
         *,
         return_knowledge: bool = False,
+
     ) -> Knowledge | None:
         if len(evolving_trace) == self.current_generated_trace_count:
             return None
@@ -251,7 +255,7 @@ class CoSTEERRAGStrategyV2(RAGStrategy):
                     )
                     if (
                         target_task_information not in self.knowledgebase.success_task_to_knowledge_dict
-                        and implementation is not None
+                       and implementation is not None
                     ):
                         self.knowledgebase.working_trace_knowledge.setdefault(target_task_information, []).append(
                             single_knowledge,
@@ -289,6 +293,7 @@ class CoSTEERRAGStrategyV2(RAGStrategy):
             return None
 
     def query(self, evo: EvolvableSubjects, evolving_trace: list[EvoStep]) -> CoSTEERQueriedKnowledge | None:
+        
         conf_knowledge_sampler = self.settings.v2_knowledge_sampler
         queried_knowledge_v2 = CoSTEERQueriedKnowledgeV2(
             success_task_to_knowledge_dict=self.knowledgebase.success_task_to_knowledge_dict,
@@ -330,7 +335,7 @@ class CoSTEERRAGStrategyV2(RAGStrategy):
             .render(
                 all_component_content=all_component_content,
             )
-        )
+        )        
 
         analyze_component_user_prompt = target_task_information
         try:
@@ -353,9 +358,8 @@ class CoSTEERRAGStrategyV2(RAGStrategy):
         self,
         single_feedback,
         feedback_type="execution",
-    ) -> list[
-        UndirectedNode | str
-    ]:  # Hardcode: Raised errors, existed error nodes + not existed error nodes(here, they are strs)
+    ) -> list[UndirectedNode | str]:  # Hardcode: Raised errors, existed error nodes + not existed error nodes(here, they are strs)
+    
         if feedback_type == "execution":
             match = re.search(
                 r'File "(?P<file>.+)", line (?P<line>\d+), in (?P<function>.+)\n\s+(?P<error_line>.+)\n(?P<error_type>\w+): (?P<error_message>.+)',
@@ -370,7 +374,7 @@ class CoSTEERRAGStrategyV2(RAGStrategy):
             else:
                 error_contents = ["Undefined Error"]
         elif feedback_type == "value":  # value check error
-            value_check_types = r"The source dataframe and the ground truth dataframe have different rows count.|The source dataframe and the ground truth dataframe have different index.|Some values differ by more than the tolerance of 1e-6.|No sufficient correlation found when shifting up|Something wrong happens when naming the multi indices of the dataframe."
+            value_check_types = r"The source dataframe and the ground truth dataframe have different rows count.|The source dataframe and the ground truth dataframe have different index.|Some values differ by more than the tolerance of 1e-6.|No sufficient correlation found when shifting up.|Something wrong happens when naming the multi indices of the dataframe."
             error_contents = re.findall(value_check_types, single_feedback)
         else:
             error_contents = ["Undefined Error"]
@@ -398,10 +402,10 @@ class CoSTEERRAGStrategyV2(RAGStrategy):
         v2_query_former_trace_limit: int = 5,
         v2_add_fail_attempt_to_latest_successful_execution: bool = False,
     ) -> Union[CoSTEERQueriedKnowledge, set]:
-        """
-        Query the former trace knowledge of the working trace, and find all the failed task information which tried more than fail_task_trial_limit times
-        """
+        """Query the former trace knowledge of the working trace, and find all the failed task information which tried more than fail_task_trial_limit times"""
+        
         fail_task_trial_limit = self.settings.fail_task_trial_limit
+        
 
         for target_task in evo.sub_tasks:
             target_task_information = target_task.get_task_information()
@@ -422,7 +426,7 @@ class CoSTEERRAGStrategyV2(RAGStrategy):
                 )
                 # in former trace query we will delete the right trace in the following order:[..., value_generated_flag is True, value_generated_flag is False, ...]
                 # because we think this order means a deterioration of the trial (like a wrong gradient descent)
-                current_index = 1
+                current_index = 1 
                 while current_index < len(former_trace_knowledge):
                     if (
                         not former_trace_knowledge[current_index].feedback.return_checking
@@ -433,7 +437,7 @@ class CoSTEERRAGStrategyV2(RAGStrategy):
                         current_index += 1
 
                 latest_attempt = None
-                if v2_add_fail_attempt_to_latest_successful_execution:
+                if v2_add_fail_attempt_to_latest_successful_execution: 
                     # When the last successful execution is not the last one in the working trace, it means we have tried to correct it. We should tell the agent this fail trial to avoid endless loop in the future.
                     if (
                         len(former_trace_knowledge) > 0
@@ -461,6 +465,7 @@ class CoSTEERRAGStrategyV2(RAGStrategy):
         v2_query_component_limit: int = 5,
         knowledge_sampler: float = 1.0,
     ) -> CoSTEERQueriedKnowledge | None:
+        
         for target_task in evo.sub_tasks:
             target_task_information = target_task.get_task_information()
             if (
@@ -514,7 +519,7 @@ class CoSTEERRAGStrategyV2(RAGStrategy):
                             target_knowledge = self.knowledgebase.node_to_implementation_knowledge_dict[
                                 searched_node.id
                             ] if searched_node.id in self.knowledgebase.node_to_implementation_knowledge_dict else None
-                        if (
+                        if ( 
                             target_knowledge
                             not in queried_knowledge_v2.task_to_similar_task_successful_knowledge[
                                 target_task_information
@@ -541,7 +546,7 @@ class CoSTEERRAGStrategyV2(RAGStrategy):
                     for index in similar_indexes
                 ]
                 for knowledge in embedding_similar_successful_knowledge:
-                    if (
+                    if ( 
                         knowledge
                         not in queried_knowledge_v2.task_to_similar_task_successful_knowledge[target_task_information]
                     ):
@@ -590,6 +595,7 @@ class CoSTEERRAGStrategyV2(RAGStrategy):
         v2_query_error_limit: int = 5,
         knowledge_sampler: float = 1.0,
     ) -> CoSTEERQueriedKnowledge | None:
+        
         for task_index, target_task in enumerate(evo.sub_tasks):
             target_task_information = target_task.get_task_information()
             queried_knowledge_v2.task_to_similar_error_successful_knowledge[target_task_information] = []
@@ -697,7 +703,7 @@ class CoSTEERRAGStrategyV2(RAGStrategy):
                                 error_content += f"{index+1}. {error_node.content}; "
                             same_error_success_knowledge_pair_list.append(
                                 (
-                                    error_content,
+                                    error_content, 
                                     (trace_knowledge, success_knowledge),
                                 ),
                             )
@@ -719,11 +725,10 @@ class CoSTEERRAGStrategyV2(RAGStrategy):
 
 class CoSTEERKnowledgeBaseV2(EvolvingKnowledgeBase):
     def __init__(self, init_component_list=None, path: str | Path = None) -> None:
-        """
-        Load knowledge, offer brief information of knowledge and common handle interfaces
-        """
+        """Load knowledge, offer brief information of knowledge and common handle interfaces"""
+
         self.graph: UndirectedGraph = UndirectedGraph(Path.cwd() / "graph.pkl")
-        logger.info(f"CoSTEER Knowledge Graph loaded, size={self.graph.size()}")
+        logger.info(f"CoSTEER Knowledge Graph loaded, size={self.graph.size()}") 
 
         if init_component_list:
             for component in init_component_list:
@@ -752,8 +757,9 @@ class CoSTEERKnowledgeBaseV2(EvolvingKnowledgeBase):
     def update_success_task(
         self,
         success_task_info: str,
-    ):  # Transfer the success tasks' working trace to knowledge storage & graph
+    ):  # Transfer the success tasks' working trace to knowledge storage & graph 
         success_task_trace = self.working_trace_knowledge[success_task_info]
+
         success_task_error_analysis_record = (
             self.working_trace_error_analysis[success_task_info]
             if success_task_info in self.working_trace_error_analysis
@@ -774,13 +780,13 @@ class CoSTEERKnowledgeBaseV2(EvolvingKnowledgeBase):
                 self.node_to_implementation_knowledge_dict[trace_node.id] = trace_unit
                 for node_index, error_node in enumerate(success_task_error_analysis_record[index]):
                     if type(error_node).__name__ == "str":
-                        queried_node = self.graph.get_node_by_content(content=error_node)
+                        queried_node = self.graph.get_node_by_content(content=error_node) 
                         if queried_node is None:
                         # new_error_node = UndirectedNode(content=error_node, label="error")
                         # self.graph.add_node(node=new_error_node)
                         # success_task_error_analysis_record[index][node_index] = new_error_node
-                        pass
-                        else:
+                            pass
+                        else: 
                             success_task_error_analysis_record[index][node_index] = queried_node
                 valid_error_nodes = [node for node in success_task_error_analysis_record[index] if isinstance(node, UndirectedNode)]
                 neighbor_nodes.extend(valid_error_nodes)
@@ -810,34 +816,19 @@ class CoSTEERKnowledgeBaseV2(EvolvingKnowledgeBase):
         constraint_distance: float = 0,
         block: bool = False,
     ) -> list[UndirectedNode]:
-        """
-        search graph by content similarity and connection relationship, return empty list if nodes' chain without node
-        near to constraint_node
+        """search graph by content similarity and connection relationship, return empty list if nodes' chain without node near to constraint_node
 
-        Parameters
-        ----------
-        constraint_distance
-        content
-        topk_k: the upper number of output for each query, if the number of fit nodes is less than topk_k, return all fit nodes's content
-        step
-        constraint_labels
-        constraint_node
-        similarity_threshold
-        block: despite the start node, the search can only flow through the constraint_label type nodes
-
-        Returns
-        -------
-
-        """
-
+        Parameters:
+            constraint_distance
+            content
+            topk_k: the upper number of output for each query, if the number of fit nodes is less than topk_k, return all fit nodes's content
+            step
+            constraint_labels
+            constraint_node
+            similarity_threshold
+            block: despite the start node, the search can only flow through the constraint_label type nodes"""
         return self.graph.query_by_content(
-            content=content,
-            topk_k=topk_k,
-            step=step,
-            constraint_labels=constraint_labels,
-            constraint_node=constraint_node,
-            similarity_threshold=similarity_threshold,
-            constraint_distance=constraint_distance,
+            content=content,topk_k=topk_k,step=step,constraint_labels=constraint_labels,constraint_node=constraint_node,similarity_threshold=similarity_threshold,constraint_distance=constraint_distance,
             block=block,
         )
 
@@ -850,22 +841,13 @@ class CoSTEERKnowledgeBaseV2(EvolvingKnowledgeBase):
         constraint_distance: float = 0,
         block: bool = False,
     ) -> list[UndirectedNode]:
-        """
-        search graph by connection, return empty list if nodes' chain without node near to constraint_node
-        Parameters
-        ----------
-        node : start node
-        step : the max steps will be searched
-        constraint_labels : the labels of output nodes
-        constraint_node : the node that the output nodes must connect to
-        constraint_distance : the max distance between output nodes and constraint_node
-        block: despite the start node, the search can only flow through the constraint_label type nodes
-
-        Returns
-        -------
-        A list of nodes
-
-        """
+        """search graph by connection, return empty list if nodes' chain without node near to constraint_node
+        Parameters:
+            node : start node
+            step : the max steps will be searched
+            constraint_labels : the labels of output nodes
+            constraint_node : the node that the output nodes must connect to
+            constraint_distance : the max distance between output nodes and constraint_node"""
         nodes = self.graph.query_by_node(
             node=node,
             step=step,
@@ -883,20 +865,13 @@ class CoSTEERKnowledgeBaseV2(EvolvingKnowledgeBase):
         constraint_labels: list[str] = None,
         output_intersection_origin: bool = False,
     ) -> list[UndirectedNode] | list[list[list[UndirectedNode], UndirectedNode]]:
-        """
-        search graph by node intersection, node intersected by a higher frequency has a prior order in the list
-        Parameters
-        ----------
-        nodes : node list
-        step : the max steps will be searched
-        constraint_labels : the labels of output nodes
-        output_intersection_origin: output the list that contains the node which form this intersection node
+        """search graph by node intersection, node intersected by a higher frequency has a prior order in the list
+        Parameters:
+            nodes : node list
+            step : the max steps will be searched
+            constraint_labels : the labels of output nodes
+            output_intersection_origin: output the list that contains the node which form this intersection node"""
 
-        Returns
-        -------
-        A list of nodes
-
-        """
         node_count = len(nodes)
         assert node_count >= 2, "nodes length must >=2"
         intersection_node_list = []

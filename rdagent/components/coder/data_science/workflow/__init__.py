@@ -34,14 +34,15 @@ class WorkflowMultiProcessEvolvingStrategy(MultiProcessEvolvingStrategy):
         workspace: FBWorkspace | None = None,
         prev_task_feedback: CoSTEERSingleFeedback | None = None,
     ) -> dict[str, str]:
+        
         workflow_information_str = target_task.get_task_information()
 
         # 1. query
         queried_similar_successful_knowledge = (
-            queried_knowledge.task_to_similar_task_successful_knowledge[workflow_information_str]
-            if queried_knowledge is not None
-            else []
-        )
+            queried_knowledge.task_to_similar_task_successful_knowledge[
+                workflow_information_str
+            ] if queried_knowledge is not None else []
+        ) 
         queried_former_failed_knowledge = (
             queried_knowledge.task_to_former_failed_traces[workflow_information_str]
             if queried_knowledge is not None
@@ -49,11 +50,14 @@ class WorkflowMultiProcessEvolvingStrategy(MultiProcessEvolvingStrategy):
         )
         queried_former_failed_knowledge = (
             [x
-                knowledge
-                for knowledge in queried_former_failed_knowledge[0]
-                if knowledge.implementation.file_dict.get("main.py") != workspace.file_dict.get("main.py")
+                for knowledge in queried_former_failed_knowledge[0] if
+                knowledge.implementation.file_dict.get("main.py") != workspace.file_dict.get("main.py")
             ],
             queried_former_failed_knowledge[1],
+        ) if queried_former_failed_knowledge else ([], [])
+
+
+        queried_former_failed_knowledge = (
         ) if queried_former_failed_knowledge else ([], [])
 
         # 2. code
@@ -67,16 +71,17 @@ class WorkflowMultiProcessEvolvingStrategy(MultiProcessEvolvingStrategy):
         user_prompt = T(".prompts:workflow_coder.user").r(
             load_data_code=workspace.file_dict["load_data.py"],
             feature_code=workspace.file_dict["feature.py"],
-            model_codes=workspace.get_codes(r"^model_(?!test)\w+\.py$"),
+            model_codes=workspace.get_codes(r"^model_(?!test)\w+\.py$"), #model_codes=model_codes,
             ensemble_code=workspace.file_dict["ensemble.py"],
             latest_code=workspace.file_dict.get("main.py"),
             code_spec=(
-                workspace.file_dict["spec/workflow.md"]
-                if DS_RD_SETTING.spec_enabled
-                else T("scenarios.data_science.share:component_spec.Workflow").r()
+                workspace.file_dict["spec/workflow.md"] if DS_RD_SETTING.spec_enabled else
+                T("scenarios.data_science.share:component_spec.Workflow").r()
             ),
             latest_code_feedback=prev_task_feedback,
         )
+
+
 
         for _ in range(5):
             workflow_code = PythonAgentOut.extract_output(
@@ -90,7 +95,7 @@ class WorkflowMultiProcessEvolvingStrategy(MultiProcessEvolvingStrategy):
             else:
                 user_prompt = user_prompt + "\nPlease avoid generating same code to former code!"
         else:
-            raise CoderError("Failed to generate a new workflow code.")
+                raise CoderError("Failed to generate a new workflow code.")
 
         return {"main.py": workflow_code}
 
@@ -101,6 +106,7 @@ class WorkflowMultiProcessEvolvingStrategy(MultiProcessEvolvingStrategy):
         The code list is aligned with the evolving item's sub-tasks.
         If a task is not implemented, put a None in the list.
         """
+        
         for index in range(len(evo.sub_tasks)):
             if code_list[index] is None:
                 continue
@@ -111,6 +117,7 @@ class WorkflowMultiProcessEvolvingStrategy(MultiProcessEvolvingStrategy):
         return evo
 
 
+
 class WorkflowCoSTEER(CoSTEER):
     def __init__(
         self,
@@ -118,10 +125,13 @@ class WorkflowCoSTEER(CoSTEER):
         *args,
         **kwargs,
     ) -> None:
+
         settings = DSCoderCoSTEERSettings()
         eva = CoSTEERMultiEvaluator(
             WorkflowGeneralCaseSpecEvaluator(scen=scen), scen=scen
         )  # Please specify whether you agree running your eva in parallel or not
+
+
         es = WorkflowMultiProcessEvolvingStrategy(scen=scen, settings=settings)
         super().__init__(
             *args,
@@ -133,3 +143,4 @@ class WorkflowCoSTEER(CoSTEER):
             max_loop=DS_RD_SETTING.coder_max_loop,
             **kwargs,
         )
+

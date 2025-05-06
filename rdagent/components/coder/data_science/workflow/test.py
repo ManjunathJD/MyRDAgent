@@ -15,7 +15,7 @@ from rdagent.scenarios.data_science.experiment.experiment import DSExperiment
 from rdagent.scenarios.data_science.scen import KaggleScen
 
 
-def develop_one_competition(competition: str):
+def develop_one_competition(competition: str) -> None:
     scen = KaggleScen(competition=competition)
     workflow_coder = WorkflowCoSTEER(scen)
 
@@ -25,13 +25,18 @@ def develop_one_competition(competition: str):
         base_code="",
     )
 
-    tpl_ex_path = Path(__file__).parent.parent.parent.parent.resolve() / Path("rdagent/scenarios/kaggle/tpl_ex").resolve() / competition
+    tpl_ex_path = (
+        Path(__file__).parent.parent.parent.parent.resolve()
+        / Path("rdagent/scenarios/kaggle/tpl_ex").resolve()
+        / competition
+    )
     injected_file_names = ["spec/workflow.md", "load_data.py", "feature.py", "model01.py", "ensemble.py", "main.py"]
 
     workflowexp = FBWorkspace()
     for file_name in injected_file_names:
         file_path = tpl_ex_path / file_name
-        workflowexp.inject_files(**{file_name: file_path.read_text()})
+        if file_path.exists():
+            workflowexp.inject_files(**{file_name: file_path.read_text()})
 
     wt.base_code += workflowexp.file_dict["main.py"]
     exp = DSExperiment(
@@ -49,11 +54,10 @@ def develop_one_competition(competition: str):
     # Run the experiment
     for file_name in injected_file_names:
         file_path = tpl_ex_path / file_name
-        exp.experiment_workspace.inject_files(**{file_name: file_path.read_text()})
+        if file_path.exists():
+            exp.experiment_workspace.inject_files(**{file_name: file_path.read_text()})
 
     exp = workflow_coder.develop(exp)
 
-
 if __name__ == "__main__":
     develop_one_competition("aerial-cactus-identification")
-    # dotenv run -- python rdagent/components/coder/data_science/workflow/test.py

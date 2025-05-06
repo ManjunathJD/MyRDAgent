@@ -51,7 +51,7 @@ def python_files_to_notebook(competition: str, py_dir: str):
     train_py = train_py.replace("from fea_share_preprocess import preprocess_script", "")
     train_py = train_py.replace("DIRNAME = Path(__file__).absolute().resolve().parent", "")
 
-    fea_cls_list_str = "[" + ", ".join(list(fea_pys.keys())) + "]"
+    fea_cls_list_str = "[" + ", ".join(list(fea_pys.keys())) + "]"    
     train_py = train_py.replace(
         'for f in DIRNAME.glob("feature/feat*.py"):', f"for cls in {fea_cls_list_str}:").replace(
             "cls = import_module_from_path(f.stem, f).feature_engineering_cls()", ""
@@ -69,10 +69,8 @@ def python_files_to_notebook(competition: str, py_dir: str):
         .replace("select_m.select", "select_m").replace("mc.", "")
         .replace("[2].select", "[2]")
     )
-    train_py = train_py.replace(" mc().", "").replace(").", ")")
-    train_py = train_py.replace(".feature_engineering_cls()", "")
+    train_py = train_py.replace(" mc().", "").replace(").", "").replace(".feature_engineering_cls()", "")
     )
-
     nb = nbf.v4.new_notebook()
     all_py = ""
 

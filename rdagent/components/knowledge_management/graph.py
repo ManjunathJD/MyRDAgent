@@ -24,8 +24,19 @@ Node = KnowledgeMetaData
 
 
 class UndirectedNode(Node):
-    def __init__(self, content: str = "", label: str = "", embedding: Any = None, appendix: Any = None) -> None:
-        super().__init__(content, label, embedding)
+    def __init__(
+        self,
+        content: str = "",
+        label: str = "",
+        embedding: Any = None,
+        appendix: Any = None,
+    ) -> None:
+        """
+        Constructor for the UndirectedNode class.
+        Initializes a new undirected node with the given content, label, embedding and appendix.
+        """
+        super().__init__(content=content, label=label, embedding=embedding)
+
         self.neighbors: set[UndirectedNode] = set()
         self.appendix = appendix  # appendix stores any additional information
         assert isinstance(content, str), "content must be a string"
@@ -52,10 +63,6 @@ class UndirectedNode(Node):
         return (
             f"UndirectedNode(id={self.id}, label={self.label}, content={self.content[:100]}, "
             f"neighbors={self.neighbors})"
-        )
-    
-    if sys.version_info >= (3, 13):
-        @override
         )
 
 
@@ -106,9 +113,9 @@ class Graph(KnowledgeBase):
 
         assert len(nodes) == len(embeddings), "nodes' length must equals embeddings' length"
         for node, embedding in zip(nodes, embeddings):
-            node.embedding = embedding
+            node.embedding = embedding    
         return nodes
-
+    
     def __str__(self) -> str:
         return f"Graph(nodes={self.nodes})"
 
@@ -125,9 +132,10 @@ class UndirectedGraph(Graph):
     def __str__(self) -> str:
         return f"UndirectedGraph(nodes={self.nodes})"
 
-    if sys.version_info >= (3, 13):
+    if sys.version_info >= (3, 13):  # pragma: no cover
+
         @override
-    )
+        pass
 
     def add_node(
         self,
@@ -174,7 +182,7 @@ class UndirectedGraph(Graph):
                 # else:
                 neighbor.create_embedding()
                 self.vector_base.add(document=neighbor)
-                self.nodes.update({neighbor.id: neighbor})
+                self.nodes.update({neighbor.id: neighbor}) 
 
             node.add_neighbor(neighbor)
 
@@ -205,10 +213,11 @@ class UndirectedGraph(Graph):
         if match:
             return match[0]
         return None
-    
-    if sys.version_info >= (3, 13):
+
+    if sys.version_info >= (3, 13):  # pragma: no cover
+
         @override
-    )
+        pass
 
     def get_nodes_within_steps(
         self,
@@ -254,21 +263,29 @@ class UndirectedGraph(Graph):
         steps: int = 1,
         constraint_labels: list[str] | None = None,
     ) -> list[UndirectedNode]:
+        """Get the intersection with nodes connected within n steps of nodes.
+
+        This method calculates the intersection of nodes reachable from a given set of nodes within a certain number of steps.
+        It uses a breadth-first search approach to find all connected nodes from each node in the input list.
+        Then, it computes the intersection of these reachable nodes to find the common nodes.
+
+        Args:
+            nodes (list[UndirectedNode]): The list of nodes from which to start the search.
+            steps (int, optional): The maximum number of steps to traverse from each node. Defaults to 1.
+            constraint_labels (list[str] | None, optional): A list of labels to constrain the search.
+                If provided, only nodes with matching labels will be considered. Defaults to None.
+
+        Returns:
+            list[UndirectedNode]: A list of nodes that are within the specified number of steps from all input nodes.
+                If constraint_labels is provided, only nodes with matching labels are included.
+                The returned list represents the intersection of reachable nodes from all input nodes.
+
+        Raises:
+            AssertionError: If the length of the input nodes list is less than 2.
         """
-        Get the intersection with nodes connected within n steps of nodes
 
-        Parameters
-        ----------
-        nodes
-        steps
-        constraint_labels
-
-        Returns
-        -------
-
-        """
         min_nodes_count = 2
-        assert len(nodes) >= min_nodes_count, "nodes length must >=2"
+        assert len(nodes) >= min_nodes_count, "nodes length must >= 2"
         intersection = None
 
         for node in nodes:
@@ -441,10 +458,11 @@ class UndirectedGraph(Graph):
                 [node for node in connected_nodes[:topk_k] if node not in res_list],
             )
         return res_list
-    
-    if sys.version_info >= (3, 13):
+
+    if sys.version_info >= (3, 13):  # pragma: no cover
+
         @override
-    )
+        pass
 
     @staticmethod
     def intersection(nodes1: list[UndirectedNode], nodes2: list[UndirectedNode]) -> list[UndirectedNode]:

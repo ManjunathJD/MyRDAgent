@@ -137,8 +137,6 @@ class ObjectsTabsWindow(StWindow):
                 timestamp=msg.timestamp,
                 caller=msg.caller,
                 pid_trace=msg.pid_trace,
-                
-                tag = msg.tag,
                 content=obj,
             )
             self.inner_class(tabs[id]).consume_msg(splited_msg)

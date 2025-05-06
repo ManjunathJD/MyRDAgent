@@ -4,7 +4,13 @@
   # Which nixpkgs channel to use.
   channel = "stable-24.05"; # or "unstable"
   # Use https://search.nixos.org/packages to find packages
-  packages = [ pkgs.python3 ];
+  packages = [
+    pkgs.python312                            # CPython 3.12 interpreter :contentReference[oaicite:0]{index=0}
+    pkgs.python312Packages.pip                # pip for Python 3.12 :contentReference[oaicite:1]{index=1}
+    pkgs.docker                                # Docker CLI & daemon support :contentReference[oaicite:0]{index=0}
+    pkgs.docker-compose                        # Docker Compose plugin :contentReference[oaicite:1]{index=1}
+  ];
+  services.docker.enable = true;
   idx = {
     # Search for the extensions you want on https://open-vsx.org/ and use "publisher.id"
     extensions = [ "ms-python.python" ];

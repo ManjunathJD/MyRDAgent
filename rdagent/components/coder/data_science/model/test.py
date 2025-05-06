@@ -20,18 +20,20 @@ def develop_one_competition(competition: str):
     scen = KaggleScen(competition=competition)
     model_coder = ModelCoSTEER(scen)
 
-    # Create the task
+    # Create the model task
     mt = ModelTask(
         name="ModelTask",
         description="A CNN Model",
         model_type="CNN",
-        architecture="\hat{y}_u = CNN(X_u)",
+        architecture="\\hat{y}_u = CNN(X_u)",
         # variables="variables: {'\\hat{y}_u': 'The predicted output for node u', 'X_u': 'The input features for node u'}",
         hyperparameters="...",
         base_code="",
     )
 
-    tpl_ex_path = Path(__file__).parent.parent.parent.parent.resolve() / Path("rdagent/scenarios/kaggle/tpl_ex").resolve() / competition
+    tpl_ex_path = (
+        Path(__file__).parent.parent.parent.parent.resolve() / Path("rdagent/scenarios/kaggle/tpl_ex").resolve() / competition
+    )
     injected_file_names = ["spec/model.md", "load_data.py", "feature.py", "model01.py"]
 
     modelexp = FBWorkspace()
@@ -58,6 +60,7 @@ def develop_one_competition(competition: str):
     for file_name in injected_file_names:
         file_path = tpl_ex_path / file_name
         exp.experiment_workspace.inject_files(**{file_name: file_path.read_text()})
+        
 
     exp = model_coder.develop(exp)
 

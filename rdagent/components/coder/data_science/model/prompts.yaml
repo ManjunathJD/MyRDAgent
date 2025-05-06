@@ -5,14 +5,14 @@ model_coder:
 
     ## Task Description
     {{ task_desc }}
-    
+
     ## Competition Information for This Task
     {{ competition_info }}
 
     {% if queried_similar_successful_knowledge|length != 0 or queried_former_failed_knowledge|length != 0 %}
     ## Relevant Information for This Task
     {% endif %}
-    
+
     {% if queried_similar_successful_knowledge|length != 0 %}
     --------- Successful Implementations for Similar Models ---------
     ====={% for similar_successful_knowledge in queried_similar_successful_knowledge %} Model {{ loop.index }}:=====
@@ -20,7 +20,7 @@ model_coder:
     =====Code:=====
     {{ similar_successful_knowledge.implementation.file_dict[similar_successful_knowledge.target_task.name ~ '.py'] }}
     {% endfor %} 
-    {% endif %}
+    {% endif %} 
 
     {% if queried_former_failed_knowledge|length != 0 %}
     --------- Previous Failed Attempts ---------
@@ -31,7 +31,7 @@ model_coder:
     {{ former_failed_knowledge.feedback }}
     {% endfor %}
     {% endif %}
-
+    
     ## Guidelines
     1. The function's input is from the output of a feature engineering function whose input is the output of a data loading function. The data loader function and feature engineering function code is as follows:
     --------- Data Loader Code ---------

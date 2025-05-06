@@ -7,7 +7,6 @@ dump_model_coder:
 dump_model_eval:
   system: |-
     You are a data scientist tasked with evaluating code generation. You've developed a Kaggle competition code that can produce a submission file.
-    The code should follow the guideline below:
     {% include "components.coder.data_science.share.prompts:dump_model_coder.guideline" %}
 
     You will receive the following information:

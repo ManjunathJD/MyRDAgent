@@ -24,6 +24,7 @@ class DSCoderCoSTEERSettings(CoSTEERSettings):
     # TODO: extract a function for env and conf.
 
 
+
 def get_ds_env(
     conf_type: Literal["kaggle", "mlebench"] = "kaggle",
     extra_volumes: Dict = {},
@@ -38,30 +39,29 @@ def get_ds_env(
     Raises:
         ValueError: If the env_type is not recognized.
     """
-    conf = DSCoderCoSTEERSettings()
+    settings = DSCoderCoSTEERSettings()
     assert conf_type in ["kaggle", "mlebench"], f"Unknown conf_type: {conf_type}"
 
-    if conf.env_type == "docker":
+    if settings.env_type == "docker":
         env_conf = DSDockerConf() if conf_type == "kaggle" else MLEBDockerConf()
-        env = DockerEnv(conf=env_conf)
-    elif conf.env_type == "conda":
-        env = LocalEnv(
-            conf=(
-                CondaConf(conda_env_name=conf_type) if conf_type == "kaggle" else MLECondaConf(conda_env_name=conf_type)
-            ),
-            extra_volumes=extra_volumes,
-            running_timeout_period=running_timeout_period,
-        )
+        env = DockerEnv(conf=env_conf,extra_volumes=extra_volumes,running_timeout_period=running_timeout_period)
+    elif settings.env_type == "conda":
+      env = LocalEnv(
+          conf=(
+              CondaConf(conda_env_name=conf_type) if conf_type == "kaggle" else MLECondaConf(conda_env_name=conf_type)
+          ),
+          extra_volumes=extra_volumes,
+          running_timeout_period=running_timeout_period,
+      )
     else:
-        raise ValueError(f"Unknown env type: {conf.env_type}")
-    env.conf.extra_volumes = extra_volumes
-    env.conf.running_timeout_period = running_timeout_period
+        raise ValueError(f"Unknown env type: {settings.env_type}")
+
     return env
 
 
 def get_clear_ws_cmd(stage: Literal["before_training", "before_inference"] = "before_training") -> str:
     """
-    Clean the files in workspace to a specific stage
+    Clean the files in workspace to a specific stage.
     """
     assert stage in ["before_training", "before_inference"], f"Unknown stage: {stage}"
     if DS_RD_SETTING.enable_model_dump and stage == "before_training":

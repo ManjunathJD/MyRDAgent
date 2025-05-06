@@ -97,11 +97,13 @@ def classify_report_from_dict(
 
 def __extract_factors_name_and_desc_from_content(
     content: str) -> dict[str, dict[str, str]]:
+    
+    session = APIBackend().build_chat_session(
         session_system_prompt=document_process_prompts["extract_factors_system"],
     )
 
     extracted_factor_dict = {}
-    current_user_prompt = content
+    current_user_prompt = content   
 
     for _ in range(10):
         extract_result_resp = session.build_chat_completion(

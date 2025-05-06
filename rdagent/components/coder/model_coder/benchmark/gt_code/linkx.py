@@ -14,13 +14,13 @@ class SparseLinear(MessagePassing):
     def __init__(self, in_channels: int, out_channels: int, bias: bool = True):
         super().__init__(aggr="add")
         self.in_channels = in_channels
-        self.out_channels = out_channels
+        self.out_channels = out_channels 
 
         self.weight = Parameter(torch.empty(in_channels, out_channels))
         if bias:
             self.bias = Parameter(torch.empty(out_channels))
         else:
-            self.register_parameter("bias", None)
+            self.register_parameter('bias', None)
 
         self.reset_parameters()
 
@@ -33,18 +33,18 @@ class SparseLinear(MessagePassing):
         edge_index: Adj,
         edge_weight: OptTensor = None,
     ) -> Tensor:
-        # propagate_type: (weight: Tensor, edge_weight: OptTensor)
+        # propagate_type: (weight: Tensor, edge_weight: OptTensor)        
         out = self.propagate(edge_index, weight=self.weight, edge_weight=edge_weight)
 
         if self.bias is not None:
             out = out + self.bias
-
+        
         return out
 
     def message(self, weight_j: Tensor, edge_weight: OptTensor) -> Tensor:
         if edge_weight is None:
             return weight_j
-        else:
+        else: 
             return edge_weight.view(-1, 1) * weight_j
 
     def message_and_aggregate(self, adj_t: Adj, weight: Tensor) -> Tensor:
@@ -98,8 +98,7 @@ class LINKX(torch.nn.Module):
     ):
         super().__init__()
 
-        if x is not None:
-        self.num_nodes = num_nodes
+        self.num_nodes = num_nodes 
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.num_edge_layers = num_edge_layers
@@ -150,10 +149,10 @@ class LINKX(torch.nn.Module):
             out = out.relu_()
             out = self.edge_norm(out)
             out = self.edge_mlp(out)
-
+        
         out = out + self.cat_lin1(out)
-
-        if x is not None:
+        
+        if x is not None: 
             x = self.node_mlp(x)
             out = out + x
             out = out + self.cat_lin2(x)
@@ -173,16 +172,16 @@ model_cls = LINKX
 if __name__ == "__main__":
     node_features = torch.load("node_features.pt")
     edge_index = torch.load("edge_index.pt")
-
+    
     # Model instantiation and forward pass
-    model = LINKX(
+    model = LINKX( 
         num_nodes=node_features.size(0),
         in_channels=node_features.size(1),
         hidden_channels=node_features.size(1),
         out_channels=node_features.size(1),
         num_layers=1,
     )
-    output = model(node_features, edge_index)
+    output = model(node_features, edge_index) 
 
     # Save output to a file
     torch.save(output, "gt_output.pt")

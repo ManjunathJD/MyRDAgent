@@ -171,8 +171,8 @@ def get_msgs_until(end_func: Callable[[Message], bool] = lambda _: True):
                             sms.name = "alpha158"
                             state.alpha158_metrics = sms
 
-                        if (            
-                            state.lround == 1
+                        if (
+                            state.lround == 1 
                             and len(msg.content.based_experiments) > 0
                             and msg.content.based_experiments[-1].result is not None
                         ):
@@ -187,7 +187,7 @@ def get_msgs_until(end_func: Callable[[Message], bool] = lambda _: True):
                             state.metric_series.append(sms)
 
                         # common metrics
-                        if msg.content.result is None:
+                        if msg.content.result is None: 
                             if isinstance(state.scenario, DMModelScenario):
                                 state.metric_series.append(
                                     pd.Series([None], index=["AUROC"], name=f"Round {state.lround}")
@@ -211,8 +211,8 @@ def get_msgs_until(end_func: Callable[[Message], bool] = lambda _: True):
                         if "evolving code" in tags:
                             msg.content = [i for i in msg.content if i]
                         if "evolving feedback" in tags:
-                            total_len = len(msg.content)            
-                            none_num = total_len - len(msg.content)
+                            total_len = len(msg.content)
+                            none_num = total_len - len(msg.content)                            
                             right_num = 0
                             for wsf in msg.content:
                                 if wsf.final_decision:

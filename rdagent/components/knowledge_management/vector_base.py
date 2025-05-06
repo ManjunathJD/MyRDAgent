@@ -192,12 +192,11 @@ class PDVectorBase(VectorBase):
         if constraint_labels is not None:
             filtered_df = self.vector_df[self.vector_df["label"].isin(constraint_labels)]
 
-        similarities = filtered_df["embedding"].apply(lambda x: (
-            1 - cosine(np.array(x), np.array(document.embedding))
-            if not isinstance(x, numpy.ndarray) or not isinstance(document.embedding, numpy.ndarray)
-            else (1-cosine(x, document.embedding))
-
-        )  # cosine is cosine distance, 1-similarity
+        similarities = filtered_df["embedding"].apply(lambda x: (1 - cosine(np.array(x), np.array(document.embedding)))
+        if not isinstance(x, numpy.ndarray) or not isinstance(document.embedding, numpy.ndarray)
+        else (1 - cosine(x, document.embedding))
+        )
+        # cosine is cosine distance, 1-similarity
 
         searched_similarities = similarities[similarities > similarity_threshold]
         if topk_k is not None:
