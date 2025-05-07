@@ -209,10 +209,10 @@ if total_pages > 0:
             label_visibility="collapsed",  # 隐藏标签
         )
     with col4:
-        if st.button("\>") and st.session_state["current_loop"] < total_loops:  # 下一页
+        if st.button(r"\>") and st.session_state["current_loop"] < total_loops:  # 下一页
             st.session_state["current_loop"] += 1
     with col5:
-        if st.button("\>|"):  # 最后一页
+        if st.button(r"\>|"):  # 最后一页
             st.session_state["current_loop"] = total_loops
 
     # 获取当前 Loop

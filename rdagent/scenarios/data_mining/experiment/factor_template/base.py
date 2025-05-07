@@ -1,7 +1,24 @@
-# rdagent/scenarios/data_mining/experiment/factor_template/utils.py
-
+from abc import ABC, abstractmethod
 import pandas as pd
 import numpy as np
+
+class FactorBase(ABC):
+    """
+    Abstract base class for factor generation.
+    """
+    @abstractmethod
+    def factor(self, data, params):
+        """
+        Generate factor values from input data.
+        
+        Args:
+            data: Input data for factor calculation
+            params: Parameters for factor calculation
+            
+        Returns:
+            Calculated factor values
+        """
+        pass
 
 def generate_random_factor_data(num_rows=100, num_cols=5, data_type='float'):
     """
@@ -76,7 +93,7 @@ def infer_factor(factor_data, model):
         # Implement the logic here if a model is provided
         pass
 
-def predict_factor(factor_data, model):
+def predict_factor(ffactor_data, model):
     """
     Predict with a given model.
     Args:
